@@ -8,306 +8,317 @@
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: #f8fafc;
-      color: var(--color-text-primary);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0f172a;
     }
 
-    .login-wrapper {
-      flex: 1;
+    /* ── Split layout ─────────────── */
+    .login-split {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--space-8) var(--space-4);
-    }
-
-    .login-card {
       width: 100%;
-      max-width: 420px;
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      padding: var(--space-8);
-      animation: fadeIn 150ms ease-out;
+      min-height: 100vh;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .brand-section {
-      text-align: center;
-      margin-bottom: var(--space-8);
-    }
-
-    .brand-badge-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--color-accent);
-      border-radius: var(--radius-md);
-      display: inline-flex;
-      align-items: center;
+    /* ── LEFT PANEL ─────────────────── */
+    .login-left {
+      flex: 1;
+      background: linear-gradient(145deg, #1e3a8a 0%, #312e81 40%, #4c1d95 80%, #1e1b4b 100%);
+      display: flex;
+      flex-direction: column;
       justify-content: center;
-      color: #ffffff;
-      margin-bottom: var(--space-4);
-      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
-    }
-
-    .brand-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--color-text-primary);
-      letter-spacing: -0.02em;
-      margin-bottom: var(--space-2);
-    }
-
-    .brand-sub {
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      line-height: 1.5;
-    }
-
-    .input-wrapper {
+      padding: 60px 52px;
       position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative blobs */
+    .login-left::before {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      background: rgba(99,102,241,0.25);
+      border-radius: 50%;
+      top: -100px; left: -100px;
+      filter: blur(80px);
+    }
+    .login-left::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      background: rgba(167,139,250,0.2);
+      border-radius: 50%;
+      bottom: -80px; right: -80px;
+      filter: blur(60px);
+    }
+
+    .login-left-content { position: relative; z-index: 1; }
+
+    .brand-logo {
       display: flex;
       align-items: center;
+      gap: 14px;
+      margin-bottom: 56px;
+    }
+    .brand-logo-icon {
+      width: 48px; height: 48px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+    .brand-logo-icon svg { width: 24px; height: 24px; color: #fff; }
+    .brand-logo-text { font-size: 16px; font-weight: 700; color: #fff; line-height: 1.2; letter-spacing: -0.02em; }
+    .brand-logo-sub  { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+    .left-headline {
+      font-size: 36px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+    .left-headline span { color: #a5b4fc; }
+
+    .left-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.65;
+      max-width: 360px;
+      margin-bottom: 48px;
     }
 
+    .feature-list { display: flex; flex-direction: column; gap: 16px; }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .feature-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-icon svg { width: 16px; height: 16px; color: #a5b4fc; }
+    .feature-text { font-size: 13px; color: rgba(255,255,255,0.75); font-weight: 500; }
+
+    .left-footer {
+      margin-top: 60px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ── RIGHT PANEL ─────────────────── */
+    .login-right {
+      width: 460px;
+      flex-shrink: 0;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 52px 48px;
+      overflow-y: auto;
+    }
+
+    .right-header { margin-bottom: 36px; }
+    .right-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .right-sub { font-size: 14px; color: #64748b; }
+
+    /* Form elements */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+
+    .input-wrapper { position: relative; display: flex; align-items: center; }
     .input-icon-left {
       position: absolute;
-      left: var(--space-3);
-      color: var(--color-text-muted);
+      left: 13px;
+      color: #94a3b8;
       pointer-events: none;
       display: flex;
-      align-items: center;
     }
+    .input-icon-left svg { width: 16px; height: 16px; }
 
-    .input-wrapper .form-control {
-      padding-left: 38px;
-      padding-right: 38px;
-      height: 40px;
-      font-size: 13px;
+    .input-field {
+      width: 100%;
+      height: 44px;
+      padding: 0 42px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0f172a;
+      background: #f8fafc;
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
     }
+    .input-field:focus {
+      border-color: #6366f1;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
+    }
+    .input-field::placeholder { color: #cbd5e1; }
 
     .input-action-btn {
       position: absolute;
-      right: var(--space-3);
+      right: 13px;
       background: none;
       border: none;
-      color: var(--color-text-muted);
+      color: #94a3b8;
       cursor: pointer;
       display: flex;
-      align-items: center;
       padding: 0;
-      transition: color var(--transition);
+      transition: color 150ms;
     }
+    .input-action-btn:hover { color: #475569; }
+    .input-action-btn svg { width: 16px; height: 16px; }
 
-    .input-action-btn:hover {
-      color: var(--color-text-primary);
-    }
-
-    .login-btn {
-      width: 100%;
-      height: 42px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      border-radius: var(--radius-md);
-      background: var(--color-accent);
-      color: #fff;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: background var(--transition), box-shadow var(--transition);
-    }
-
-    .login-btn:hover {
-      background: var(--color-accent-hover);
-      box-shadow: 0 2px 4px rgba(29, 78, 216, 0.25);
-    }
-
-    .login-btn:active {
-      transform: translateY(1px);
-    }
-
+    /* Auth alert */
     .auth-alert {
       display: none;
       align-items: flex-start;
-      gap: var(--space-3);
-      padding: var(--space-3) var(--space-4);
-      border-radius: var(--radius-md);
-      font-size: 12px;
-      margin-bottom: var(--space-5);
-      border: 1px solid;
-    }
-
-    .auth-alert-error {
-      background: var(--color-danger-bg);
-      border-color: #fecaca;
-      color: var(--color-danger);
-    }
-
-    .auth-alert-success {
-      background: var(--color-success-bg);
-      border-color: #bbf7d0;
-      color: var(--color-success);
-    }
-
-    .divider-text {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: var(--color-text-muted);
-      font-size: 11px;
-      font-weight: 500;
-      margin: var(--space-6) 0;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .divider-text::before,
-    .divider-text::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .divider-text::before {
-      margin-right: var(--space-3);
-    }
-
-    .divider-text::after {
-      margin-left: var(--space-3);
-    }
-
-    .sso-btn {
-      width: 100%;
-      height: 40px;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
       font-size: 13px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-3);
-      border-radius: var(--radius-md);
-      background: var(--color-surface);
-      color: var(--color-text-primary);
-      border: 1px solid var(--color-border);
-      cursor: pointer;
-      transition: background var(--transition), border-color var(--transition);
+      margin-bottom: 20px;
+      border: 1.5px solid;
     }
+    .auth-alert-error  { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .auth-alert-success{ background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+    .auth-alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
 
-    .sso-btn:hover {
-      background: var(--color-surface-2);
-      border-color: #d1d5db;
-    }
-
+    /* Options row */
     .form-options {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: var(--space-6);
-      font-size: 12px;
+      margin-bottom: 22px;
+      font-size: 13px;
     }
-
     .checkbox-label {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      color: var(--color-text-secondary);
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-      width: 15px;
-      height: 15px;
-      accent-color: var(--color-accent);
-      cursor: pointer;
-    }
-
-    .forgot-link {
-      color: var(--color-accent);
-      font-weight: 500;
-      text-decoration: none;
-    }
-
-    .forgot-link:hover {
-      text-decoration: underline;
-    }
-
-    .login-footer {
-      text-align: center;
-      padding: var(--space-6);
-      font-size: 12px;
-      color: var(--color-text-muted);
-      border-top: 1px solid var(--color-border);
-    }
-
-    .login-footer-links {
       display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #475569;
+      cursor: pointer;
+    }
+    .checkbox-label input[type="checkbox"] {
+      width: 15px; height: 15px;
+      accent-color: #6366f1;
+      cursor: pointer;
+    }
+    .forgot-link { color: #6366f1; font-weight: 600; text-decoration: none; }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* Submit button */
+    .login-btn {
+      width: 100%;
+      height: 46px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
       justify-content: center;
-      gap: var(--space-4);
-      margin-top: var(--space-2);
+      gap: 8px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: opacity 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+      box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+      letter-spacing: -0.01em;
     }
+    .login-btn:hover  { opacity: 0.92; box-shadow: 0 6px 18px rgba(99,102,241,0.4); }
+    .login-btn:active { transform: translateY(1px); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .login-btn svg { width: 16px; height: 16px; }
 
-    .login-footer-links a {
-      color: var(--color-text-secondary);
-      text-decoration: none;
-    }
-
-    .login-footer-links a:hover {
-      color: var(--color-text-primary);
-      text-decoration: underline;
-    }
-
-    /* Discreet quick-fill helper */
-    .credentials-helper {
-      margin-top: var(--space-6);
-      padding-top: var(--space-4);
-      border-top: 1px solid var(--color-border-soft);
+    /* Divider */
+    .divider-text {
+      display: flex; align-items: center;
       text-align: center;
+      color: #94a3b8;
+      font-size: 12px; font-weight: 500;
+      margin: 22px 0;
+      text-transform: uppercase; letter-spacing: 0.07em;
     }
+    .divider-text::before, .divider-text::after { content: ''; flex: 1; border-bottom: 1px solid #e2e8f0; }
+    .divider-text::before { margin-right: 12px; }
+    .divider-text::after  { margin-left: 12px; }
 
+    /* SSO button */
+    .sso-btn {
+      width: 100%;
+      height: 44px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #334155;
+      border: 1.5px solid #e2e8f0;
+      cursor: pointer;
+      transition: background 150ms, border-color 150ms;
+    }
+    .sso-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .sso-btn svg { width: 16px; height: 16px; }
+
+    /* Quick fill helper */
+    .credentials-helper {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #f1f5f9;
+    }
     .helper-toggle {
-      font-size: 11px;
-      color: var(--color-text-muted);
+      font-size: 12px;
+      color: #94a3b8;
       background: none;
       border: none;
       cursor: pointer;
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
+      gap: 5px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: color 150ms, background 150ms;
+      width: 100%;
+      justify-content: center;
     }
-
-    .helper-toggle:hover {
-      color: var(--color-text-secondary);
-      background: var(--color-surface-2);
-    }
+    .helper-toggle:hover { color: #475569; background: #f1f5f9; }
+    .helper-toggle svg { width: 12px; height: 12px; }
 
     .helper-dropdown {
       display: none;
-      margin-top: var(--space-3);
-      padding: var(--space-3);
-      background: var(--color-surface-2);
-      border-radius: var(--radius-md);
-      font-size: 11px;
-      text-align: left;
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
     }
-
-    .helper-dropdown.show {
-      display: block;
+    .helper-dropdown.show { display: block; }
+    .helper-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 8px;
     }
 
     .quick-account-btn {
@@ -315,59 +326,128 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 6px 8px;
-      margin-bottom: 4px;
+      padding: 8px 10px;
+      margin-bottom: 5px;
       background: #fff;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      font-size: 11px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: inherit;
       cursor: pointer;
       text-align: left;
-      transition: background var(--transition);
+      transition: all 150ms;
+      color: #334155;
     }
-
-    .quick-account-btn:last-child {
-      margin-bottom: 0;
-    }
-
+    .quick-account-btn:last-child { margin-bottom: 0; }
     .quick-account-btn:hover {
-      background: var(--color-accent-light);
-      border-color: #bfdbfe;
+      background: #eff0ff;
+      border-color: #c7d2fe;
+      color: #3730a3;
+    }
+    .quick-account-btn strong { font-weight: 700; }
+
+    /* role pill tags in quick fill */
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .rp-admin   { background: #f3e8ff; color: #6d28d9; }
+    .rp-officer { background: #eff6ff; color: #1d4ed8; }
+    .rp-faculty { background: #fffbeb; color: #b45309; }
+    .rp-student { background: #f0fdf4; color: #166534; }
+
+    /* Right footer */
+    .right-footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .right-footer a { color: #6366f1; text-decoration: none; }
+    .right-footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .login-left { display: none; }
+      .login-right { width: 100%; padding: 40px 28px; }
     }
   </style>
 </head>
 <body>
 
-<div class="login-wrapper">
-  <div class="login-card">
+<div class="login-split">
 
-    <!-- Brand Header -->
-    <div class="brand-section">
-      <div class="brand-badge-icon">
-        <i data-lucide="graduation-cap" style="width: 24px; height: 24px;"></i>
+  <!-- ── LEFT PANEL ────────────────────────────── -->
+  <div class="login-left">
+    <div class="login-left-content">
+
+      <div class="brand-logo">
+        <div class="brand-logo-icon">
+          <i data-lucide="graduation-cap"></i>
+        </div>
+        <div>
+          <div class="brand-logo-text">Student Org</div>
+          <div class="brand-logo-sub">Management Platform</div>
+        </div>
       </div>
-      <h1 class="brand-title">Sign In</h1>
-      <p class="brand-sub">Student Organization Management Platform</p>
+
+      <h1 class="left-headline">One platform,<br><span>every campus org.</span></h1>
+      <p class="left-sub">Manage clubs, reserve facilities, track events, and connect with your university community — all in one place.</p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon"><i data-lucide="users"></i></div>
+          <span class="feature-text">Organization Directory & Club Profiles</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i data-lucide="calendar-check"></i></div>
+          <span class="feature-text">Facility Booking & Venue Management</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i data-lucide="ticket"></i></div>
+          <span class="feature-text">Events Calendar & QR Attendance Passes</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon"><i data-lucide="megaphone"></i></div>
+          <span class="feature-text">Campus Announcements & Notifications</span>
+        </div>
+      </div>
+
+      <div class="left-footer">© 2026 Student Organization Management Platform. All rights reserved.</div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ────────────────────────────── -->
+  <div class="login-right">
+
+    <div class="right-header">
+      <div class="right-title">Welcome back</div>
+      <div class="right-sub">Sign in to your campus account to continue.</div>
     </div>
 
     <!-- Alert Message -->
     <div id="auth-alert" class="auth-alert auth-alert-error" role="alert">
-      <i data-lucide="alert-circle" style="width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;"></i>
+      <i data-lucide="alert-circle"></i>
       <span id="auth-alert-message">Invalid email or password.</span>
     </div>
 
     <!-- Login Form -->
     <form id="form-login" novalidate>
-      <div class="form-group" style="margin-bottom: var(--space-4);">
+
+      <div class="form-group">
         <label class="form-label" for="input-email">Institutional Email</label>
         <div class="input-wrapper">
-          <span class="input-icon-left">
-            <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
-          </span>
+          <span class="input-icon-left"><i data-lucide="mail"></i></span>
           <input
             type="email"
             id="input-email"
-            class="form-control"
+            class="input-field"
             placeholder="you@campus.edu"
             autocomplete="email"
             required
@@ -376,29 +456,21 @@
         </div>
       </div>
 
-      <div class="form-group" style="margin-bottom: var(--space-4);">
+      <div class="form-group">
         <label class="form-label" for="input-password">Password</label>
         <div class="input-wrapper">
-          <span class="input-icon-left">
-            <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
-          </span>
+          <span class="input-icon-left"><i data-lucide="lock"></i></span>
           <input
             type="password"
             id="input-password"
-            class="form-control"
+            class="input-field"
             placeholder="Enter your password"
             autocomplete="current-password"
             required
             value="password123"
           />
-          <button
-            type="button"
-            id="btn-toggle-password"
-            class="input-action-btn"
-            title="Show password"
-            aria-label="Toggle password visibility"
-          >
-            <i data-lucide="eye" id="icon-eye" style="width: 16px; height: 16px;"></i>
+          <button type="button" id="btn-toggle-password" class="input-action-btn" title="Show password" aria-label="Toggle password visibility">
+            <i data-lucide="eye" id="icon-eye"></i>
           </button>
         </div>
       </div>
@@ -413,75 +485,68 @@
 
       <button type="submit" id="btn-submit" class="login-btn">
         <span>Sign In</span>
-        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+        <i data-lucide="arrow-right"></i>
       </button>
 
       <div class="divider-text">or continue with</div>
 
       <button type="button" class="sso-btn" onclick="alert('Connecting to Campus Single Sign-On (SSO) Identity Provider…')">
-        <i data-lucide="key-round" style="width: 16px; height: 16px; color: var(--color-text-secondary);"></i>
+        <i data-lucide="key-round"></i>
         <span>Campus Single Sign-On (SSO)</span>
       </button>
 
-      <!-- Discreet Quick Demo Accounts Popover -->
+      <!-- Quick Demo Accounts -->
       <div class="credentials-helper">
         <button type="button" id="btn-toggle-helper" class="helper-toggle">
-          <i data-lucide="help-circle" style="width: 12px; height: 12px;"></i>
-          <span>Mock Credentials (Click to fill)</span>
+          <i data-lucide="chevrons-down"></i>
+          <span>Demo Accounts — Click to auto-fill</span>
         </button>
         <div id="helper-dropdown" class="helper-dropdown">
-          <div style="font-weight: 600; margin-bottom: 6px; color: var(--color-text-secondary);">Select an account to auto-fill:</div>
-          <button type="button" class="quick-account-btn" onclick="fillAccount('admin@campus.edu', 'password123')">
-            <span><strong>Admin:</strong> admin@campus.edu</span>
-            <span class="badge badge-purple" style="font-size: 9px;">Admin</span>
+          <div class="helper-label">Select a role to sign in as</div>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('admin@campus.edu','password123')">
+            <span><strong>Juan Miguel R.</strong> — admin@campus.edu</span>
+            <span class="role-pill rp-admin">Admin</span>
           </button>
-          <button type="button" class="quick-account-btn" onclick="fillAccount('officer@campus.edu', 'password123')">
-            <span><strong>Officer:</strong> officer@campus.edu</span>
-            <span class="badge badge-blue" style="font-size: 9px;">Officer</span>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('officer@campus.edu','password123')">
+            <span><strong>Maria Santos</strong> — officer@campus.edu</span>
+            <span class="role-pill rp-officer">Club Officer</span>
           </button>
-          <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@campus.edu', 'password123')">
-            <span><strong>Faculty:</strong> faculty@campus.edu</span>
-            <span class="badge badge-amber" style="font-size: 9px;">Faculty</span>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@campus.edu','password123')">
+            <span><strong>Dr. Roberto Diaz</strong> — faculty@campus.edu</span>
+            <span class="role-pill rp-faculty">Faculty</span>
           </button>
-          <button type="button" class="quick-account-btn" onclick="fillAccount('student@campus.edu', 'password123')">
-            <span><strong>Student:</strong> student@campus.edu</span>
-            <span class="badge badge-green" style="font-size: 9px;">Student</span>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('student@campus.edu','password123')">
+            <span><strong>Alex Rivera</strong> — student@campus.edu</span>
+            <span class="role-pill rp-student">Student</span>
           </button>
         </div>
       </div>
+
     </form>
+
+    <div class="right-footer">
+      By signing in you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.<br>
+      Need help? <a href="#">Contact Campus Helpdesk</a>
+    </div>
 
   </div>
 </div>
 
-<footer class="login-footer">
-  <div>Student Organization Management Platform &copy; 2026. All rights reserved.</div>
-  <div class="login-footer-links">
-    <a href="#">Privacy Policy</a>
-    <span>&bull;</span>
-    <a href="#">Terms of Service</a>
-    <span>&bull;</span>
-    <a href="#">Campus Helpdesk</a>
-  </div>
-</footer>
-
 <script src="js/auth.js"></script>
 <script>
-  // Initialize Lucide icons
   lucide.createIcons();
 
-  const form = document.getElementById('form-login');
-  const emailInput = document.getElementById('input-email');
-  const passwordInput = document.getElementById('input-password');
-  const submitBtn = document.getElementById('btn-submit');
-  const alertBox = document.getElementById('auth-alert');
-  const alertMsg = document.getElementById('auth-alert-message');
-  const togglePassBtn = document.getElementById('btn-toggle-password');
-  const eyeIcon = document.getElementById('icon-eye');
-  const helperToggle = document.getElementById('btn-toggle-helper');
-  const helperDropdown = document.getElementById('helper-dropdown');
+  const form            = document.getElementById('form-login');
+  const emailInput      = document.getElementById('input-email');
+  const passwordInput   = document.getElementById('input-password');
+  const submitBtn       = document.getElementById('btn-submit');
+  const alertBox        = document.getElementById('auth-alert');
+  const alertMsg        = document.getElementById('auth-alert-message');
+  const togglePassBtn   = document.getElementById('btn-toggle-password');
+  const eyeIcon         = document.getElementById('icon-eye');
+  const helperToggle    = document.getElementById('btn-toggle-helper');
+  const helperDropdown  = document.getElementById('helper-dropdown');
 
-  // Toggle password visibility
   togglePassBtn.addEventListener('click', () => {
     const isPassword = passwordInput.getAttribute('type') === 'password';
     passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
@@ -489,23 +554,21 @@
     lucide.createIcons();
   });
 
-  // Toggle mock helper
   helperToggle.addEventListener('click', () => {
     helperDropdown.classList.toggle('show');
   });
 
-  // Quick fill function
   window.fillAccount = function(email, password) {
     emailInput.value = email;
     passwordInput.value = password;
     helperDropdown.classList.remove('show');
     alertBox.style.display = 'none';
+    emailInput.focus();
   };
 
-  // Form submission
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const email = emailInput.value.trim();
+    const email    = emailInput.value.trim();
     const password = passwordInput.value;
 
     if (!email || !password) {
@@ -513,7 +576,6 @@
       return;
     }
 
-    // Visual feedback
     submitBtn.disabled = true;
     submitBtn.innerHTML = `<span>Signing in…</span>`;
 
@@ -521,23 +583,22 @@
       const result = Auth.login(email, password);
       if (result.success) {
         alertBox.className = 'auth-alert auth-alert-success';
-        alertMsg.textContent = `Welcome, ${result.user.name}. Redirecting to dashboard…`;
+        alertBox.innerHTML = `<i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"></i><span>Welcome, ${result.user.name}. Redirecting…</span>`;
         alertBox.style.display = 'flex';
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 400);
+        lucide.createIcons();
+        setTimeout(() => { window.location.href = 'index.html'; }, 400);
       } else {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
+        submitBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" style="width:16px;height:16px;"></i>`;
         lucide.createIcons();
-        showAlert(result.message);
+        showAlert(result.message || 'Invalid email or password.');
       }
     }, 350);
   });
 
   function showAlert(message) {
     alertBox.className = 'auth-alert auth-alert-error';
-    alertMsg.textContent = message;
+    alertBox.innerHTML = `<i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"></i><span>${message}</span>`;
     alertBox.style.display = 'flex';
     lucide.createIcons();
   }
