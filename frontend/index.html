@@ -107,15 +107,15 @@
             <span class="stat-label">Active Clubs</span>
             <div class="stat-icon stat-icon-blue"><i data-lucide="users"></i></div>
           </div>
-          <div class="stat-value">24</div>
-          <div class="stat-delta">3 added this semester</div>
+          <div class="stat-value" id="dash-stat-clubs">8</div>
+          <div class="stat-delta">Registered campus orgs</div>
         </div>
         <div class="stat-card">
           <div class="stat-header">
             <span class="stat-label">Pending Bookings</span>
             <div class="stat-icon stat-icon-amber"><i data-lucide="clock"></i></div>
           </div>
-          <div class="stat-value">7</div>
+          <div class="stat-value" id="dash-stat-bookings">3</div>
           <div class="stat-delta">Awaiting faculty approval</div>
         </div>
         <div class="stat-card">
@@ -123,7 +123,7 @@
             <span class="stat-label">Upcoming Events</span>
             <div class="stat-icon stat-icon-green"><i data-lucide="calendar"></i></div>
           </div>
-          <div class="stat-value">12</div>
+          <div class="stat-value" id="dash-stat-events">5</div>
           <div class="stat-delta">Next 30 days</div>
         </div>
         <div class="stat-card">
@@ -294,49 +294,8 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div style="font-weight:500;">CSSG</div>
-                  <div style="font-size:11px;color:var(--color-text-muted);">Carlo Reyes</div>
-                </td>
-                <td>Auditorium A</td>
-                <td>Nov 3, 2026 · 1:00–5:00 PM</td>
-                <td>Tech Summit Keynote</td>
-                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
-                <td style="display:flex;gap:var(--space-2);">
-                  <button class="btn btn-sm btn-primary">Approve</button>
-                  <button class="btn btn-sm btn-danger">Deny</button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="font-weight:500;">IEEE</div>
-                  <div style="font-size:11px;color:var(--color-text-muted);">Maria Santos</div>
-                </td>
-                <td>MPH Room C</td>
-                <td>Nov 5, 2026 · 3:00–6:00 PM</td>
-                <td>Workshop: PCB Design</td>
-                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
-                <td style="display:flex;gap:var(--space-2);">
-                  <button class="btn btn-sm btn-primary">Approve</button>
-                  <button class="btn btn-sm btn-danger">Deny</button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="font-weight:500;">Red Cross Youth</div>
-                  <div style="font-size:11px;color:var(--color-text-muted);">Ana Cruz</div>
-                </td>
-                <td>Projector Set (2×)</td>
-                <td>Nov 8, 2026 · 8:00 AM–12:00 PM</td>
-                <td>First Aid Seminar</td>
-                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
-                <td style="display:flex;gap:var(--space-2);">
-                  <button class="btn btn-sm btn-primary">Approve</button>
-                  <button class="btn btn-sm btn-danger">Deny</button>
-                </td>
-              </tr>
+            <tbody id="dashboard-pending-body">
+              <!-- Dynamically rendered by renderDashboardPending() -->
             </tbody>
           </table>
         </div>
@@ -401,8 +360,61 @@
 </div><!-- end app-shell -->
 
 <script src="js/auth.js"></script>
+<script src="js/app-state.js"></script>
 <script>
-  lucide.createIcons();
+  function renderDashboardPending() {
+    const tbody = document.getElementById('dashboard-pending-body');
+    if (!tbody || !window.AppState) return;
+
+    const allBookings = AppState.getBookings();
+    const pending = allBookings.filter(b => b.status === 'Pending');
+
+    // Update stat card counters
+    const statClubs = document.getElementById('dash-stat-clubs');
+    if (statClubs) statClubs.textContent = AppState.getClubs().length;
+
+    const statBookings = document.getElementById('dash-stat-bookings');
+    if (statBookings) statBookings.textContent = pending.length;
+
+    const statEvents = document.getElementById('dash-stat-events');
+    if (statEvents) statEvents.textContent = AppState.getEvents().length;
+
+    if (pending.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:var(--space-6);color:var(--color-text-muted);">No pending booking approvals. All requests processed.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = pending.slice(0, 4).map(b => `
+      <tr>
+        <td>
+          <div style="font-weight:500;">${b.club}</div>
+          <div style="font-size:11px;color:var(--color-text-muted);">${b.requester}</div>
+        </td>
+        <td>${b.venue}</td>
+        <td>${b.date} · ${b.time}</td>
+        <td>${b.purpose}</td>
+        <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
+        <td style="display:flex;gap:var(--space-2);">
+          <button class="btn btn-sm btn-primary" onclick="actionDashBooking('${b.ref}', 'Approved')"><i data-lucide="check"></i> Approve</button>
+          <button class="btn btn-sm btn-danger" onclick="actionDashBooking('${b.ref}', 'Denied')"><i data-lucide="x"></i> Deny</button>
+        </td>
+      </tr>
+    `).join('');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  window.actionDashBooking = function(ref, status) {
+    const updated = AppState.updateBookingStatus(ref, status);
+    if (updated) {
+      renderDashboardPending();
+      AppState.showToast(`Booking ${status}`, `Reservation ${ref} for ${updated.venue} (${updated.club}) has been marked as ${status.toLowerCase()}.`);
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    renderDashboardPending();
+  });
 </script>
 </body>
 </html>

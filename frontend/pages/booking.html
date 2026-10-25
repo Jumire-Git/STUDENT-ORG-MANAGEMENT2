@@ -254,61 +254,8 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td style="color:var(--color-text-muted);font-size:12px;">#BK-042</td>
-                <td><div style="font-weight:500;">CSSG</div><div style="font-size:11px;color:var(--color-text-muted);">Carlo Reyes</div></td>
-                <td>Auditorium A</td>
-                <td><div>Nov 3, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">1:00 PM – 5:00 PM</div></td>
-                <td>Tech Summit Keynote</td>
-                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
-                <td style="display:flex;gap:var(--space-2);">
-                  <button class="btn btn-sm btn-primary"><i data-lucide="check"></i></button>
-                  <button class="btn btn-sm btn-danger"><i data-lucide="x"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td style="color:var(--color-text-muted);font-size:12px;">#BK-041</td>
-                <td><div style="font-weight:500;">IEEE</div><div style="font-size:11px;color:var(--color-text-muted);">Maria Santos</div></td>
-                <td>MPH Room C</td>
-                <td><div>Nov 5, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">3:00 PM – 6:00 PM</div></td>
-                <td>PCB Design Workshop</td>
-                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
-                <td style="display:flex;gap:var(--space-2);">
-                  <button class="btn btn-sm btn-primary"><i data-lucide="check"></i></button>
-                  <button class="btn btn-sm btn-danger"><i data-lucide="x"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td style="color:var(--color-text-muted);font-size:12px;">#BK-040</td>
-                <td><div style="font-weight:500;">Red Cross Youth</div><div style="font-size:11px;color:var(--color-text-muted);">Ana Cruz</div></td>
-                <td>Projector Set (2×)</td>
-                <td><div>Nov 8, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">8:00 AM – 12:00 PM</div></td>
-                <td>First Aid Seminar</td>
-                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
-                <td style="display:flex;gap:var(--space-2);">
-                  <button class="btn btn-sm btn-primary"><i data-lucide="check"></i></button>
-                  <button class="btn btn-sm btn-danger"><i data-lucide="x"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td style="color:var(--color-text-muted);font-size:12px;">#BK-038</td>
-                <td><div style="font-weight:500;">Robotics Club</div><div style="font-size:11px;color:var(--color-text-muted);">Jun Park</div></td>
-                <td>Computer Lab 3</td>
-                <td><div>Nov 15, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">9:00 AM – 5:00 PM</div></td>
-                <td>Robot Programming Sprint</td>
-                <td><span class="badge badge-green"><i data-lucide="check-circle"></i> Approved</span></td>
-                <td><button class="btn btn-sm btn-secondary"><i data-lucide="eye"></i></button></td>
-              </tr>
-              <tr>
-                <td style="color:var(--color-text-muted);font-size:12px;">#BK-037</td>
-                <td><div style="font-weight:500;">JPIA</div><div style="font-size:11px;color:var(--color-text-muted);">Lea Tan</div></td>
-                <td>Audio Equipment</td>
-                <td><div>Oct 30, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">2:00 PM – 4:00 PM</div></td>
-                <td>CPA Review Webinar</td>
-                <td><span class="badge badge-red"><i data-lucide="x-circle"></i> Denied</span></td>
-                <td><button class="btn btn-sm btn-secondary"><i data-lucide="eye"></i></button></td>
-              </tr>
+            <tbody id="bookings-table-body">
+              <!-- Dynamically rendered by booking.js -->
             </tbody>
           </table>
         </div>
@@ -328,54 +275,56 @@
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Club / Organization</label>
-        <select class="form-control">
-          <option>CSSG</option><option>IEEE</option><option>Red Cross Youth</option><option>Robotics Club</option>
+        <select class="form-control" id="select-booking-club">
+          <option>CSSG</option><option>IEEE</option><option>Red Cross Youth</option><option>Robotics Club</option><option>JPIA</option><option>USC</option>
         </select>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
         <div class="form-group">
           <label class="form-label">Venue / Equipment</label>
-          <select class="form-control">
-            <option>Auditorium A</option><option>MPH Room B</option><option>MPH Room C</option><option>Computer Lab 3</option><option>Projector Set</option>
+          <select class="form-control" id="select-booking-venue">
+            <option>Auditorium A</option><option>MPH Room B</option><option>MPH Room C</option><option>Computer Lab 3</option><option>Projector Set</option><option>AVR Room</option><option>Campus Quadrangle</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Date</label>
-          <input class="form-control" type="date" />
+          <input class="form-control" type="date" id="input-booking-date" required />
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
         <div class="form-group">
           <label class="form-label">Start Time</label>
-          <input class="form-control" type="time" />
+          <input class="form-control" type="time" id="input-booking-start" value="13:00" />
         </div>
         <div class="form-group">
           <label class="form-label">End Time</label>
-          <input class="form-control" type="time" />
+          <input class="form-control" type="time" id="input-booking-end" value="17:00" />
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Purpose / Event Description</label>
-        <textarea class="form-control" rows="3" style="resize:vertical;" placeholder="Describe the event or activity…"></textarea>
+        <textarea class="form-control" id="input-booking-purpose" rows="3" style="resize:vertical;" placeholder="Describe the event or activity…" required></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Additional Equipment Needed</label>
-        <input class="form-control" type="text" placeholder="e.g. 2 microphones, extension cords…" />
+        <input class="form-control" type="text" id="input-booking-equip" placeholder="e.g. 2 microphones, extension cords…" />
         <div class="form-hint">Optional — list any extra equipment to be reserved.</div>
       </div>
       <div class="notice notice-blue">
         <i data-lucide="info"></i>
-        <div class="notice-text"><strong>Routing</strong>This request will be automatically routed to the assigned Faculty / Facility Manager for approval. You will receive an email once a decision is made.</div>
+        <div class="notice-text"><strong>Routing:</strong> This request will be automatically routed to Faculty / Facility Manager for approval. You will receive an email once decided.</div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-booking')">Cancel</button>
-      <button class="btn btn-primary"><i data-lucide="send"></i> Submit Request</button>
+      <button type="button" class="btn btn-secondary" onclick="closeModal('modal-booking')">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-submit-booking"><i data-lucide="send"></i> Submit Request</button>
     </div>
   </div>
 </div>
 
 <script src="../js/auth.js"></script>
+<script src="../js/app-state.js"></script>
+<script src="../js/booking.js"></script>
 <script>
 lucide.createIcons();
 function openModal(id){ document.getElementById(id).classList.add('open'); }
@@ -386,6 +335,9 @@ function switchTab(btn, panelId){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById(panelId).classList.add('active');
+  if (panelId === 'tab-requests' && typeof renderBookings === 'function') {
+    renderBookings();
+  }
 }
 </script>
 </body>

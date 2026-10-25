@@ -377,31 +377,46 @@
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Target Audience</label>
-        <select class="form-control">
+        <select class="form-control" id="select-club-ann-aud">
           <option>CSSG Members</option>
           <option>All Students</option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label">Subject</label>
-        <input class="form-control" type="text" placeholder="Announcement title" />
+        <input class="form-control" type="text" id="input-club-ann-title" placeholder="Announcement title" required />
       </div>
       <div class="form-group">
         <label class="form-label">Message</label>
-        <textarea class="form-control" rows="4" style="resize:vertical;" placeholder="Write your announcement…"></textarea>
+        <textarea class="form-control" id="input-club-ann-body" rows="4" style="resize:vertical;" placeholder="Write your announcement…" required></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-announce')">Cancel</button>
-      <button class="btn btn-primary"><i data-lucide="send"></i> Post</button>
+      <button type="button" class="btn btn-secondary" onclick="closeModal('modal-announce')">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-club-post-ann"><i data-lucide="send"></i> Post</button>
     </div>
   </div>
 </div>
 
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
+<script src="../js/app-state.js"></script>
 <script>
 lucide.createIcons();
+
+// Club Profile announcement submit handler
+document.getElementById('btn-club-post-ann')?.addEventListener('click', () => {
+  const title = document.getElementById('input-club-ann-title')?.value.trim();
+  const body = document.getElementById('input-club-ann-body')?.value.trim();
+  const audience = document.getElementById('select-club-ann-aud')?.value || 'CSSG Members';
+  if(!title || !body) { alert('Please enter both subject and message.'); return; }
+
+  AppState.addAnnouncement({ club: 'CSSG', audience, title, body });
+  closeModal('modal-announce');
+  document.getElementById('input-club-ann-title').value = '';
+  document.getElementById('input-club-ann-body').value = '';
+  AppState.showToast('Announcement Posted', `Posted "${title}" for ${audience}.`);
+});
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); }));

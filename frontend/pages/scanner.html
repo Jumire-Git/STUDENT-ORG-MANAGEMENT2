@@ -376,15 +376,23 @@ function addLogEntry(name, id, initials, valid=true){
 function simulateScan(){
   const s = mockStudents[Math.floor(Math.random() * mockStudents.length)];
   addLogEntry(s.name, s.id, s.initials, true);
+  if (window.AppState) {
+    AppState.showToast('Attendance Recorded', `${s.name} (${s.id}) verified at entrance scanner.`);
+  }
 }
 
 function manualRecord(){
   const input = document.getElementById('manual-id');
   const val = input.value.trim();
   if(!val) return;
-  const s = mockStudents.find(x => x.id === val);
-  if(s){ addLogEntry(s.name, s.id, s.initials, true); }
-  else  { addLogEntry('Unknown', val, '?', false); }
+  const s = mockStudents.find(x => x.id.toLowerCase() === val.toLowerCase());
+  if(s){
+    addLogEntry(s.name, s.id, s.initials, true);
+    if (window.AppState) AppState.showToast('Manual Entry Recorded', `${s.name} verified.`);
+  } else {
+    addLogEntry('Unknown Student', val, '?', false);
+    if (window.AppState) AppState.showToast('Invalid Student ID', `ID ${val} not found in student roster.`, 'error');
+  }
   input.value = '';
 }
 
@@ -395,11 +403,37 @@ function clearLog(){
   document.getElementById('att-pct').textContent = '0%';
   document.getElementById('att-progress').style.width = '0%';
   document.getElementById('log-count').textContent = '0 recorded';
+  if (window.AppState) AppState.showToast('Log Reset', 'Attendance log cleared.');
 }
 
 function exportCSV(){
-  alert('Attendance CSV export would download here in the full implementation.');
+  const rows = document.querySelectorAll('#attendance-log .attendance-row');
+  let csv = `Event Check-in Log: Tech Summit 2026\nVenue: Auditorium A\nGenerated: ${new Date().toLocaleString()}\n\n`;
+  csv += `Student Name,Student ID,Timestamp,Status\n`;
+
+  if (rows.length === 0) {
+    // If no scans yet, export pre-recorded samples
+    mockStudents.forEach(s => {
+      csv += `"${s.name}","${s.id}","${now()}","Verified Present"\n`;
+    });
+  } else {
+    rows.forEach(r => {
+      const name = r.querySelector('div[style*="font-weight:500"]')?.textContent.trim() || 'Unknown';
+      const id = r.querySelector('.student-id')?.textContent.trim() || '';
+      const time = r.querySelector('.scan-time')?.textContent.trim() || '';
+      const status = r.querySelector('.badge')?.textContent.trim() || 'Recorded';
+      csv += `"${name}","${id}","${time}","${status}"\n`;
+    });
+  }
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `Live_Attendance_Log_TechSummit_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  if (window.AppState) AppState.showToast('CSV Downloaded', 'Live attendance spreadsheet successfully exported.');
 }
 </script>
+<script src="../js/app-state.js"></script>
 </body>
 </html>

@@ -171,11 +171,11 @@
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Club Name</label>
-        <input class="form-control" type="text" placeholder="e.g. Computer Science Society" />
+        <input class="form-control" type="text" id="input-club-name" placeholder="e.g. Computer Science Society" required />
       </div>
       <div class="form-group">
         <label class="form-label">Category</label>
-        <select class="form-control">
+        <select class="form-control" id="select-club-cat">
           <option>Academic</option>
           <option>Cultural</option>
           <option>Service</option>
@@ -185,16 +185,16 @@
       </div>
       <div class="form-group">
         <label class="form-label">President / Lead Officer</label>
-        <input class="form-control" type="text" placeholder="Full name" />
+        <input class="form-control" type="text" id="input-club-pres" placeholder="Full name" />
       </div>
       <div class="form-group">
         <label class="form-label">Description</label>
-        <textarea class="form-control" rows="3" placeholder="Brief description of the club…" style="resize:vertical;"></textarea>
+        <textarea class="form-control" id="input-club-desc" rows="3" placeholder="Brief description of the club…" style="resize:vertical;"></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-add-club')">Cancel</button>
-      <button class="btn btn-primary"><i data-lucide="save"></i> Save Club</button>
+      <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-club')">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-save-club"><i data-lucide="save"></i> Save Club</button>
     </div>
   </div>
 </div>
@@ -209,7 +209,7 @@
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Target Audience</label>
-        <select class="form-control">
+        <select class="form-control" id="select-ann-aud">
           <option>All Students</option>
           <option>All Club Members</option>
           <option>Specific Club</option>
@@ -217,22 +217,23 @@
       </div>
       <div class="form-group">
         <label class="form-label">Subject</label>
-        <input class="form-control" type="text" placeholder="Announcement title" />
+        <input class="form-control" type="text" id="input-ann-title" placeholder="Announcement title" required />
       </div>
       <div class="form-group">
         <label class="form-label">Message</label>
-        <textarea class="form-control" rows="4" placeholder="Write your announcement…" style="resize:vertical;"></textarea>
+        <textarea class="form-control" id="input-ann-body" rows="4" placeholder="Write your announcement…" style="resize:vertical;" required></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-announce')">Cancel</button>
-      <button class="btn btn-primary"><i data-lucide="send"></i> Post</button>
+      <button type="button" class="btn btn-secondary" onclick="closeModal('modal-announce')">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-post-announcement"><i data-lucide="send"></i> Post</button>
     </div>
   </div>
 </div>
 
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
+<script src="../js/app-state.js"></script>
 <script src="../js/directory.js"></script>
 <script>
 lucide.createIcons();
