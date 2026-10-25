@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Scanner — Student Organization Platform</title>
+  <meta name="description" content="Scan QR codes at event doors to record attendance in real time." />
+  <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    .scanner-frame {
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 1;
+      background: #0f172a;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .scanner-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .scanner-box {
+      width: 200px; height: 200px;
+      border: 2px solid #fff;
+      border-radius: var(--radius-md);
+      position: relative;
+    }
+    .scanner-box::before, .scanner-box::after {
+      content: '';
+      position: absolute;
+      width: 20px; height: 20px;
+    }
+    .scanner-corner {
+      position: absolute;
+      width: 24px; height: 24px;
+      border-color: var(--color-accent);
+      border-style: solid;
+    }
+    .corner-tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+    .corner-tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; }
+    .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
+    .corner-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: var(--color-accent);
+      box-shadow: 0 0 8px var(--color-accent);
+      animation: scan 2.5s ease-in-out infinite;
+    }
+    @keyframes scan { 0%,100% { top: 10%; } 50% { top: 85%; } }
+    .scanner-label {
+      position: absolute; bottom: var(--space-5);
+      color: rgba(255,255,255,.7);
+      font-size: 12px;
+      text-align: center;
+    }
+    .attendance-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--color-border-soft);
+      transition: background var(--transition);
+    }
+    .attendance-row:hover { background: var(--color-surface-2); }
+    .attendance-row:last-child { border-bottom: none; }
+    .scan-time { font-size: 12px; color: var(--color-text-muted); font-variant-numeric: tabular-nums; min-width: 80px; }
+    .student-id { font-size: 11px; color: var(--color-text-muted); font-family: monospace; }
+    .pulse { animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.6;transform:scale(.95);} }
+    .camera-bg {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, #0f172a 0, #0f172a 10px, #131d2e 10px, #131d2e 20px);
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i data-lucide="graduation-cap" style="width:18px;height:18px;"></i></div>
+      <div>
+        <div class="sidebar-brand-name">Student Org</div>
+        <div class="sidebar-brand-sub">Management Platform</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a href="../index.html" class="nav-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <div class="nav-section-label">Subsystems</div>
+      <a href="directory.html" class="nav-item"><i data-lucide="users"></i> Directory</a>
+      <a href="booking.html" class="nav-item"><i data-lucide="calendar-check"></i> Facility Booking</a>
+      <a href="events.html" class="nav-item"><i data-lucide="ticket"></i> Events</a>
+      <a href="scanner.html" class="nav-item active"><i data-lucide="scan-line"></i> QR Scanner</a>
+      <div class="nav-section-label">System</div>
+      <a href="#" class="nav-item"><i data-lucide="settings"></i> Settings</a>
+      <a href="#" class="nav-item"><i data-lucide="help-circle"></i> Help</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">JM</div>
+        <div class="user-info"><div class="user-name">Juan Miguel R.</div><div class="user-role">Admin</div></div>
+        <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <i data-lucide="chevron-right"></i>
+          <a href="events.html">Events</a>
+          <i data-lucide="chevron-right"></i>
+          <span>QR Scanner</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn"><i data-lucide="bell"></i></button>
+        <div class="avatar">JM</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">QR Code Attendance Scanner</h1>
+          <div class="section-subtitle">Scan student QR passes at the event entrance to record attendance</div>
+        </div>
+        <button class="btn btn-secondary" onclick="exportCSV()">
+          <i data-lucide="download"></i> Export CSV
+        </button>
+      </div>
+
+      <!-- Event Selector Notice -->
+      <div class="notice notice-blue" style="margin-bottom:var(--space-6);">
+        <i data-lucide="calendar"></i>
+        <div class="notice-text">
+          <strong>Active Event: Tech Summit 2026</strong>
+          Nov 3, 2026 · Auditorium A · CSSG — <a href="events.html" style="text-decoration:underline;">Change event</a>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Scanner Panel -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-5);">
+          <!-- Camera -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Camera Scanner</div>
+              <div style="display:flex;align-items:center;gap:var(--space-2);">
+                <span id="scanner-status-dot" style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;" class="pulse"></span>
+                <span id="scanner-status-txt" style="font-size:12px;color:var(--color-text-secondary);">Scanning…</span>
+              </div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-5);">
+              <!-- Scanner Frame -->
+              <div class="scanner-frame">
+                <div class="camera-bg"></div>
+                <div class="scanner-overlay">
+                  <div class="scanner-box">
+                    <div class="scanner-corner corner-tl"></div>
+                    <div class="scanner-corner corner-tr"></div>
+                    <div class="scanner-corner corner-bl"></div>
+                    <div class="scanner-corner corner-br"></div>
+                    <div class="scan-line"></div>
+                  </div>
+                </div>
+                <div class="scanner-label">Point camera at QR code</div>
+              </div>
+
+              <!-- Controls -->
+              <div style="display:flex;gap:var(--space-3);">
+                <button class="btn btn-primary" id="btn-toggle-scan" onclick="toggleScan()">
+                  <i data-lucide="camera"></i> Start Camera
+                </button>
+                <button class="btn btn-secondary" onclick="simulateScan()">
+                  <i data-lucide="zap"></i> Simulate Scan
+                </button>
+              </div>
+
+              <!-- Manual Entry -->
+              <div class="divider" style="width:100%;margin:0;"></div>
+              <div style="width:100%;">
+                <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:var(--space-2);">Manual ID Entry</div>
+                <div style="display:flex;gap:var(--space-2);">
+                  <input id="manual-id" class="form-control" type="text" placeholder="e.g. 2024-0042" />
+                  <button class="btn btn-primary" onclick="manualRecord()"><i data-lucide="check"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session Stats -->
+          <div class="grid-2" style="gap:var(--space-3);">
+            <div class="stat-card">
+              <div class="stat-header"><span class="stat-label">Scanned</span><div class="stat-icon stat-icon-blue"><i data-lucide="scan-line"></i></div></div>
+              <div class="stat-value" id="stat-scanned">0</div>
+              <div class="stat-delta">This session</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header"><span class="stat-label">Expected</span><div class="stat-icon stat-icon-green"><i data-lucide="users"></i></div></div>
+              <div class="stat-value">200</div>
+              <div class="stat-delta">Registered</div>
+            </div>
+          </div>
+          <div class="card" style="padding:var(--space-4);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-3);">
+              <span style="font-size:13px;font-weight:500;">Attendance Progress</span>
+              <span id="att-pct" style="font-size:13px;font-weight:600;color:var(--color-accent);">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="att-progress" style="width:0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Log -->
+        <div class="card" style="display:flex;flex-direction:column;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Live Attendance Log</div>
+              <div class="card-subtitle">Most recent scans appear first</div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="clearLog()"><i data-lucide="trash-2"></i> Clear</button>
+          </div>
+          <div style="flex:1;overflow-y:auto;max-height:540px;" id="attendance-log">
+            <!-- Sample entries -->
+            <div class="attendance-row">
+              <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">CR</div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;">Carlo Reyes</div>
+                <div class="student-id">2024-0018</div>
+              </div>
+              <div class="scan-time">2:04 PM</div>
+              <span class="badge badge-green"><i data-lucide="check"></i> In</span>
+            </div>
+            <div class="attendance-row">
+              <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">MS</div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;">Maria Santos</div>
+                <div class="student-id">2024-0024</div>
+              </div>
+              <div class="scan-time">2:03 PM</div>
+              <span class="badge badge-green"><i data-lucide="check"></i> In</span>
+            </div>
+            <div class="attendance-row">
+              <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">JP</div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;">Jun Park</div>
+                <div class="student-id">2023-0099</div>
+              </div>
+              <div class="scan-time">2:01 PM</div>
+              <span class="badge badge-green"><i data-lucide="check"></i> In</span>
+            </div>
+            <div class="attendance-row">
+              <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;background:#fee2e2;color:#991b1b;">?</div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;color:var(--color-danger);">Unknown QR</div>
+                <div class="student-id">--</div>
+              </div>
+              <div class="scan-time">1:59 PM</div>
+              <span class="badge badge-red"><i data-lucide="x"></i> Invalid</span>
+            </div>
+          </div>
+          <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--color-text-muted);" id="log-count">3 recorded · 1 invalid</span>
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()"><i data-lucide="download"></i> Export CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+lucide.createIcons();
+
+let scanCount = 3;
+let scanning = false;
+
+const mockStudents = [
+  { name: 'Ana Cruz',       id: '2024-0031', initials: 'AC' },
+  { name: 'Lea Tan',        id: '2023-0077', initials: 'LT' },
+  { name: 'Ben Garcia',     id: '2024-0055', initials: 'BG' },
+  { name: 'Sofia Lim',      id: '2025-0009', initials: 'SL' },
+  { name: 'Renz Diaz',      id: '2023-0042', initials: 'RD' },
+];
+
+function toggleScan(){
+  scanning = !scanning;
+  const btn = document.getElementById('btn-toggle-scan');
+  const dot = document.getElementById('scanner-status-dot');
+  const txt = document.getElementById('scanner-status-txt');
+  if(scanning){
+    btn.innerHTML = '<i data-lucide="camera-off"></i> Stop Camera';
+    btn.classList.replace('btn-primary','btn-danger');
+    dot.style.background = '#22c55e';
+    txt.textContent = 'Scanning…';
+  } else {
+    btn.innerHTML = '<i data-lucide="camera"></i> Start Camera';
+    btn.classList.replace('btn-danger','btn-primary');
+    dot.style.background = '#d1d5db';
+    txt.textContent = 'Idle';
+  }
+  lucide.createIcons();
+}
+
+function now(){
+  return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+function addLogEntry(name, id, initials, valid=true){
+  const log = document.getElementById('attendance-log');
+  const row = document.createElement('div');
+  row.className = 'attendance-row';
+  row.style.animation = 'none';
+  row.style.background = valid ? 'var(--color-success-bg)' : 'var(--color-danger-bg)';
+  setTimeout(()=>{ row.style.background=''; row.style.transition='background .6s'; }, 600);
+
+  row.innerHTML = `
+    <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;${!valid?'background:#fee2e2;color:#991b1b;':''}">${initials}</div>
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:500;${!valid?'color:var(--color-danger);':''}">${name}</div>
+      <div class="student-id">${id}</div>
+    </div>
+    <div class="scan-time">${now()}</div>
+    <span class="badge ${valid?'badge-green':'badge-red'}">
+      <i data-lucide="${valid?'check':'x'}"></i> ${valid?'In':'Invalid'}
+    </span>
+  `;
+  log.insertBefore(row, log.firstChild);
+  lucide.createIcons();
+
+  if(valid){
+    scanCount++;
+    document.getElementById('stat-scanned').textContent = scanCount;
+    const pct = Math.min(Math.round((scanCount/200)*100), 100);
+    document.getElementById('att-pct').textContent = pct + '%';
+    document.getElementById('att-progress').style.width = pct + '%';
+  }
+  document.getElementById('log-count').textContent = scanCount + ' recorded';
+}
+
+function simulateScan(){
+  const s = mockStudents[Math.floor(Math.random() * mockStudents.length)];
+  addLogEntry(s.name, s.id, s.initials, true);
+}
+
+function manualRecord(){
+  const input = document.getElementById('manual-id');
+  const val = input.value.trim();
+  if(!val) return;
+  const s = mockStudents.find(x => x.id === val);
+  if(s){ addLogEntry(s.name, s.id, s.initials, true); }
+  else  { addLogEntry('Unknown', val, '?', false); }
+  input.value = '';
+}
+
+function clearLog(){
+  document.getElementById('attendance-log').innerHTML = '';
+  scanCount = 0;
+  document.getElementById('stat-scanned').textContent = '0';
+  document.getElementById('att-pct').textContent = '0%';
+  document.getElementById('att-progress').style.width = '0%';
+  document.getElementById('log-count').textContent = '0 recorded';
+}
+
+function exportCSV(){
+  alert('Attendance CSV export would download here in the full implementation.');
+}
+</script>
+</body>
+</html>

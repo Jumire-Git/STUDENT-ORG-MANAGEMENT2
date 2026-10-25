@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facility Booking — Student Organization Platform</title>
+  <meta name="description" content="Reserve campus rooms, equipment, and event spaces. Submit and track booking requests with faculty approval." />
+  <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    .venue-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; transition: box-shadow var(--transition), border-color var(--transition); cursor:pointer; }
+    .venue-card:hover { box-shadow: var(--shadow-sm); border-color: #d1d5db; }
+    .venue-card-img { height: 100px; background: var(--color-surface-2); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--color-border); }
+    .venue-card-img svg { width: 40px; height: 40px; color: var(--color-text-muted); }
+    .venue-card-body { padding: var(--space-4); }
+    .venue-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .venue-meta { font-size: 12px; color: var(--color-text-muted); display: flex; align-items: center; gap: var(--space-3); }
+    .venue-meta svg { width: 12px; height: 12px; }
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-5); }
+    .cal-month { font-size: 15px; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i data-lucide="graduation-cap" style="width:18px;height:18px;"></i></div>
+      <div>
+        <div class="sidebar-brand-name">Student Org</div>
+        <div class="sidebar-brand-sub">Management Platform</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a href="../index.html" class="nav-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <div class="nav-section-label">Subsystems</div>
+      <a href="directory.html" class="nav-item"><i data-lucide="users"></i> Directory</a>
+      <a href="booking.html" class="nav-item active"><i data-lucide="calendar-check"></i> Facility Booking</a>
+      <a href="events.html" class="nav-item"><i data-lucide="ticket"></i> Events</a>
+      <a href="scanner.html" class="nav-item"><i data-lucide="scan-line"></i> QR Scanner</a>
+      <div class="nav-section-label">System</div>
+      <a href="#" class="nav-item"><i data-lucide="settings"></i> Settings</a>
+      <a href="#" class="nav-item"><i data-lucide="help-circle"></i> Help</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">JM</div>
+        <div class="user-info"><div class="user-name">Juan Miguel R.</div><div class="user-role">Admin</div></div>
+        <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <i data-lucide="chevron-right"></i>
+          <span>Facility Booking</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn"><i data-lucide="search"></i></button>
+        <button class="icon-btn"><i data-lucide="bell"></i></button>
+        <div class="avatar">JM</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Resource &amp; Facility Booking</h1>
+          <div class="section-subtitle">Reserve venues and equipment — routes to faculty for approval</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-booking')">
+          <i data-lucide="plus"></i> New Booking Request
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4" style="margin-bottom:var(--space-6);">
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">Total Venues</span><div class="stat-icon stat-icon-blue"><i data-lucide="building-2"></i></div></div>
+          <div class="stat-value">8</div>
+          <div class="stat-delta">Rooms + outdoor spaces</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">Pending</span><div class="stat-icon stat-icon-amber"><i data-lucide="clock"></i></div></div>
+          <div class="stat-value">7</div>
+          <div class="stat-delta">Awaiting approval</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">Approved</span><div class="stat-icon stat-icon-green"><i data-lucide="check-circle"></i></div></div>
+          <div class="stat-value">31</div>
+          <div class="stat-delta">This semester</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">Denied</span><div class="stat-icon stat-icon-red"><i data-lucide="x-circle"></i></div></div>
+          <div class="stat-value">4</div>
+          <div class="stat-delta">This semester</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'tab-availability')"><i data-lucide="calendar"></i> Availability Calendar</button>
+        <button class="tab" onclick="switchTab(this,'tab-venues')"><i data-lucide="building-2"></i> Venues &amp; Equipment</button>
+        <button class="tab" onclick="switchTab(this,'tab-requests')"><i data-lucide="list-checks"></i> All Requests <span class="tab-count">42</span></button>
+      </div>
+
+      <!-- Calendar Tab -->
+      <div id="tab-availability" class="tab-panel active">
+        <div class="card">
+          <div class="card-header">
+            <div class="cal-nav" style="flex:1;">
+              <button class="icon-btn" id="cal-prev"><i data-lucide="chevron-left"></i></button>
+              <span class="cal-month" id="cal-label">November 2026</span>
+              <button class="icon-btn" id="cal-next"><i data-lucide="chevron-right"></i></button>
+            </div>
+            <div style="display:flex;gap:var(--space-3);align-items:center;margin-left:var(--space-5);">
+              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-muted);"><span style="width:10px;height:10px;background:var(--color-accent-light);border-radius:2px;display:inline-block;"></span> Approved</span>
+              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-muted);"><span style="width:10px;height:10px;background:var(--color-warning-bg);border-radius:2px;display:inline-block;"></span> Pending</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="cal-grid">
+              <div class="cal-day-header">Sun</div>
+              <div class="cal-day-header">Mon</div>
+              <div class="cal-day-header">Tue</div>
+              <div class="cal-day-header">Wed</div>
+              <div class="cal-day-header">Thu</div>
+              <div class="cal-day-header">Fri</div>
+              <div class="cal-day-header">Sat</div>
+              <!-- Oct spillover -->
+              <div class="cal-day other-month"><div class="cal-day-num">26</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">27</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">28</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">29</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">30</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">31</div></div>
+              <!-- Nov -->
+              <div class="cal-day"><div class="cal-day-num">1</div></div>
+              <div class="cal-day"><div class="cal-day-num">2</div></div>
+              <div class="cal-day"><div class="cal-day-num">3</div><div class="cal-event-dot blue">CSSG — Aud A</div></div>
+              <div class="cal-day"><div class="cal-day-num">4</div></div>
+              <div class="cal-day"><div class="cal-day-num">5</div><div class="cal-event-dot amber">IEEE — MPH C</div></div>
+              <div class="cal-day"><div class="cal-day-num">6</div></div>
+              <div class="cal-day"><div class="cal-day-num">7</div></div>
+              <div class="cal-day"><div class="cal-day-num">8</div><div class="cal-event-dot amber">RCY — Projector</div></div>
+              <div class="cal-day"><div class="cal-day-num">9</div></div>
+              <div class="cal-day"><div class="cal-day-num">10</div></div>
+              <div class="cal-day"><div class="cal-day-num">11</div></div>
+              <div class="cal-day"><div class="cal-day-num">12</div></div>
+              <div class="cal-day"><div class="cal-day-num">13</div></div>
+              <div class="cal-day"><div class="cal-day-num">14</div></div>
+              <div class="cal-day"><div class="cal-day-num">15</div><div class="cal-event-dot blue">Robotics — Lab 3</div></div>
+              <div class="cal-day"><div class="cal-day-num">16</div></div>
+              <div class="cal-day today"><div class="cal-day-num">17</div></div>
+              <div class="cal-day"><div class="cal-day-num">18</div></div>
+              <div class="cal-day"><div class="cal-day-num">19</div></div>
+              <div class="cal-day"><div class="cal-day-num">20</div></div>
+              <div class="cal-day"><div class="cal-day-num">21</div></div>
+              <div class="cal-day"><div class="cal-day-num">22</div><div class="cal-event-dot blue">JPIA — AVR</div></div>
+              <div class="cal-day"><div class="cal-day-num">23</div></div>
+              <div class="cal-day"><div class="cal-day-num">24</div></div>
+              <div class="cal-day"><div class="cal-day-num">25</div></div>
+              <div class="cal-day"><div class="cal-day-num">26</div></div>
+              <div class="cal-day"><div class="cal-day-num">27</div></div>
+              <div class="cal-day"><div class="cal-day-num">28</div></div>
+              <div class="cal-day"><div class="cal-day-num">29</div></div>
+              <div class="cal-day"><div class="cal-day-num">30</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">1</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">2</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">3</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">4</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">5</div></div>
+              <div class="cal-day other-month"><div class="cal-day-num">6</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venues Tab -->
+      <div id="tab-venues" class="tab-panel">
+        <div class="grid-3">
+          <div class="venue-card">
+            <div class="venue-card-img"><i data-lucide="presentation"></i></div>
+            <div class="venue-card-body">
+              <div class="venue-name">Auditorium A</div>
+              <div class="venue-meta"><i data-lucide="users"></i> Cap. 500 &nbsp;&nbsp; <i data-lucide="wifi"></i> AV System <span class="badge badge-green" style="margin-left:auto;">Available</span></div>
+            </div>
+          </div>
+          <div class="venue-card">
+            <div class="venue-card-img"><i data-lucide="door-open"></i></div>
+            <div class="venue-card-body">
+              <div class="venue-name">MPH Room B</div>
+              <div class="venue-meta"><i data-lucide="users"></i> Cap. 120 &nbsp;&nbsp; <i data-lucide="airplay"></i> Projector <span class="badge badge-green" style="margin-left:auto;">Available</span></div>
+            </div>
+          </div>
+          <div class="venue-card">
+            <div class="venue-card-img"><i data-lucide="door-open"></i></div>
+            <div class="venue-card-body">
+              <div class="venue-name">MPH Room C</div>
+              <div class="venue-meta"><i data-lucide="users"></i> Cap. 80 &nbsp;&nbsp; <i data-lucide="airplay"></i> Projector <span class="badge badge-amber" style="margin-left:auto;">Booked Nov 5</span></div>
+            </div>
+          </div>
+          <div class="venue-card">
+            <div class="venue-card-img"><i data-lucide="flask-conical"></i></div>
+            <div class="venue-card-body">
+              <div class="venue-name">Computer Lab 3</div>
+              <div class="venue-meta"><i data-lucide="users"></i> Cap. 40 &nbsp;&nbsp; <i data-lucide="monitor"></i> 40 PCs <span class="badge badge-green" style="margin-left:auto;">Available</span></div>
+            </div>
+          </div>
+          <div class="venue-card">
+            <div class="venue-card-img"><i data-lucide="map"></i></div>
+            <div class="venue-card-body">
+              <div class="venue-name">Campus Quadrangle</div>
+              <div class="venue-meta"><i data-lucide="users"></i> Cap. 2000 &nbsp;&nbsp; <i data-lucide="sun"></i> Outdoor <span class="badge badge-green" style="margin-left:auto;">Available</span></div>
+            </div>
+          </div>
+          <div class="venue-card">
+            <div class="venue-card-img"><i data-lucide="projector"></i></div>
+            <div class="venue-card-body">
+              <div class="venue-name">Projector Set (×4)</div>
+              <div class="venue-meta"><i data-lucide="package"></i> Equipment &nbsp;&nbsp; <span class="badge badge-amber" style="margin-left:auto;">2 in use</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Requests Tab -->
+      <div id="tab-requests" class="tab-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ref #</th>
+                <th>Club / Requester</th>
+                <th>Venue / Equipment</th>
+                <th>Date &amp; Time</th>
+                <th>Purpose</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--color-text-muted);font-size:12px;">#BK-042</td>
+                <td><div style="font-weight:500;">CSSG</div><div style="font-size:11px;color:var(--color-text-muted);">Carlo Reyes</div></td>
+                <td>Auditorium A</td>
+                <td><div>Nov 3, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">1:00 PM – 5:00 PM</div></td>
+                <td>Tech Summit Keynote</td>
+                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
+                <td style="display:flex;gap:var(--space-2);">
+                  <button class="btn btn-sm btn-primary"><i data-lucide="check"></i></button>
+                  <button class="btn btn-sm btn-danger"><i data-lucide="x"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td style="color:var(--color-text-muted);font-size:12px;">#BK-041</td>
+                <td><div style="font-weight:500;">IEEE</div><div style="font-size:11px;color:var(--color-text-muted);">Maria Santos</div></td>
+                <td>MPH Room C</td>
+                <td><div>Nov 5, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">3:00 PM – 6:00 PM</div></td>
+                <td>PCB Design Workshop</td>
+                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
+                <td style="display:flex;gap:var(--space-2);">
+                  <button class="btn btn-sm btn-primary"><i data-lucide="check"></i></button>
+                  <button class="btn btn-sm btn-danger"><i data-lucide="x"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td style="color:var(--color-text-muted);font-size:12px;">#BK-040</td>
+                <td><div style="font-weight:500;">Red Cross Youth</div><div style="font-size:11px;color:var(--color-text-muted);">Ana Cruz</div></td>
+                <td>Projector Set (2×)</td>
+                <td><div>Nov 8, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">8:00 AM – 12:00 PM</div></td>
+                <td>First Aid Seminar</td>
+                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
+                <td style="display:flex;gap:var(--space-2);">
+                  <button class="btn btn-sm btn-primary"><i data-lucide="check"></i></button>
+                  <button class="btn btn-sm btn-danger"><i data-lucide="x"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td style="color:var(--color-text-muted);font-size:12px;">#BK-038</td>
+                <td><div style="font-weight:500;">Robotics Club</div><div style="font-size:11px;color:var(--color-text-muted);">Jun Park</div></td>
+                <td>Computer Lab 3</td>
+                <td><div>Nov 15, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">9:00 AM – 5:00 PM</div></td>
+                <td>Robot Programming Sprint</td>
+                <td><span class="badge badge-green"><i data-lucide="check-circle"></i> Approved</span></td>
+                <td><button class="btn btn-sm btn-secondary"><i data-lucide="eye"></i></button></td>
+              </tr>
+              <tr>
+                <td style="color:var(--color-text-muted);font-size:12px;">#BK-037</td>
+                <td><div style="font-weight:500;">JPIA</div><div style="font-size:11px;color:var(--color-text-muted);">Lea Tan</div></td>
+                <td>Audio Equipment</td>
+                <td><div>Oct 30, 2026</div><div style="font-size:11px;color:var(--color-text-muted);">2:00 PM – 4:00 PM</div></td>
+                <td>CPA Review Webinar</td>
+                <td><span class="badge badge-red"><i data-lucide="x-circle"></i> Denied</span></td>
+                <td><button class="btn btn-sm btn-secondary"><i data-lucide="eye"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Booking Request -->
+<div class="modal-overlay" id="modal-booking">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New Booking Request</span>
+      <button class="icon-btn" onclick="closeModal('modal-booking')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Club / Organization</label>
+        <select class="form-control">
+          <option>CSSG</option><option>IEEE</option><option>Red Cross Youth</option><option>Robotics Club</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label">Venue / Equipment</label>
+          <select class="form-control">
+            <option>Auditorium A</option><option>MPH Room B</option><option>MPH Room C</option><option>Computer Lab 3</option><option>Projector Set</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-control" type="date" />
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label">Start Time</label>
+          <input class="form-control" type="time" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Time</label>
+          <input class="form-control" type="time" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Purpose / Event Description</label>
+        <textarea class="form-control" rows="3" style="resize:vertical;" placeholder="Describe the event or activity…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Equipment Needed</label>
+        <input class="form-control" type="text" placeholder="e.g. 2 microphones, extension cords…" />
+        <div class="form-hint">Optional — list any extra equipment to be reserved.</div>
+      </div>
+      <div class="notice notice-blue">
+        <i data-lucide="info"></i>
+        <div class="notice-text"><strong>Routing</strong>This request will be automatically routed to the assigned Faculty / Facility Manager for approval. You will receive an email once a decision is made.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-booking')">Cancel</button>
+      <button class="btn btn-primary"><i data-lucide="send"></i> Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<script>
+lucide.createIcons();
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); }));
+function switchTab(btn, panelId){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+</script>
+</body>
+</html>

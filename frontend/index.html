@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Student Organization Platform</title>
+  <meta name="description" content="Central dashboard for the Student Organization Management Platform — manage clubs, facilities, and events." />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <i data-lucide="graduation-cap" style="width:18px;height:18px;"></i>
+      </div>
+      <div>
+        <div class="sidebar-brand-name">Student Org</div>
+        <div class="sidebar-brand-sub">Management Platform</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a href="index.html" class="nav-item active">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </a>
+
+      <div class="nav-section-label">Subsystems</div>
+      <a href="pages/directory.html" class="nav-item">
+        <i data-lucide="users"></i> Directory
+      </a>
+      <a href="pages/booking.html" class="nav-item">
+        <i data-lucide="calendar-check"></i> Facility Booking
+      </a>
+      <a href="pages/events.html" class="nav-item">
+        <i data-lucide="ticket"></i> Events
+      </a>
+      <a href="pages/scanner.html" class="nav-item">
+        <i data-lucide="scan-line"></i> QR Scanner
+      </a>
+
+      <div class="nav-section-label">System</div>
+      <a href="#" class="nav-item">
+        <i data-lucide="settings"></i> Settings
+      </a>
+      <a href="#" class="nav-item">
+        <i data-lucide="help-circle"></i> Help
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">JM</div>
+        <div class="user-info">
+          <div class="user-name">Juan Miguel R.</div>
+          <div class="user-role">Admin</div>
+        </div>
+        <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" id="btn-search" title="Search">
+          <i data-lucide="search"></i>
+        </button>
+        <button class="icon-btn" id="btn-notifications" title="Notifications">
+          <i data-lucide="bell"></i>
+        </button>
+        <div class="avatar">JM</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Welcome -->
+      <div style="margin-bottom:var(--space-8);">
+        <h1 style="font-size:20px;font-weight:700;color:var(--color-text-primary);margin-bottom:4px;">
+          Good afternoon, Juan Miguel
+        </h1>
+        <p style="font-size:13px;color:var(--color-text-secondary);">
+          Here's what's happening across all three subsystems today.
+        </p>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid-4" style="margin-bottom:var(--space-8);">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Active Clubs</span>
+            <div class="stat-icon stat-icon-blue"><i data-lucide="users"></i></div>
+          </div>
+          <div class="stat-value">24</div>
+          <div class="stat-delta">3 added this semester</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Pending Bookings</span>
+            <div class="stat-icon stat-icon-amber"><i data-lucide="clock"></i></div>
+          </div>
+          <div class="stat-value">7</div>
+          <div class="stat-delta">Awaiting faculty approval</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Upcoming Events</span>
+            <div class="stat-icon stat-icon-green"><i data-lucide="calendar"></i></div>
+          </div>
+          <div class="stat-value">12</div>
+          <div class="stat-delta">Next 30 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-label">Total Members</span>
+            <div class="stat-icon stat-icon-red"><i data-lucide="user-check"></i></div>
+          </div>
+          <div class="stat-value">1,248</div>
+          <div class="stat-delta">Across all organizations</div>
+        </div>
+      </div>
+
+      <!-- Middle Row -->
+      <div class="grid-2" style="margin-bottom:var(--space-8);">
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent Activity</div>
+              <div class="card-subtitle">Platform-wide activity log</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">View all</button>
+          </div>
+          <div class="card-body" style="padding:var(--space-5);">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot done">
+                  <i data-lucide="check"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Booking approved — MPH Room B</div>
+                  <div class="timeline-time">CSSG · 2 hours ago</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot">
+                  <i data-lucide="bell"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Announcement posted by IEEE Student Branch</div>
+                  <div class="timeline-time">IEEE · 4 hours ago</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot">
+                  <i data-lucide="user-plus"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-title">3 new members joined Red Cross Youth</div>
+                  <div class="timeline-time">RCY · Yesterday</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot">
+                  <i data-lucide="ticket"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Event created — Tech Summit 2026</div>
+                  <div class="timeline-time">CSSG · Yesterday</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot">
+                  <i data-lucide="calendar-x"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Booking denied — Audio Equipment</div>
+                  <div class="timeline-time">Robotics Club · 2 days ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subsystem Status -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);">
+          <!-- Subsystem Cards -->
+          <a href="pages/directory.html" class="card" style="padding:var(--space-5);display:flex;gap:var(--space-4);align-items:center;transition:box-shadow var(--transition),border-color var(--transition);" onmouseover="this.style.boxShadow='var(--shadow-sm)'" onmouseout="this.style.boxShadow=''">
+            <div class="stat-icon stat-icon-blue" style="width:40px;height:40px;border-radius:var(--radius-md);">
+              <i data-lucide="users" style="width:20px;height:20px;"></i>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px;">Membership &amp; Directory</div>
+              <div style="font-size:12px;color:var(--color-text-muted);">24 clubs · 1,248 members</div>
+              <div class="progress-bar" style="margin-top:var(--space-2);">
+                <div class="progress-fill" style="width:72%;"></div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--color-text-muted);"></i>
+          </a>
+
+          <a href="pages/booking.html" class="card" style="padding:var(--space-5);display:flex;gap:var(--space-4);align-items:center;transition:box-shadow var(--transition);" onmouseover="this.style.boxShadow='var(--shadow-sm)'" onmouseout="this.style.boxShadow=''">
+            <div class="stat-icon stat-icon-amber" style="width:40px;height:40px;border-radius:var(--radius-md);">
+              <i data-lucide="calendar-check" style="width:20px;height:20px;"></i>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px;">Facility Booking</div>
+              <div style="font-size:12px;color:var(--color-text-muted);">7 pending · 3 venues available</div>
+              <div class="progress-bar" style="margin-top:var(--space-2);">
+                <div class="progress-fill" style="width:45%;background:#d97706;"></div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--color-text-muted);"></i>
+          </a>
+
+          <a href="pages/events.html" class="card" style="padding:var(--space-5);display:flex;gap:var(--space-4);align-items:center;transition:box-shadow var(--transition);" onmouseover="this.style.boxShadow='var(--shadow-sm)'" onmouseout="this.style.boxShadow=''">
+            <div class="stat-icon stat-icon-green" style="width:40px;height:40px;border-radius:var(--radius-md);">
+              <i data-lucide="ticket" style="width:20px;height:20px;"></i>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px;">Event Scheduler &amp; QR Attendance</div>
+              <div style="font-size:12px;color:var(--color-text-muted);">12 upcoming · 340 registered</div>
+              <div class="progress-bar" style="margin-top:var(--space-2);">
+                <div class="progress-fill" style="width:88%;background:#166534;"></div>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" style="width:16px;height:16px;color:var(--color-text-muted);"></i>
+          </a>
+
+          <!-- Quick Actions -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Quick Actions</div>
+            </div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-4);">
+              <a href="pages/directory.html" class="btn btn-secondary" style="justify-content:flex-start;">
+                <i data-lucide="plus-circle"></i> New Club / Organization
+              </a>
+              <a href="pages/booking.html" class="btn btn-secondary" style="justify-content:flex-start;">
+                <i data-lucide="calendar-plus"></i> Request Facility Booking
+              </a>
+              <a href="pages/events.html" class="btn btn-secondary" style="justify-content:flex-start;">
+                <i data-lucide="calendar-plus-2"></i> Create Event
+              </a>
+              <a href="pages/scanner.html" class="btn btn-secondary" style="justify-content:flex-start;">
+                <i data-lucide="scan-line"></i> Open QR Scanner
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Approvals Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Pending Booking Approvals</div>
+            <div class="card-subtitle">Requires faculty or facility manager review</div>
+          </div>
+          <a href="pages/booking.html" class="btn btn-secondary btn-sm">View all</a>
+        </div>
+        <div class="table-wrap" style="border:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+          <table>
+            <thead>
+              <tr>
+                <th>Club / Requester</th>
+                <th>Venue / Equipment</th>
+                <th>Date &amp; Time</th>
+                <th>Purpose</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="font-weight:500;">CSSG</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">Carlo Reyes</div>
+                </td>
+                <td>Auditorium A</td>
+                <td>Nov 3, 2026 · 1:00–5:00 PM</td>
+                <td>Tech Summit Keynote</td>
+                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
+                <td style="display:flex;gap:var(--space-2);">
+                  <button class="btn btn-sm btn-primary">Approve</button>
+                  <button class="btn btn-sm btn-danger">Deny</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:500;">IEEE</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">Maria Santos</div>
+                </td>
+                <td>MPH Room C</td>
+                <td>Nov 5, 2026 · 3:00–6:00 PM</td>
+                <td>Workshop: PCB Design</td>
+                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
+                <td style="display:flex;gap:var(--space-2);">
+                  <button class="btn btn-sm btn-primary">Approve</button>
+                  <button class="btn btn-sm btn-danger">Deny</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:500;">Red Cross Youth</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">Ana Cruz</div>
+                </td>
+                <td>Projector Set (2×)</td>
+                <td>Nov 8, 2026 · 8:00 AM–12:00 PM</td>
+                <td>First Aid Seminar</td>
+                <td><span class="badge badge-amber"><i data-lucide="clock"></i> Pending</span></td>
+                <td style="display:flex;gap:var(--space-2);">
+                  <button class="btn btn-sm btn-primary">Approve</button>
+                  <button class="btn btn-sm btn-danger">Deny</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- end page-body -->
+  </div><!-- end main -->
+</div><!-- end app-shell -->
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

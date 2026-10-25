@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directory — Student Organization Platform</title>
+  <meta name="description" content="Browse and manage all student councils, organizations, and campus groups." />
+  <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <i data-lucide="graduation-cap" style="width:18px;height:18px;"></i>
+      </div>
+      <div>
+        <div class="sidebar-brand-name">Student Org</div>
+        <div class="sidebar-brand-sub">Management Platform</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a href="../index.html" class="nav-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <div class="nav-section-label">Subsystems</div>
+      <a href="directory.html" class="nav-item active"><i data-lucide="users"></i> Directory</a>
+      <a href="booking.html" class="nav-item"><i data-lucide="calendar-check"></i> Facility Booking</a>
+      <a href="events.html" class="nav-item"><i data-lucide="ticket"></i> Events</a>
+      <a href="scanner.html" class="nav-item"><i data-lucide="scan-line"></i> QR Scanner</a>
+      <div class="nav-section-label">System</div>
+      <a href="#" class="nav-item"><i data-lucide="settings"></i> Settings</a>
+      <a href="#" class="nav-item"><i data-lucide="help-circle"></i> Help</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">JM</div>
+        <div class="user-info">
+          <div class="user-name">Juan Miguel R.</div>
+          <div class="user-role">Admin</div>
+        </div>
+        <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <i data-lucide="chevron-right"></i>
+          <span>Directory</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" title="Search"><i data-lucide="search"></i></button>
+        <button class="icon-btn" title="Notifications"><i data-lucide="bell"></i></button>
+        <div class="avatar">JM</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Membership &amp; Directory</h1>
+          <div class="section-subtitle">All student councils, organizations, and campus groups</div>
+        </div>
+        <div style="display:flex;gap:var(--space-2);">
+          <button class="btn btn-secondary" onclick="openModal('modal-announce')">
+            <i data-lucide="megaphone"></i> Post Announcement
+          </button>
+          <button class="btn btn-primary" onclick="openModal('modal-add-club')">
+            <i data-lucide="plus"></i> Add Club
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="card" style="margin-bottom:var(--space-6);padding:var(--space-4);">
+        <div style="display:flex;gap:var(--space-4);align-items:center;flex-wrap:wrap;">
+          <div class="input-group" style="flex:1;min-width:200px;">
+            <span class="input-icon"><i data-lucide="search"></i></span>
+            <input id="search-clubs" class="form-control" type="text" placeholder="Search clubs or officers…" oninput="filterClubs()" />
+          </div>
+          <select id="filter-type" class="form-control" style="width:180px;" onchange="filterClubs()">
+            <option value="">All Categories</option>
+            <option value="Academic">Academic</option>
+            <option value="Cultural">Cultural</option>
+            <option value="Service">Service</option>
+            <option value="Sports">Sports</option>
+            <option value="Technical">Technical</option>
+          </select>
+          <div style="display:flex;gap:var(--space-2);">
+            <span class="badge badge-neutral"><i data-lucide="building-2"></i> 24 Total</span>
+            <span class="badge badge-green"><i data-lucide="check-circle"></i> 22 Active</span>
+            <span class="badge badge-red"><i data-lucide="circle-x"></i> 2 Inactive</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'tab-grid')" id="tab-grid-btn">
+          <i data-lucide="layout-grid"></i> Grid View <span class="tab-count">24</span>
+        </button>
+        <button class="tab" onclick="switchTab(this,'tab-table')" id="tab-table-btn">
+          <i data-lucide="table"></i> List View
+        </button>
+        <button class="tab" onclick="switchTab(this,'tab-announcements')" id="tab-ann-btn">
+          <i data-lucide="megaphone"></i> Announcements <span class="tab-count">5</span>
+        </button>
+      </div>
+
+      <!-- Grid View -->
+      <div id="tab-grid" class="tab-panel active">
+        <div class="grid-cols-auto" id="club-grid">
+          <!-- Clubs rendered by JS -->
+        </div>
+      </div>
+
+      <!-- List View -->
+      <div id="tab-table" class="tab-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Organization</th>
+                <th>Category</th>
+                <th>President</th>
+                <th>Members</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="club-table-body">
+              <!-- rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Announcements -->
+      <div id="tab-announcements" class="tab-panel">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);" id="announcements-list">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+
+    </div><!-- end page-body -->
+  </div><!-- end main -->
+</div><!-- end app-shell -->
+
+<!-- Modal: Add Club -->
+<div class="modal-overlay" id="modal-add-club">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add New Club</span>
+      <button class="icon-btn" onclick="closeModal('modal-add-club')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Club Name</label>
+        <input class="form-control" type="text" placeholder="e.g. Computer Science Society" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-control">
+          <option>Academic</option>
+          <option>Cultural</option>
+          <option>Service</option>
+          <option>Sports</option>
+          <option>Technical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">President / Lead Officer</label>
+        <input class="form-control" type="text" placeholder="Full name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" rows="3" placeholder="Brief description of the club…" style="resize:vertical;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-club')">Cancel</button>
+      <button class="btn btn-primary"><i data-lucide="save"></i> Save Club</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Post Announcement -->
+<div class="modal-overlay" id="modal-announce">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Post Announcement</span>
+      <button class="icon-btn" onclick="closeModal('modal-announce')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Target Audience</label>
+        <select class="form-control">
+          <option>All Students</option>
+          <option>All Club Members</option>
+          <option>Specific Club</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input class="form-control" type="text" placeholder="Announcement title" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-control" rows="4" placeholder="Write your announcement…" style="resize:vertical;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-announce')">Cancel</button>
+      <button class="btn btn-primary"><i data-lucide="send"></i> Post</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/directory.js"></script>
+<script>
+lucide.createIcons();
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); }));
+function switchTab(btn, panelId){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+</script>
+</body>
+</html>

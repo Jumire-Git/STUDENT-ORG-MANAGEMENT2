@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events — Student Organization Platform</title>
+  <meta name="description" content="Schedule campus events, generate QR passes, and track attendance." />
+  <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    .event-row { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; gap: var(--space-5); align-items: flex-start; transition: box-shadow var(--transition); }
+    .event-row:hover { box-shadow: var(--shadow-sm); }
+    .event-date-block { text-align: center; min-width: 48px; }
+    .event-date-block .day { font-size: 24px; font-weight: 700; line-height: 1; color: var(--color-text-primary); }
+    .event-date-block .month { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-muted); }
+    .event-info { flex: 1; }
+    .event-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .event-meta { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+    .event-meta svg { width: 12px; height: 12px; }
+    .event-actions { display: flex; gap: var(--space-2); align-items: center; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i data-lucide="graduation-cap" style="width:18px;height:18px;"></i></div>
+      <div>
+        <div class="sidebar-brand-name">Student Org</div>
+        <div class="sidebar-brand-sub">Management Platform</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a href="../index.html" class="nav-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <div class="nav-section-label">Subsystems</div>
+      <a href="directory.html" class="nav-item"><i data-lucide="users"></i> Directory</a>
+      <a href="booking.html" class="nav-item"><i data-lucide="calendar-check"></i> Facility Booking</a>
+      <a href="events.html" class="nav-item active"><i data-lucide="ticket"></i> Events</a>
+      <a href="scanner.html" class="nav-item"><i data-lucide="scan-line"></i> QR Scanner</a>
+      <div class="nav-section-label">System</div>
+      <a href="#" class="nav-item"><i data-lucide="settings"></i> Settings</a>
+      <a href="#" class="nav-item"><i data-lucide="help-circle"></i> Help</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">JM</div>
+        <div class="user-info"><div class="user-name">Juan Miguel R.</div><div class="user-role">Admin</div></div>
+        <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <i data-lucide="chevron-right"></i>
+          <span>Events</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn"><i data-lucide="search"></i></button>
+        <button class="icon-btn"><i data-lucide="bell"></i></button>
+        <div class="avatar">JM</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Event Scheduler &amp; QR Attendance</h1>
+          <div class="section-subtitle">Create events, generate digital passes, track attendance in real time</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-create-event')">
+          <i data-lucide="plus"></i> Create Event
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4" style="margin-bottom:var(--space-6);">
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">Upcoming Events</span><div class="stat-icon stat-icon-blue"><i data-lucide="calendar"></i></div></div>
+          <div class="stat-value">12</div>
+          <div class="stat-delta">Next 30 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">Registered</span><div class="stat-icon stat-icon-green"><i data-lucide="user-check"></i></div></div>
+          <div class="stat-value">340</div>
+          <div class="stat-delta">Across all events</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">QR Passes Issued</span><div class="stat-icon stat-icon-amber"><i data-lucide="qr-code"></i></div></div>
+          <div class="stat-value">316</div>
+          <div class="stat-delta">93% conversion</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header"><span class="stat-label">Avg. Attendance</span><div class="stat-icon stat-icon-red"><i data-lucide="bar-chart-2"></i></div></div>
+          <div class="stat-value">78%</div>
+          <div class="stat-delta">Last 5 events</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'tab-upcoming')"><i data-lucide="calendar-clock"></i> Upcoming <span class="tab-count">12</span></button>
+        <button class="tab" onclick="switchTab(this,'tab-calendar')"><i data-lucide="calendar"></i> Calendar View</button>
+        <button class="tab" onclick="switchTab(this,'tab-past')"><i data-lucide="archive"></i> Past Events</button>
+      </div>
+
+      <!-- Upcoming -->
+      <div id="tab-upcoming" class="tab-panel active">
+        <!-- Filter -->
+        <div style="display:flex;gap:var(--space-3);margin-bottom:var(--space-5);align-items:center;flex-wrap:wrap;">
+          <div class="input-group" style="flex:1;min-width:200px;">
+            <span class="input-icon"><i data-lucide="search"></i></span>
+            <input class="form-control" type="text" placeholder="Search events…" />
+          </div>
+          <select class="form-control" style="width:160px;">
+            <option>All Clubs</option>
+            <option>CSSG</option>
+            <option>IEEE</option>
+            <option>Red Cross Youth</option>
+          </select>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+          <!-- Event: Tech Summit -->
+          <div class="event-row">
+            <div class="event-date-block">
+              <div class="day">3</div>
+              <div class="month">Nov</div>
+            </div>
+            <div style="width:1px;background:var(--color-border);margin:0 var(--space-2);align-self:stretch;"></div>
+            <div class="event-info">
+              <div class="event-name">Tech Summit 2026</div>
+              <div class="event-meta">
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="clock"></i> 1:00 PM – 6:00 PM</span>
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="map-pin"></i> Auditorium A</span>
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="users"></i> 200 registered</span>
+                <span class="badge badge-blue">CSSG</span>
+              </div>
+              <div style="margin-top:var(--space-3);">
+                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                  <div style="flex:1;"><div class="progress-bar"><div class="progress-fill" style="width:80%;"></div></div></div>
+                  <span style="font-size:11px;color:var(--color-text-muted);white-space:nowrap;">160 / 200 seats</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-actions">
+              <button class="btn btn-secondary btn-sm" onclick="openModal('modal-qr')"><i data-lucide="qr-code"></i> QR Pass</button>
+              <button class="btn btn-secondary btn-sm"><i data-lucide="bar-chart-2"></i> Attendance</button>
+              <button class="icon-btn"><i data-lucide="more-horizontal"></i></button>
+            </div>
+          </div>
+
+          <!-- Event: PCB Workshop -->
+          <div class="event-row">
+            <div class="event-date-block">
+              <div class="day">5</div>
+              <div class="month">Nov</div>
+            </div>
+            <div style="width:1px;background:var(--color-border);margin:0 var(--space-2);align-self:stretch;"></div>
+            <div class="event-info">
+              <div class="event-name">PCB Design Workshop</div>
+              <div class="event-meta">
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="clock"></i> 3:00 PM – 6:00 PM</span>
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="map-pin"></i> MPH Room C</span>
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="users"></i> 45 registered</span>
+                <span class="badge badge-green">IEEE</span>
+              </div>
+              <div style="margin-top:var(--space-3);">
+                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                  <div style="flex:1;"><div class="progress-bar"><div class="progress-fill" style="width:56%;"></div></div></div>
+                  <span style="font-size:11px;color:var(--color-text-muted);white-space:nowrap;">45 / 80 seats</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-actions">
+              <button class="btn btn-secondary btn-sm" onclick="openModal('modal-qr')"><i data-lucide="qr-code"></i> QR Pass</button>
+              <button class="btn btn-secondary btn-sm"><i data-lucide="bar-chart-2"></i> Attendance</button>
+              <button class="icon-btn"><i data-lucide="more-horizontal"></i></button>
+            </div>
+          </div>
+
+          <!-- Event: First Aid -->
+          <div class="event-row">
+            <div class="event-date-block">
+              <div class="day">8</div>
+              <div class="month">Nov</div>
+            </div>
+            <div style="width:1px;background:var(--color-border);margin:0 var(--space-2);align-self:stretch;"></div>
+            <div class="event-info">
+              <div class="event-name">First Aid Seminar</div>
+              <div class="event-meta">
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="clock"></i> 8:00 AM – 12:00 PM</span>
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="map-pin"></i> AVR Room</span>
+                <span style="display:flex;align-items:center;gap:4px;"><i data-lucide="users"></i> 95 registered</span>
+                <span class="badge badge-red">Red Cross Youth</span>
+              </div>
+              <div style="margin-top:var(--space-3);">
+                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                  <div style="flex:1;"><div class="progress-bar"><div class="progress-fill" style="width:95%;"></div></div></div>
+                  <span style="font-size:11px;color:var(--color-text-muted);white-space:nowrap;">95 / 100 seats</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-actions">
+              <button class="btn btn-secondary btn-sm" onclick="openModal('modal-qr')"><i data-lucide="qr-code"></i> QR Pass</button>
+              <button class="btn btn-secondary btn-sm"><i data-lucide="bar-chart-2"></i> Attendance</button>
+              <button class="icon-btn"><i data-lucide="more-horizontal"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar View -->
+      <div id="tab-calendar" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:var(--space-4);flex:1;">
+              <button class="icon-btn"><i data-lucide="chevron-left"></i></button>
+              <span style="font-size:15px;font-weight:600;">November 2026</span>
+              <button class="icon-btn"><i data-lucide="chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="cal-grid">
+              <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div><div class="cal-day-header">Wed</div><div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div><div class="cal-day-header">Sat</div>
+              <div class="cal-day other-month"><div class="cal-day-num">26</div></div><div class="cal-day other-month"><div class="cal-day-num">27</div></div><div class="cal-day other-month"><div class="cal-day-num">28</div></div><div class="cal-day other-month"><div class="cal-day-num">29</div></div><div class="cal-day other-month"><div class="cal-day-num">30</div></div><div class="cal-day other-month"><div class="cal-day-num">31</div></div>
+              <div class="cal-day"><div class="cal-day-num">1</div></div>
+              <div class="cal-day"><div class="cal-day-num">2</div></div>
+              <div class="cal-day"><div class="cal-day-num">3</div><div class="cal-event-dot blue">Tech Summit</div></div>
+              <div class="cal-day"><div class="cal-day-num">4</div></div>
+              <div class="cal-day"><div class="cal-day-num">5</div><div class="cal-event-dot green">PCB Workshop</div></div>
+              <div class="cal-day"><div class="cal-day-num">6</div></div>
+              <div class="cal-day"><div class="cal-day-num">7</div></div>
+              <div class="cal-day"><div class="cal-day-num">8</div><div class="cal-event-dot amber">First Aid</div></div>
+              <div class="cal-day"><div class="cal-day-num">9</div></div><div class="cal-day"><div class="cal-day-num">10</div></div><div class="cal-day"><div class="cal-day-num">11</div></div><div class="cal-day"><div class="cal-day-num">12</div></div><div class="cal-day"><div class="cal-day-num">13</div></div><div class="cal-day"><div class="cal-day-num">14</div></div>
+              <div class="cal-day"><div class="cal-day-num">15</div></div><div class="cal-day"><div class="cal-day-num">16</div></div><div class="cal-day today"><div class="cal-day-num">17</div></div><div class="cal-day"><div class="cal-day-num">18</div></div><div class="cal-day"><div class="cal-day-num">19</div></div><div class="cal-day"><div class="cal-day-num">20</div></div><div class="cal-day"><div class="cal-day-num">21</div></div>
+              <div class="cal-day"><div class="cal-day-num">22</div></div><div class="cal-day"><div class="cal-day-num">23</div></div><div class="cal-day"><div class="cal-day-num">24</div></div><div class="cal-day"><div class="cal-day-num">25</div></div><div class="cal-day"><div class="cal-day-num">26</div></div><div class="cal-day"><div class="cal-day-num">27</div></div><div class="cal-day"><div class="cal-day-num">28</div></div>
+              <div class="cal-day"><div class="cal-day-num">29</div></div><div class="cal-day"><div class="cal-day-num">30</div></div><div class="cal-day other-month"><div class="cal-day-num">1</div></div><div class="cal-day other-month"><div class="cal-day-num">2</div></div><div class="cal-day other-month"><div class="cal-day-num">3</div></div><div class="cal-day other-month"><div class="cal-day-num">4</div></div><div class="cal-day other-month"><div class="cal-day-num">5</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Events -->
+      <div id="tab-past" class="tab-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th><th>Club</th><th>Date</th><th>Registered</th><th>Attended</th><th>Rate</th><th>Export</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="font-weight:500;">General Assembly — Q3</div><div style="font-size:11px;color:var(--color-text-muted);">Campus-wide</div></td>
+                <td>Supreme Student Council</td>
+                <td>Oct 15, 2026</td>
+                <td>450</td>
+                <td>412</td>
+                <td><span class="badge badge-green">91.6%</span></td>
+                <td><button class="btn btn-sm btn-secondary"><i data-lucide="download"></i> CSV</button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:500;">Hackathon 2026</div></td>
+                <td>CSSG</td>
+                <td>Oct 10, 2026</td>
+                <td>80</td>
+                <td>75</td>
+                <td><span class="badge badge-green">93.8%</span></td>
+                <td><button class="btn btn-sm btn-secondary"><i data-lucide="download"></i> CSV</button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:500;">Career Expo</div></td>
+                <td>JPIA</td>
+                <td>Oct 5, 2026</td>
+                <td>200</td>
+                <td>138</td>
+                <td><span class="badge badge-amber">69%</span></td>
+                <td><button class="btn btn-sm btn-secondary"><i data-lucide="download"></i> CSV</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Create Event -->
+<div class="modal-overlay" id="modal-create-event">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Create New Event</span>
+      <button class="icon-btn" onclick="closeModal('modal-create-event')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Event Name</label>
+        <input class="form-control" type="text" placeholder="e.g. Annual Leadership Summit" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label">Organizing Club</label>
+          <select class="form-control"><option>CSSG</option><option>IEEE</option><option>Red Cross Youth</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Audience</label>
+          <select class="form-control"><option>All Students</option><option>Club Members Only</option><option>Open to Public</option></select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-control" type="date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Start Time</label>
+          <input class="form-control" type="time" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Time</label>
+          <input class="form-control" type="time" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Venue</label>
+        <select class="form-control"><option>Auditorium A</option><option>MPH Room B</option><option>MPH Room C</option><option>Campus Quadrangle</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Speaker / Guest (optional)</label>
+        <input class="form-control" type="text" placeholder="Full name and title" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Max Capacity</label>
+        <input class="form-control" type="number" placeholder="e.g. 200" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" rows="3" style="resize:vertical;" placeholder="Event details…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-create-event')">Cancel</button>
+      <button class="btn btn-primary"><i data-lucide="calendar-plus"></i> Create &amp; Generate QR</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: QR Pass -->
+<div class="modal-overlay" id="modal-qr">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">QR Pass — Tech Summit 2026</span>
+      <button class="icon-btn" onclick="closeModal('modal-qr')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-5);">
+      <div class="notice notice-blue" style="width:100%;">
+        <i data-lucide="info"></i>
+        <div class="notice-text"><strong>Digital Pass</strong>Present this QR code at the event entrance for attendance scanning.</div>
+      </div>
+      <!-- QR Visual -->
+      <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-6);display:flex;flex-direction:column;align-items:center;gap:var(--space-3);">
+        <div style="width:160px;height:160px;background:var(--color-text-primary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+          <div style="width:140px;height:140px;background:white;border-radius:4px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="qr-code" style="width:100px;height:100px;color:var(--color-text-primary);"></i>
+          </div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:13px;font-weight:600;">Juan Miguel Repas</div>
+          <div style="font-size:12px;color:var(--color-text-muted);">Tech Summit 2026 · Nov 3, 2026</div>
+          <div style="font-size:11px;font-family:monospace;color:var(--color-text-muted);margin-top:4px;">EVT-2026-0042-JMR</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:var(--space-3);">
+        <button class="btn btn-secondary"><i data-lucide="download"></i> Download PNG</button>
+        <button class="btn btn-primary"><i data-lucide="send"></i> Email Pass</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+lucide.createIcons();
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); }));
+function switchTab(btn, panelId){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+</script>
+</body>
+</html>

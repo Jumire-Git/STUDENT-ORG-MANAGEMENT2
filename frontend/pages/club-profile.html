@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Club Profile — Student Organization Platform</title>
+  <meta name="description" content="Club profile page showing officers, members, and announcements." />
+  <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    .profile-hero {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      display: flex;
+      gap: var(--space-6);
+      align-items: flex-start;
+      margin-bottom: var(--space-6);
+    }
+    .profile-logo {
+      width: 72px; height: 72px;
+      border-radius: var(--radius-lg);
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 700;
+      color: var(--color-accent);
+      flex-shrink: 0;
+    }
+    .officer-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .officer-avatar {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-accent);
+      color: #fff;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .announcement-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+    }
+    .announcement-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i data-lucide="graduation-cap" style="width:18px;height:18px;"></i></div>
+      <div>
+        <div class="sidebar-brand-name">Student Org</div>
+        <div class="sidebar-brand-sub">Management Platform</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a href="../index.html" class="nav-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <div class="nav-section-label">Subsystems</div>
+      <a href="directory.html" class="nav-item active"><i data-lucide="users"></i> Directory</a>
+      <a href="booking.html" class="nav-item"><i data-lucide="calendar-check"></i> Facility Booking</a>
+      <a href="events.html" class="nav-item"><i data-lucide="ticket"></i> Events</a>
+      <a href="scanner.html" class="nav-item"><i data-lucide="scan-line"></i> QR Scanner</a>
+      <div class="nav-section-label">System</div>
+      <a href="#" class="nav-item"><i data-lucide="settings"></i> Settings</a>
+      <a href="#" class="nav-item"><i data-lucide="help-circle"></i> Help</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">JM</div>
+        <div class="user-info"><div class="user-name">Juan Miguel R.</div><div class="user-role">Admin</div></div>
+        <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a>
+          <i data-lucide="chevron-right"></i>
+          <a href="directory.html">Directory</a>
+          <i data-lucide="chevron-right"></i>
+          <span>CSSG</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn"><i data-lucide="search"></i></button>
+        <button class="icon-btn"><i data-lucide="bell"></i></button>
+        <div class="avatar">JM</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Profile Hero -->
+      <div class="profile-hero">
+        <div class="profile-logo">CS</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;">
+            <div>
+              <h1 style="font-size:20px;font-weight:700;margin-bottom:4px;">Computer Science Society of the Philippines</h1>
+              <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:var(--space-3);">
+                Acronym: <strong>CSSG</strong> &nbsp;·&nbsp; Category: <span class="tag"><i data-lucide="cpu" style="width:10px;height:10px;"></i> Technical</span> &nbsp;·&nbsp; <span class="badge badge-green"><i data-lucide="check-circle"></i> Active</span>
+              </div>
+              <p style="font-size:13px;color:var(--color-text-secondary);max-width:600px;line-height:1.7;">
+                CSSG is the premier organization for computer science students on campus. We foster a community of innovators, developers, and problem-solvers through events, workshops, and collaborative projects.
+              </p>
+            </div>
+            <div style="display:flex;gap:var(--space-2);flex-shrink:0;">
+              <button class="btn btn-secondary" onclick="openModal('modal-announce')">
+                <i data-lucide="megaphone"></i> Post Announcement
+              </button>
+              <button class="btn btn-primary" onclick="openModal('modal-add-member')">
+                <i data-lucide="user-plus"></i> Add Member
+              </button>
+              <button class="icon-btn" title="Edit club"><i data-lucide="pencil"></i></button>
+            </div>
+          </div>
+          <hr class="divider" style="margin:var(--space-4) 0;" />
+          <div style="display:flex;gap:var(--space-8);">
+            <div class="club-stat">
+              <div class="club-stat-val">52</div>
+              <div class="club-stat-lbl">Members</div>
+            </div>
+            <div class="club-stat">
+              <div class="club-stat-val">8</div>
+              <div class="club-stat-lbl">Officers</div>
+            </div>
+            <div class="club-stat">
+              <div class="club-stat-val">6</div>
+              <div class="club-stat-lbl">Events (Sem)</div>
+            </div>
+            <div class="club-stat">
+              <div class="club-stat-val">3</div>
+              <div class="club-stat-lbl">Bookings</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this,'tab-members')">
+          <i data-lucide="users"></i> Members <span class="tab-count">52</span>
+        </button>
+        <button class="tab" onclick="switchTab(this,'tab-officers')">
+          <i data-lucide="shield"></i> Officers <span class="tab-count">8</span>
+        </button>
+        <button class="tab" onclick="switchTab(this,'tab-announcements')">
+          <i data-lucide="megaphone"></i> Announcements <span class="tab-count">3</span>
+        </button>
+        <button class="tab" onclick="switchTab(this,'tab-events')">
+          <i data-lucide="ticket"></i> Events
+        </button>
+      </div>
+
+      <!-- Members Tab -->
+      <div id="tab-members" class="tab-panel active">
+        <div style="display:flex;gap:var(--space-3);margin-bottom:var(--space-5);flex-wrap:wrap;align-items:center;">
+          <div class="input-group" style="flex:1;min-width:200px;">
+            <span class="input-icon"><i data-lucide="search"></i></span>
+            <input class="form-control" type="text" placeholder="Search members…" id="search-members" oninput="filterMembers()" />
+          </div>
+          <select class="form-control" style="width:160px;" onchange="filterMembers()">
+            <option value="">All Years</option>
+            <option>1st Year</option>
+            <option>2nd Year</option>
+            <option>3rd Year</option>
+            <option>4th Year</option>
+          </select>
+          <button class="btn btn-secondary btn-sm">
+            <i data-lucide="download"></i> Export
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table id="members-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Student ID</th>
+                <th>Year Level</th>
+                <th>Course</th>
+                <th>Date Joined</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="members-body">
+              <!-- JS rendered -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Officers Tab -->
+      <div id="tab-officers" class="tab-panel">
+        <div class="grid-3" id="officers-grid">
+          <!-- JS rendered -->
+        </div>
+      </div>
+
+      <!-- Announcements Tab -->
+      <div id="tab-announcements" class="tab-panel">
+        <div style="display:flex;flex-direction:column;gap:var(--space-4);">
+          <div class="announcement-card">
+            <div class="announcement-header">
+              <div class="officer-avatar" style="width:32px;height:32px;font-size:11px;">CR</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;">Carlo Reyes</div>
+                <div style="font-size:11px;color:var(--color-text-muted);">President · Oct 24, 2026</div>
+              </div>
+              <span class="badge badge-blue" style="margin-left:auto;">CSSG Members</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:var(--space-2);">Tech Summit 2026 — Final Preparations</div>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              All members are required to report by 12:00 PM on November 3 for the setup of Tech Summit 2026. Please bring your IDs and wear the official CSSG shirt. See you there!
+            </p>
+          </div>
+
+          <div class="announcement-card">
+            <div class="announcement-header">
+              <div class="officer-avatar" style="width:32px;height:32px;font-size:11px;background:var(--color-success);">AS</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;">Ana Santos</div>
+                <div style="font-size:11px;color:var(--color-text-muted);">Secretary · Oct 20, 2026</div>
+              </div>
+              <span class="badge badge-blue" style="margin-left:auto;">CSSG Members</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:var(--space-2);">Monthly Meeting — October</div>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              Reminder: Monthly general membership meeting this Friday, Oct 22, at 4:00 PM in MPH Room B. Agenda includes Tech Summit updates and committee assignments.
+            </p>
+          </div>
+
+          <div class="announcement-card">
+            <div class="announcement-header">
+              <div class="officer-avatar" style="width:32px;height:32px;font-size:11px;background:var(--color-warning);">MR</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;">Marco Rivera</div>
+                <div style="font-size:11px;color:var(--color-text-muted);">VP External · Oct 12, 2026</div>
+              </div>
+              <span class="badge badge-neutral" style="margin-left:auto;">All Students</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:var(--space-2);">Open Membership Drive — Join CSSG!</div>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">
+              CSSG is now open for new members this semester. CS, IT, and related students are welcome. Fill out the membership form at the library bulletin board or message any officer.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Events Tab -->
+      <div id="tab-events" class="tab-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Venue</th>
+                <th>Registered</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:500;">Tech Summit 2026</td>
+                <td>Nov 3, 2026</td>
+                <td>Auditorium A</td>
+                <td>200 / 200</td>
+                <td><span class="badge badge-blue">Upcoming</span></td>
+                <td><a href="events.html" class="btn btn-sm btn-secondary"><i data-lucide="arrow-right"></i></a></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;">Hackathon 2026</td>
+                <td>Oct 10, 2026</td>
+                <td>Computer Lab 3</td>
+                <td>80 / 80</td>
+                <td><span class="badge badge-neutral">Completed</span></td>
+                <td><a href="events.html" class="btn btn-sm btn-secondary"><i data-lucide="arrow-right"></i></a></td>
+              </tr>
+              <tr>
+                <td style="font-weight:500;">GitHub Workshop</td>
+                <td>Sep 20, 2026</td>
+                <td>MPH Room B</td>
+                <td>45 / 60</td>
+                <td><span class="badge badge-neutral">Completed</span></td>
+                <td><a href="events.html" class="btn btn-sm btn-secondary"><i data-lucide="arrow-right"></i></a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- end page-body -->
+  </div><!-- end main -->
+</div><!-- end app-shell -->
+
+<!-- Modal: Add Member -->
+<div class="modal-overlay" id="modal-add-member">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Member — CSSG</span>
+      <button class="icon-btn" onclick="closeModal('modal-add-member')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-control" type="text" placeholder="Last, First Middle" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label">Student ID</label>
+          <input class="form-control" type="text" placeholder="YYYY-NNNN" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Year Level</label>
+          <select class="form-control">
+            <option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Course</label>
+        <input class="form-control" type="text" placeholder="e.g. BS Computer Science" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-control" type="email" placeholder="student@school.edu.ph" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-member')">Cancel</button>
+      <button class="btn btn-primary"><i data-lucide="user-plus"></i> Add Member</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Post Announcement -->
+<div class="modal-overlay" id="modal-announce">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Post Announcement</span>
+      <button class="icon-btn" onclick="closeModal('modal-announce')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Target Audience</label>
+        <select class="form-control">
+          <option>CSSG Members</option>
+          <option>All Students</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input class="form-control" type="text" placeholder="Announcement title" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-control" rows="4" style="resize:vertical;" placeholder="Write your announcement…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-announce')">Cancel</button>
+      <button class="btn btn-primary"><i data-lucide="send"></i> Post</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+lucide.createIcons();
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); }));
+function switchTab(btn, panelId){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+  lucide.createIcons();
+}
+
+/* ── Render Members ─────────────────────────────────────────── */
+const MEMBERS = [
+  { name:'Carlo Reyes',    id:'2021-0018', year:'4th Year', course:'BS CS',    joined:'Aug 2021', status:'Active', initials:'CR' },
+  { name:'Ana Santos',     id:'2022-0024', year:'3rd Year', course:'BS CS',    joined:'Aug 2022', status:'Active', initials:'AS' },
+  { name:'Marco Rivera',   id:'2022-0031', year:'3rd Year', course:'BS IT',    joined:'Aug 2022', status:'Active', initials:'MR' },
+  { name:'Lea Tan',        id:'2023-0077', year:'2nd Year', course:'BS CS',    joined:'Aug 2023', status:'Active', initials:'LT' },
+  { name:'Jun Park',       id:'2023-0099', year:'2nd Year', course:'BS CS',    joined:'Aug 2023', status:'Active', initials:'JP' },
+  { name:'Sofia Lim',      id:'2024-0009', year:'1st Year', course:'BS CS',    joined:'Aug 2024', status:'Active', initials:'SL' },
+  { name:'Ben Garcia',     id:'2024-0055', year:'1st Year', course:'BS IT',    joined:'Aug 2024', status:'Active', initials:'BG' },
+  { name:'Renz Diaz',      id:'2023-0042', year:'2nd Year', course:'BS IS',    joined:'Aug 2023', status:'Inactive', initials:'RD' },
+];
+
+const OFFICERS = [
+  { name:'Carlo Reyes',   position:'President',    initials:'CR', color:'var(--color-accent)' },
+  { name:'Ana Santos',    position:'Secretary',    initials:'AS', color:'var(--color-success)' },
+  { name:'Marco Rivera',  position:'VP External',  initials:'MR', color:'#d97706' },
+  { name:'Lea Tan',       position:'Treasurer',    initials:'LT', color:'#7c3aed' },
+  { name:'Jun Park',      position:'VP Internal',  initials:'JP', color:'#0891b2' },
+  { name:'Sofia Lim',     position:'PRO',          initials:'SL', color:'#db2777' },
+];
+
+function renderMembers(data){
+  const tbody = document.getElementById('members-body');
+  tbody.innerHTML = data.map(m => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+          <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">${m.initials}</div>
+          <span style="font-weight:500;">${m.name}</span>
+        </div>
+      </td>
+      <td style="font-family:monospace;font-size:12px;color:var(--color-text-muted);">${m.id}</td>
+      <td>${m.year}</td>
+      <td>${m.course}</td>
+      <td style="color:var(--color-text-muted);">${m.joined}</td>
+      <td><span class="badge ${m.status==='Active'?'badge-green':'badge-neutral'}">${m.status}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="icon-btn" title="Edit"><i data-lucide="pencil"></i></button>
+          <button class="icon-btn" title="Remove"><i data-lucide="trash-2"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+function renderOfficers(){
+  const grid = document.getElementById('officers-grid');
+  grid.innerHTML = OFFICERS.map(o => `
+    <div class="officer-card">
+      <div class="officer-avatar" style="background:${o.color};">${o.initials}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${o.name}</div>
+        <div style="font-size:12px;color:var(--color-text-muted);">${o.position}</div>
+      </div>
+      <button class="icon-btn"><i data-lucide="mail"></i></button>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+function filterMembers(){
+  const q = document.getElementById('search-members').value.toLowerCase();
+  const filtered = MEMBERS.filter(m =>
+    m.name.toLowerCase().includes(q) ||
+    m.id.toLowerCase().includes(q) ||
+    m.course.toLowerCase().includes(q)
+  );
+  renderMembers(filtered);
+}
+
+renderMembers(MEMBERS);
+renderOfficers();
+</script>
+</body>
+</html>
