@@ -41,13 +41,13 @@
       <a href="events.html" class="nav-item active"><i data-lucide="ticket"></i> Events</a>
       <a href="scanner.html" class="nav-item"><i data-lucide="scan-line"></i> QR Scanner</a>
       <div class="nav-section-label">System</div>
+      <a href="login.html" class="nav-item"><i data-lucide="arrow-left-right"></i> Switch Role</a>
       <a href="#" class="nav-item"><i data-lucide="settings"></i> Settings</a>
-      <a href="#" class="nav-item"><i data-lucide="help-circle"></i> Help</a>
     </nav>
     <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="avatar">JM</div>
-        <div class="user-info"><div class="user-name">Juan Miguel R.</div><div class="user-role">Admin</div></div>
+      <div class="user-card" title="Click to switch roles or log out">
+        <div class="avatar auth-user-avatar">JM</div>
+        <div class="user-info"><div class="user-name auth-user-name">Juan Miguel R.</div><div class="user-role auth-user-role">Admin</div></div>
         <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
       </div>
     </div>
@@ -64,9 +64,16 @@
         </div>
       </div>
       <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:var(--space-2);margin-right:var(--space-2);">
+          <span class="badge badge-purple auth-user-role" id="topbar-role-badge">Admin</span>
+          <a href="login.html" class="btn btn-secondary btn-sm" style="display:flex;align-items:center;gap:4px;">
+            <i data-lucide="arrow-left-right" style="width:12px;height:12px;"></i>
+            <span>Switch Role</span>
+          </a>
+        </div>
         <button class="icon-btn"><i data-lucide="search"></i></button>
         <button class="icon-btn"><i data-lucide="bell"></i></button>
-        <div class="avatar">JM</div>
+        <div class="avatar auth-user-avatar">JM</div>
       </div>
     </header>
 
@@ -76,7 +83,7 @@
           <h1 class="section-title">Event Scheduler &amp; QR Attendance</h1>
           <div class="section-subtitle">Create events, generate digital passes, track attendance in real time</div>
         </div>
-        <button class="btn btn-primary" onclick="openModal('modal-create-event')">
+        <button class="btn btn-primary" onclick="openModal('modal-create-event')" data-roles="admin,officer">
           <i data-lucide="plus"></i> Create Event
         </button>
       </div>
@@ -388,6 +395,7 @@
   </div>
 </div>
 
+<script src="../js/auth.js"></script>
 <script>
 lucide.createIcons();
 function openModal(id){ document.getElementById(id).classList.add('open'); }

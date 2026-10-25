@@ -44,20 +44,20 @@
       </a>
 
       <div class="nav-section-label">System</div>
-      <a href="#" class="nav-item">
-        <i data-lucide="settings"></i> Settings
+      <a href="pages/login.html" class="nav-item">
+        <i data-lucide="arrow-left-right"></i> Switch Role
       </a>
       <a href="#" class="nav-item">
-        <i data-lucide="help-circle"></i> Help
+        <i data-lucide="settings"></i> Settings
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="avatar">JM</div>
+      <div class="user-card" title="Click to switch roles or log out">
+        <div class="avatar auth-user-avatar">JM</div>
         <div class="user-info">
-          <div class="user-name">Juan Miguel R.</div>
-          <div class="user-role">Admin</div>
+          <div class="user-name auth-user-name">Juan Miguel R.</div>
+          <div class="user-role auth-user-role">Admin</div>
         </div>
         <i data-lucide="chevron-up" style="width:14px;height:14px;color:var(--color-text-muted);"></i>
       </div>
@@ -71,13 +71,20 @@
         <span class="page-title">Dashboard</span>
       </div>
       <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:var(--space-2);margin-right:var(--space-2);">
+          <span class="badge badge-purple auth-user-role" id="topbar-role-badge">Admin</span>
+          <a href="pages/login.html" class="btn btn-secondary btn-sm" style="display:flex;align-items:center;gap:4px;" title="Switch persona">
+            <i data-lucide="arrow-left-right" style="width:12px;height:12px;"></i>
+            <span>Switch Role</span>
+          </a>
+        </div>
         <button class="icon-btn" id="btn-search" title="Search">
           <i data-lucide="search"></i>
         </button>
         <button class="icon-btn" id="btn-notifications" title="Notifications">
           <i data-lucide="bell"></i>
         </button>
-        <div class="avatar">JM</div>
+        <div class="avatar auth-user-avatar">JM</div>
       </div>
     </header>
 
@@ -86,9 +93,9 @@
       <!-- Welcome -->
       <div style="margin-bottom:var(--space-8);">
         <h1 style="font-size:20px;font-weight:700;color:var(--color-text-primary);margin-bottom:4px;">
-          Good afternoon, Juan Miguel
+          Good day, <span id="welcome-user-name" class="auth-user-name">Juan Miguel</span>
         </h1>
-        <p style="font-size:13px;color:var(--color-text-secondary);">
+        <p style="font-size:13px;color:var(--color-text-secondary);" id="welcome-role-desc">
           Here's what's happening across all three subsystems today.
         </p>
       </div>
@@ -243,25 +250,31 @@
               <div class="card-title">Quick Actions</div>
             </div>
             <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-4);">
-              <a href="pages/directory.html" class="btn btn-secondary" style="justify-content:flex-start;">
+              <a href="pages/directory.html" class="btn btn-secondary" style="justify-content:flex-start;" data-roles="admin">
                 <i data-lucide="plus-circle"></i> New Club / Organization
               </a>
-              <a href="pages/booking.html" class="btn btn-secondary" style="justify-content:flex-start;">
+              <a href="pages/booking.html" class="btn btn-secondary" style="justify-content:flex-start;" data-roles="admin,officer">
                 <i data-lucide="calendar-plus"></i> Request Facility Booking
               </a>
-              <a href="pages/events.html" class="btn btn-secondary" style="justify-content:flex-start;">
+              <a href="pages/events.html" class="btn btn-secondary" style="justify-content:flex-start;" data-roles="admin,officer">
                 <i data-lucide="calendar-plus-2"></i> Create Event
               </a>
-              <a href="pages/scanner.html" class="btn btn-secondary" style="justify-content:flex-start;">
+              <a href="pages/scanner.html" class="btn btn-secondary" style="justify-content:flex-start;" data-roles="admin,officer,faculty">
                 <i data-lucide="scan-line"></i> Open QR Scanner
+              </a>
+              <a href="pages/events.html" class="btn btn-secondary" style="justify-content:flex-start;" data-roles="student">
+                <i data-lucide="ticket"></i> View My QR Event Passes
+              </a>
+              <a href="pages/directory.html" class="btn btn-secondary" style="justify-content:flex-start;" data-roles="student">
+                <i data-lucide="compass"></i> Explore Campus Organizations
               </a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Pending Approvals Table -->
-      <div class="card">
+      <!-- Pending Approvals Table (Admin & Faculty Only) -->
+      <div class="card" data-roles="admin,faculty">
         <div class="card-header">
           <div>
             <div class="card-title">Pending Booking Approvals</div>
@@ -329,10 +342,65 @@
         </div>
       </div>
 
+      <!-- Student My Passes & Activities Section (Student Only) -->
+      <div class="card" data-roles="student" style="margin-top:var(--space-6);">
+        <div class="card-header">
+          <div>
+            <div class="card-title">My Registered Campus Events &amp; Passes</div>
+            <div class="card-subtitle">Show your digital QR code at the door for rapid check-in</div>
+          </div>
+          <a href="pages/events.html" class="btn btn-secondary btn-sm">Browse all events</a>
+        </div>
+        <div class="table-wrap" style="border:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+          <table>
+            <thead>
+              <tr>
+                <th>Event Name</th>
+                <th>Host Organization</th>
+                <th>Date &amp; Venue</th>
+                <th>Pass Status</th>
+                <th>Digital Pass</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="font-weight:600;">Annual Campus Tech Summit</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">Student ID: 2024-08192</div>
+                </td>
+                <td>Computer Science Student Guild</td>
+                <td>Nov 3, 2026 · Auditorium A</td>
+                <td><span class="badge badge-green"><i data-lucide="check-circle"></i> Confirmed</span></td>
+                <td>
+                  <a href="pages/events.html" class="btn btn-sm btn-secondary">
+                    <i data-lucide="qr-code"></i> View Pass
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:600;">PCB Design &amp; IoT Workshop</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">Student ID: 2024-08192</div>
+                </td>
+                <td>IEEE Student Branch</td>
+                <td>Nov 5, 2026 · MPH Room C</td>
+                <td><span class="badge badge-blue"><i data-lucide="clock"></i> Registered</span></td>
+                <td>
+                  <a href="pages/events.html" class="btn btn-sm btn-secondary">
+                    <i data-lucide="qr-code"></i> View Pass
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div><!-- end page-body -->
   </div><!-- end main -->
 </div><!-- end app-shell -->
 
+<script src="js/auth.js"></script>
 <script>
   lucide.createIcons();
 </script>
