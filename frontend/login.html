@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In — Student Organization Management Platform</title>
-  <meta name="description" content="Sign in to the Student Organization Management Platform with mock roles: Admin, Club Officer, Faculty Approver, and Student." />
+  <meta name="description" content="Sign in to your Student Organization Management account to access campus directories, room reservations, and event passes." />
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
@@ -12,370 +12,457 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      justify-content: space-between;
+      background: #f8fafc;
+      color: var(--color-text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
-    .login-container {
+
+    .login-wrapper {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: var(--space-8) var(--space-4);
     }
-    .login-layout {
+
+    .login-card {
       width: 100%;
-      max-width: 1060px;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: var(--space-8);
+      max-width: 420px;
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.03);
-      overflow: hidden;
-    }
-    @media (max-width: 880px) {
-      .login-layout {
-        grid-template-columns: 1fr;
-      }
-      .login-sidebar-panel {
-        order: 2;
-      }
-    }
-    .login-main-panel {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
       padding: var(--space-8);
+      animation: fadeIn 150ms ease-out;
     }
-    .login-sidebar-panel {
-      background: #f8fafc;
-      border-left: 1px solid var(--color-border);
-      padding: var(--space-8);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .brand-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      margin-bottom: var(--space-6);
+
+    .brand-section {
+      text-align: center;
+      margin-bottom: var(--space-8);
     }
-    .brand-icon {
-      width: 40px;
-      height: 40px;
+
+    .brand-badge-icon {
+      width: 48px;
+      height: 48px;
       background: var(--color-accent);
       border-radius: var(--radius-md);
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
+      color: #ffffff;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
     }
+
     .brand-title {
-      font-size: 15px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--color-text-primary);
-      line-height: 1.2;
-    }
-    .brand-subtitle {
-      font-size: 12px;
-      color: var(--color-text-muted);
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-2);
     }
 
-    /* Persona selection grid */
-    .persona-section-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--color-text-muted);
-      margin-bottom: var(--space-3);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .persona-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-3);
-      margin-bottom: var(--space-6);
-    }
-    @media (max-width: 540px) {
-      .persona-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    .persona-card {
-      border: 1px solid var(--color-border);
-      background: var(--color-surface);
-      border-radius: var(--radius-md);
-      padding: var(--space-3) var(--space-4);
-      cursor: pointer;
-      text-align: left;
-      transition: all var(--transition);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      position: relative;
-    }
-    .persona-card:hover {
-      border-color: #cbd5e1;
-      background: var(--color-surface-2);
-      transform: translateY(-1px);
-    }
-    .persona-card.active {
-      border-color: var(--color-accent);
-      background: var(--color-accent-light);
-      box-shadow: 0 0 0 1px var(--color-accent);
-    }
-    .persona-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .persona-role-badge {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 1px 6px;
-      border-radius: var(--radius-full);
-    }
-    .persona-icon {
-      width: 16px;
-      height: 16px;
-      color: var(--color-text-secondary);
-    }
-    .persona-card.active .persona-icon {
-      color: var(--color-accent);
-    }
-    .persona-name {
+    .brand-sub {
       font-size: 13px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-    }
-    .persona-email {
-      font-size: 11px;
-      color: var(--color-text-muted);
-      font-family: monospace;
-    }
-
-    /* Subsystem status pills in sidebar */
-    .feature-card {
-      background: #fff;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-4);
-      margin-bottom: var(--space-3);
-    }
-    .feature-card-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      margin-bottom: var(--space-1);
-    }
-    .feature-card-header i {
-      width: 16px;
-      height: 16px;
-      color: var(--color-accent);
-    }
-    .feature-card-body {
-      font-size: 12px;
       color: var(--color-text-secondary);
       line-height: 1.5;
     }
 
-    .login-footer-bar {
-      border-top: 1px solid var(--color-border);
-      padding: var(--space-4);
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon-left {
+      position: absolute;
+      left: var(--space-3);
+      color: var(--color-text-muted);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper .form-control {
+      padding-left: 38px;
+      padding-right: 38px;
+      height: 40px;
+      font-size: 13px;
+    }
+
+    .input-action-btn {
+      position: absolute;
+      right: var(--space-3);
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0;
+      transition: color var(--transition);
+    }
+
+    .input-action-btn:hover {
+      color: var(--color-text-primary);
+    }
+
+    .login-btn {
+      width: 100%;
+      height: 42px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      border-radius: var(--radius-md);
+      background: var(--color-accent);
+      color: #fff;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background var(--transition), box-shadow var(--transition);
+    }
+
+    .login-btn:hover {
+      background: var(--color-accent-hover);
+      box-shadow: 0 2px 4px rgba(29, 78, 216, 0.25);
+    }
+
+    .login-btn:active {
+      transform: translateY(1px);
+    }
+
+    .auth-alert {
+      display: none;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      margin-bottom: var(--space-5);
+      border: 1px solid;
+    }
+
+    .auth-alert-error {
+      background: var(--color-danger-bg);
+      border-color: #fecaca;
+      color: var(--color-danger);
+    }
+
+    .auth-alert-success {
+      background: var(--color-success-bg);
+      border-color: #bbf7d0;
+      color: var(--color-success);
+    }
+
+    .divider-text {
+      display: flex;
+      align-items: center;
       text-align: center;
+      color: var(--color-text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      margin: var(--space-6) 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .divider-text::before,
+    .divider-text::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .divider-text::before {
+      margin-right: var(--space-3);
+    }
+
+    .divider-text::after {
+      margin-left: var(--space-3);
+    }
+
+    .sso-btn {
+      width: 100%;
+      height: 40px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .sso-btn:hover {
+      background: var(--color-surface-2);
+      border-color: #d1d5db;
+    }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+      font-size: 12px;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--color-accent);
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      color: var(--color-accent);
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .login-footer {
+      text-align: center;
+      padding: var(--space-6);
       font-size: 12px;
       color: var(--color-text-muted);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .login-footer-links {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-4);
+      margin-top: var(--space-2);
+    }
+
+    .login-footer-links a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+    }
+
+    .login-footer-links a:hover {
+      color: var(--color-text-primary);
+      text-decoration: underline;
+    }
+
+    /* Discreet quick-fill helper */
+    .credentials-helper {
+      margin-top: var(--space-6);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border-soft);
+      text-align: center;
+    }
+
+    .helper-toggle {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+    }
+
+    .helper-toggle:hover {
+      color: var(--color-text-secondary);
+      background: var(--color-surface-2);
+    }
+
+    .helper-dropdown {
+      display: none;
+      margin-top: var(--space-3);
+      padding: var(--space-3);
+      background: var(--color-surface-2);
+      border-radius: var(--radius-md);
+      font-size: 11px;
+      text-align: left;
+    }
+
+    .helper-dropdown.show {
+      display: block;
+    }
+
+    .quick-account-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 6px 8px;
+      margin-bottom: 4px;
       background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      cursor: pointer;
+      text-align: left;
+      transition: background var(--transition);
+    }
+
+    .quick-account-btn:last-child {
+      margin-bottom: 0;
+    }
+
+    .quick-account-btn:hover {
+      background: var(--color-accent-light);
+      border-color: #bfdbfe;
     }
   </style>
 </head>
 <body>
 
-<div class="login-container">
-  <div class="login-layout">
+<div class="login-wrapper">
+  <div class="login-card">
 
-    <!-- Left: Login Form & Mock Accounts -->
-    <div class="login-main-panel">
-      <div class="brand-header">
-        <div class="brand-icon">
-          <i data-lucide="graduation-cap" style="width:22px;height:22px;"></i>
-        </div>
-        <div>
-          <div class="brand-title">Student Organization Management Platform</div>
-          <div class="brand-subtitle">Centralized Campus Directory, Facility Booking & Event QR System</div>
-        </div>
+    <!-- Brand Header -->
+    <div class="brand-section">
+      <div class="brand-badge-icon">
+        <i data-lucide="graduation-cap" style="width: 24px; height: 24px;"></i>
       </div>
-
-      <div style="margin-bottom: var(--space-6);">
-        <h1 style="font-size: 20px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px;">
-          Select a Mock Account
-        </h1>
-        <p style="font-size: 13px; color: var(--color-text-secondary);">
-          Click any role persona below to instantly populate credentials and test role-specific features.
-        </p>
-      </div>
-
-      <!-- Persona Selection Grid -->
-      <div class="persona-section-title">
-        <span>Available Mock Roles</span>
-        <span style="font-weight: 500; font-size: 10px; color: var(--color-accent);">Click to select</span>
-      </div>
-
-      <div class="persona-grid" id="persona-selector">
-        <!-- Admin -->
-        <div class="persona-card active" data-role="admin">
-          <div class="persona-top">
-            <span class="persona-role-badge badge-purple">Admin</span>
-            <i data-lucide="shield-check" class="persona-icon"></i>
-          </div>
-          <div class="persona-name">Juan Miguel R.</div>
-          <div class="persona-email">admin@campus.edu</div>
-        </div>
-
-        <!-- Club Officer -->
-        <div class="persona-card" data-role="officer">
-          <div class="persona-top">
-            <span class="persona-role-badge badge-blue">Club Officer</span>
-            <i data-lucide="award" class="persona-icon"></i>
-          </div>
-          <div class="persona-name">Maria Santos</div>
-          <div class="persona-email">officer@campus.edu</div>
-        </div>
-
-        <!-- Faculty Approver -->
-        <div class="persona-card" data-role="faculty">
-          <div class="persona-top">
-            <span class="persona-role-badge badge-amber">Faculty Approver</span>
-            <i data-lucide="check-square" class="persona-icon"></i>
-          </div>
-          <div class="persona-name">Dr. Roberto Diaz</div>
-          <div class="persona-email">faculty@campus.edu</div>
-        </div>
-
-        <!-- Student -->
-        <div class="persona-card" data-role="student">
-          <div class="persona-top">
-            <span class="persona-role-badge badge-green">Student</span>
-            <i data-lucide="user" class="persona-icon"></i>
-          </div>
-          <div class="persona-name">Alex Rivera</div>
-          <div class="persona-email">student@campus.edu</div>
-        </div>
-      </div>
-
-      <!-- Active Persona Summary Banner -->
-      <div id="active-persona-banner" class="notice" style="background:#eff6ff; border-color:#bfdbfe; margin-bottom:var(--space-6);">
-        <i data-lucide="info" style="width:16px;height:16px;color:var(--color-accent);flex-shrink:0;margin-top:2px;"></i>
-        <div>
-          <div style="font-weight:600;font-size:12px;color:var(--color-text-primary);" id="banner-role-name">
-            Logged in as: Juan Miguel R. (Admin)
-          </div>
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;" id="banner-role-desc">
-            Full system privileges across all 3 subsystems (Directory, Booking, and Event QR Attendance).
-          </div>
-        </div>
-      </div>
-
-      <!-- Sign In Form -->
-      <form id="login-form">
-        <div class="form-group">
-          <label class="form-label" for="login-email">Email Address</label>
-          <div class="input-group">
-            <span class="input-icon"><i data-lucide="mail"></i></span>
-            <input type="email" id="login-email" class="form-control" value="admin@campus.edu" required />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
-            <label class="form-label" for="login-password" style="margin-bottom:0;">Password</label>
-            <span style="font-size: 11px; color: var(--color-text-muted);">Default: password123</span>
-          </div>
-          <div class="input-group">
-            <span class="input-icon"><i data-lucide="lock"></i></span>
-            <input type="password" id="login-password" class="form-control" value="password123" required />
-          </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-6);">
-          <label style="display:inline-flex; align-items:center; gap:var(--space-2); font-size:12px; color:var(--color-text-secondary); cursor:pointer;">
-            <input type="checkbox" checked /> Remember session
-          </label>
-          <a href="#" style="font-size:12px; color:var(--color-accent); font-weight:500;">Role help?</a>
-        </div>
-
-        <div style="display:flex; gap:var(--space-3);">
-          <button type="submit" id="btn-submit-login" class="btn btn-primary" style="flex:1; justify-content:center; padding:var(--space-3);">
-            <i data-lucide="log-in" style="width:16px;height:16px;"></i>
-            <span id="btn-login-text">Sign In as Admin</span>
-          </button>
-          <button type="button" id="btn-direct-dash" class="btn btn-secondary" title="Direct launch" style="padding:var(--space-3);">
-            <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
-          </button>
-        </div>
-      </form>
-
-      <div id="login-error" style="display:none; margin-top:var(--space-4);" class="notice notice-danger">
-        <i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;"></i>
-        <span id="login-error-text"></span>
-      </div>
+      <h1 class="brand-title">Sign In</h1>
+      <p class="brand-sub">Student Organization Management Platform</p>
     </div>
 
-    <!-- Right: Role Capabilities & Subsystem Matrix -->
-    <div class="login-sidebar-panel">
-      <div>
-        <div style="font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--color-text-muted); margin-bottom:var(--space-4);">
-          Role Capabilities
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-card-header">
-            <i data-lucide="users"></i>
-            <span>Subsystem 1: Directory</span>
-          </div>
-          <div class="feature-card-body">
-            <strong>Admins & Officers</strong> can manage club rosters, edit officer lists, and broadcast campus-wide notices. <strong>Students</strong> can explore active clubs.
-          </div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-card-header">
-            <i data-lucide="calendar-check"></i>
-            <span>Subsystem 2: Facility Booking</span>
-          </div>
-          <div class="feature-card-body">
-            <strong>Officers</strong> submit room and equipment reservations. <strong>Faculty Approvers</strong> review, accept, or deny requests with conflict prevention.
-          </div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-card-header">
-            <i data-lucide="ticket"></i>
-            <span>Subsystem 3: Event QR Passes</span>
-          </div>
-          <div class="feature-card-body">
-            <strong>Officers</strong> schedule events. <strong>Students</strong> generate individualized digital QR passes. <strong>Door Marshals</strong> scan passes to verify attendance in real-time.
-          </div>
-        </div>
-      </div>
-
-      <div style="padding-top:var(--space-6); border-top:1px solid var(--color-border);">
-        <div style="display:flex; align-items:center; gap:var(--space-2); font-size:12px; color:var(--color-text-secondary);">
-          <i data-lucide="shield" style="width:14px;height:14px;color:var(--color-accent);"></i>
-          <span>Secure mock authentication session</span>
-        </div>
-      </div>
+    <!-- Alert Message -->
+    <div id="auth-alert" class="auth-alert auth-alert-error" role="alert">
+      <i data-lucide="alert-circle" style="width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;"></i>
+      <span id="auth-alert-message">Invalid email or password.</span>
     </div>
+
+    <!-- Login Form -->
+    <form id="form-login" novalidate>
+      <div class="form-group" style="margin-bottom: var(--space-4);">
+        <label class="form-label" for="input-email">Institutional Email</label>
+        <div class="input-wrapper">
+          <span class="input-icon-left">
+            <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+          </span>
+          <input
+            type="email"
+            id="input-email"
+            class="form-control"
+            placeholder="you@campus.edu"
+            autocomplete="email"
+            required
+            value="admin@campus.edu"
+          />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: var(--space-4);">
+        <label class="form-label" for="input-password">Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon-left">
+            <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
+          </span>
+          <input
+            type="password"
+            id="input-password"
+            class="form-control"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+            value="password123"
+          />
+          <button
+            type="button"
+            id="btn-toggle-password"
+            class="input-action-btn"
+            title="Show password"
+            aria-label="Toggle password visibility"
+          >
+            <i data-lucide="eye" id="icon-eye" style="width: 16px; height: 16px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-options">
+        <label class="checkbox-label">
+          <input type="checkbox" id="check-remember" checked />
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="forgot-link" onclick="alert('Password reset instructions have been sent to your institutional email.'); return false;">Forgot password?</a>
+      </div>
+
+      <button type="submit" id="btn-submit" class="login-btn">
+        <span>Sign In</span>
+        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+      </button>
+
+      <div class="divider-text">or continue with</div>
+
+      <button type="button" class="sso-btn" onclick="alert('Connecting to Campus Single Sign-On (SSO) Identity Provider…')">
+        <i data-lucide="key-round" style="width: 16px; height: 16px; color: var(--color-text-secondary);"></i>
+        <span>Campus Single Sign-On (SSO)</span>
+      </button>
+
+      <!-- Discreet Quick Demo Accounts Popover -->
+      <div class="credentials-helper">
+        <button type="button" id="btn-toggle-helper" class="helper-toggle">
+          <i data-lucide="help-circle" style="width: 12px; height: 12px;"></i>
+          <span>Mock Credentials (Click to fill)</span>
+        </button>
+        <div id="helper-dropdown" class="helper-dropdown">
+          <div style="font-weight: 600; margin-bottom: 6px; color: var(--color-text-secondary);">Select an account to auto-fill:</div>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('admin@campus.edu', 'password123')">
+            <span><strong>Admin:</strong> admin@campus.edu</span>
+            <span class="badge badge-purple" style="font-size: 9px;">Admin</span>
+          </button>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('officer@campus.edu', 'password123')">
+            <span><strong>Officer:</strong> officer@campus.edu</span>
+            <span class="badge badge-blue" style="font-size: 9px;">Officer</span>
+          </button>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@campus.edu', 'password123')">
+            <span><strong>Faculty:</strong> faculty@campus.edu</span>
+            <span class="badge badge-amber" style="font-size: 9px;">Faculty</span>
+          </button>
+          <button type="button" class="quick-account-btn" onclick="fillAccount('student@campus.edu', 'password123')">
+            <span><strong>Student:</strong> student@campus.edu</span>
+            <span class="badge badge-green" style="font-size: 9px;">Student</span>
+          </button>
+        </div>
+      </div>
+    </form>
 
   </div>
 </div>
 
-<footer class="login-footer-bar">
-  Student Organization Management Platform &copy; 2026 · Modular Campus Network Architecture
+<footer class="login-footer">
+  <div>Student Organization Management Platform &copy; 2026. All rights reserved.</div>
+  <div class="login-footer-links">
+    <a href="#">Privacy Policy</a>
+    <span>&bull;</span>
+    <a href="#">Terms of Service</a>
+    <span>&bull;</span>
+    <a href="#">Campus Helpdesk</a>
+  </div>
 </footer>
 
 <script src="js/auth.js"></script>
@@ -383,69 +470,76 @@
   // Initialize Lucide icons
   lucide.createIcons();
 
-  let selectedRole = 'admin';
-  const mockUsers = Auth.getMockUsers();
+  const form = document.getElementById('form-login');
+  const emailInput = document.getElementById('input-email');
+  const passwordInput = document.getElementById('input-password');
+  const submitBtn = document.getElementById('btn-submit');
+  const alertBox = document.getElementById('auth-alert');
+  const alertMsg = document.getElementById('auth-alert-message');
+  const togglePassBtn = document.getElementById('btn-toggle-password');
+  const eyeIcon = document.getElementById('icon-eye');
+  const helperToggle = document.getElementById('btn-toggle-helper');
+  const helperDropdown = document.getElementById('helper-dropdown');
 
-  const emailInput = document.getElementById('login-email');
-  const passwordInput = document.getElementById('login-password');
-  const btnLoginText = document.getElementById('btn-login-text');
-  const bannerRoleName = document.getElementById('banner-role-name');
-  const bannerRoleDesc = document.getElementById('banner-role-desc');
-  const loginError = document.getElementById('login-error');
-  const loginErrorText = document.getElementById('login-error-text');
-
-  function updateRoleSelection(roleKey) {
-    selectedRole = roleKey;
-    const user = mockUsers[roleKey];
-    if (!user) return;
-
-    // Highlight card
-    document.querySelectorAll('.persona-card').forEach(card => {
-      card.classList.toggle('active', card.getAttribute('data-role') === roleKey);
-    });
-
-    // Populate inputs
-    emailInput.value = user.email;
-    passwordInput.value = user.password;
-    btnLoginText.textContent = `Sign In as ${user.roleBadge}`;
-
-    // Update banner
-    bannerRoleName.textContent = `Selected Persona: ${user.name} (${user.roleBadge})`;
-    bannerRoleDesc.textContent = user.description;
-
-    loginError.style.display = 'none';
-  }
-
-  // Handle card click
-  document.querySelectorAll('.persona-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const role = card.getAttribute('data-role');
-      updateRoleSelection(role);
-    });
+  // Toggle password visibility
+  togglePassBtn.addEventListener('click', () => {
+    const isPassword = passwordInput.getAttribute('type') === 'password';
+    passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+    eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+    lucide.createIcons();
   });
 
-  // Handle login submit
-  document.getElementById('login-form').addEventListener('submit', (e) => {
+  // Toggle mock helper
+  helperToggle.addEventListener('click', () => {
+    helperDropdown.classList.toggle('show');
+  });
+
+  // Quick fill function
+  window.fillAccount = function(email, password) {
+    emailInput.value = email;
+    passwordInput.value = password;
+    helperDropdown.classList.remove('show');
+    alertBox.style.display = 'none';
+  };
+
+  // Form submission
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const result = Auth.login(emailInput.value, passwordInput.value);
-    if (result.success) {
-      window.location.href = 'index.html';
-    } else {
-      loginError.style.display = 'flex';
-      loginErrorText.textContent = result.message;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+      showAlert('Please enter both email and password.');
+      return;
     }
+
+    // Visual feedback
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span>Signing in…</span>`;
+
+    setTimeout(() => {
+      const result = Auth.login(email, password);
+      if (result.success) {
+        alertBox.className = 'auth-alert auth-alert-success';
+        alertMsg.textContent = `Welcome, ${result.user.name}. Redirecting to dashboard…`;
+        alertBox.style.display = 'flex';
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 400);
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
+        lucide.createIcons();
+        showAlert(result.message);
+      }
+    }, 350);
   });
 
-  // Direct dash shortcut
-  document.getElementById('btn-direct-dash').addEventListener('click', () => {
-    Auth.setCurrentUser(selectedRole);
-    window.location.href = 'index.html';
-  });
-
-  // Check if already logged in and pre-select
-  const current = Auth.getCurrentUser();
-  if (current && current.key) {
-    updateRoleSelection(current.key);
+  function showAlert(message) {
+    alertBox.className = 'auth-alert auth-alert-error';
+    alertMsg.textContent = message;
+    alertBox.style.display = 'flex';
+    lucide.createIcons();
   }
 </script>
 
