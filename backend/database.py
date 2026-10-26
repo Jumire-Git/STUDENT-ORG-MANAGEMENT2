@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DB_NAME = "database.db"
+DB_NAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "database.db")
 
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -52,13 +52,13 @@ def init_db():
 
     # 4. Announcements table (Subsystem 1)
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS announcements (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            club_id INTEGER,
-            title TEXT NOT NULL,
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (club_id) REFERENCES clubs (id)
+       CREATE TABLE IF NOT EXISTS announcements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        club_id INTEGER,
+        author_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 

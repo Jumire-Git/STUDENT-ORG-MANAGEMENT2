@@ -14,20 +14,36 @@ const API_BASE = 'http://localhost:5000/api';
  */
 async function apiFetch(endpoint, options = {}) {
   const defaultHeaders = { 'Content-Type': 'application/json' };
+
+  // Attach the logged-in user's identity to every request (auth.js loads first)
+  if (window.Auth && typeof Auth.getCurrentUser === 'function') {
+    const u = Auth.getCurrentUser();
+    if (u && u.email) defaultHeaders['X-User-Email'] = u.email;
+  }
+
+  let res;
   try {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
+    res = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
       headers: { ...defaultHeaders, ...(options.headers || {}) },
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: res.statusText }));
-      throw new Error(err.message || `HTTP ${res.status}`);
-    }
-    return res.json();
-  } catch (err) {
-    console.error(`[API] ${endpoint}:`, err.message);
-    throw err;
+  } catch (networkErr) {
+    // Server down, wrong port, or CORS blocked the request
+    console.error(`[API] ${endpoint}: network error`, networkErr);
+    throw new Error('Cannot reach the server. Is Flask running on port 5000?');
   }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const reason = body.message || body.error || res.statusText || '';
+    const msg = `HTTP ${res.status}${reason ? ' — ' + reason : ''}`;
+    console.error(`[API] ${endpoint}:`, msg);
+    throw new Error(msg);
+  }
+
+  // Handle empty responses (e.g. 204 No Content on DELETE)
+  if (res.status === 204) return null;
+  return res.json().catch(() => null);
 }
 
 /* ── Directory ──────────────────────────────────────────────── */
@@ -66,6 +82,7 @@ const EventsAPI = {
 };
 
 /* ── Export ─────────────────────────────────────────────────── */
+window.apiFetch     = apiFetch;
 window.DirectoryAPI = DirectoryAPI;
 window.BookingAPI   = BookingAPI;
 window.EventsAPI    = EventsAPI;

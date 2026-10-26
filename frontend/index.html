@@ -271,6 +271,22 @@
             </div>
           </div>
         </div>
+
+        <!-- Announcements -->
+        <div class="card" id="announcements-card">
+         <div class="card-header">
+           <div class="card-title">Announcements</div>
+            </div>
+          <div class="card-body"> 
+            <form id="announce-form" data-roles="admin,officer" style="margin-bottom:16px;">
+             <input id="ann-title" placeholder="Title" required style="width:100%; margin-bottom:8px;">
+             <textarea id="ann-body" placeholder="Write your announcement..." required style="width:100%; margin-bottom:8px;"></textarea>
+             <button type="submit" class="btn btn-primary">Post Announcement</button>
+          </form>
+
+          <div id="announcements-list">Loading...</div>
+         </div>
+       </div>
       </div>
 
       <!-- Pending Approvals Table (Admin & Faculty Only) -->
@@ -360,7 +376,9 @@
 </div><!-- end app-shell -->
 
 <script src="js/auth.js"></script>
+<script src="js/api.js"></script>
 <script src="js/app-state.js"></script>
+
 <script>
   function renderDashboardPending() {
     const tbody = document.getElementById('dashboard-pending-body');
@@ -416,5 +434,55 @@
     renderDashboardPending();
   });
 </script>
+
+<script>
+  const user = Auth.getCurrentUser();
+  
+    function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text ?? '';
+    return div.innerHTML;
+  }
+
+  async function loadAnnouncements() {
+    const list = document.getElementById('announcements-list');
+    try {
+      const items = await apiFetch('/announcements');
+      if (!items || !items.length) {
+        list.innerHTML = '<p>No announcements yet.</p>';
+        return;
+      }
+      list.innerHTML = items.map(a => `
+        <div style="padding:12px 0; border-bottom:1px solid #eee;">
+          <strong>${escapeHtml(a.title)}</strong>
+          <p style="margin:4px 0;">${escapeHtml(a.body)}</p>
+          <small>${escapeHtml(a.author)}${a.club ? ' · ' + escapeHtml(a.club) : ''} · ${escapeHtml(a.created_at)}</small>
+        </div>
+      `).join('');
+    } catch (err) {
+      list.innerHTML = `<p>Could not load announcements (${escapeHtml(err.message)}).</p>`;
+    }
+  }
+
+  document.getElementById('announce-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await apiFetch('/announcements', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: document.getElementById('ann-title').value,
+          body: document.getElementById('ann-body').value
+        })
+      });
+      e.target.reset();
+      loadAnnouncements();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  loadAnnouncements();
+  </script>
+
 </body>
 </html>

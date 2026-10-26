@@ -20,16 +20,21 @@ def seed_data():
 
     # 2. Insert Sample Users
     users_data = [
-        (1, "Carlo Reyes", "carlo@qcu.edu.ph", "password123", "student"),
-        (2, "Ana Santos", "ana@qcu.edu.ph", "password123", "student"),
-        (3, "Marco Rivera", "marco@qcu.edu.ph", "password123", "student"),
-        (4, "Lea Tan", "lea@qcu.edu.ph", "password123", "student")
+    (1, "Carlo Reyes", "carlo@qcu.edu.ph", "password123", "student"),
+    (2, "Ana Santos", "ana@qcu.edu.ph", "password123", "student"),
+    (3, "Marco Rivera", "marco@qcu.edu.ph", "password123", "student"),
+    (4, "Lea Tan", "lea@qcu.edu.ph", "password123", "student"),
+    (5, "Juan Miguel R.", "admin@campus.edu", "password123", "admin"),
+    (6, "Maria Santos", "officer@campus.edu", "password123", "officer"),
+    (7, "Dr. Roberto Diaz", "faculty@campus.edu", "password123", "faculty"),
+    (8, "Alex Rivera", "student@campus.edu", "password123", "student"),
     ]
     cursor.executemany('INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)', users_data)
 
     # 3. Link Users to Clubs via club_members table
     memberships = [
         (1, 1, 'President'),   # Carlo -> CSSG
+        (1, 6, 'Vice President'), # Maria (officer) -> CSSG
         (1, 2, 'Secretary'),   # Ana -> CSSG
         (1, 3, 'VP External'), # Marco -> CSSG
         (1, 4, 'Treasurer'),   # Lea -> CSSG
