@@ -139,7 +139,7 @@
               <button class="btn btn-secondary" onclick="openModal('modal-announce')">
                 <i data-lucide="megaphone"></i> Post Announcement
               </button>
-              <button class="btn btn-primary" onclick="openModal('modal-add-member')">
+              <button class="btn btn-primary" onclick="openAddMember()">
                 <i data-lucide="user-plus"></i> Add Member
               </button>
               <button class="icon-btn" title="Edit club"><i data-lucide="pencil"></i></button>
@@ -327,42 +327,45 @@
   </div><!-- end main -->
 </div><!-- end app-shell -->
 
-<!-- Modal: Add Member -->
+<!-- Modal: Add / Edit Member -->
 <div class="modal-overlay" id="modal-add-member">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Add Member — CSSG</span>
-      <button class="icon-btn" onclick="closeModal('modal-add-member')"><i data-lucide="x"></i></button>
+      <span class="modal-title" id="member-modal-title">Add Member — CSSG</span>
+      <button type="button" class="icon-btn" onclick="closeModal('modal-add-member')"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label class="form-label">Full Name</label>
-        <input class="form-control" type="text" placeholder="Last, First Middle" />
+        <label class="form-label" for="member-name">Full Name</label>
+        <input class="form-control" id="member-name" type="text" placeholder="Last, First Middle" />
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
         <div class="form-group">
-          <label class="form-label">Student ID</label>
-          <input class="form-control" type="text" placeholder="YYYY-NNNN" />
+          <label class="form-label" for="member-student-id">Student ID</label>
+          <input class="form-control" id="member-student-id" type="text" placeholder="YYYY-NNNN" />
         </div>
         <div class="form-group">
-          <label class="form-label">Year Level</label>
-          <select class="form-control">
+          <label class="form-label" for="member-year">Year Level</label>
+          <select class="form-control" id="member-year">
             <option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Course</label>
-        <input class="form-control" type="text" placeholder="e.g. BS Computer Science" />
+        <label class="form-label" for="member-course">Course</label>
+        <input class="form-control" id="member-course" type="text" placeholder="e.g. BS Computer Science" />
       </div>
       <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-control" type="email" placeholder="student@school.edu.ph" />
+        <label class="form-label" for="member-email">Email</label>
+        <input class="form-control" id="member-email" type="email" placeholder="student@school.edu.ph" />
       </div>
+      <div id="member-error" style="display:none;color:#dc2626;font-size:13px;"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('modal-add-member')">Cancel</button>
-      <button class="btn btn-primary"><i data-lucide="user-plus"></i> Add Member</button>
+      <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-member')">Cancel</button>
+      <button type="button" class="btn btn-primary" id="member-submit">
+        <i data-lucide="user-plus"></i> <span id="member-submit-label">Add Member</span>
+      </button>
     </div>
   </div>
 </div>
@@ -404,104 +407,284 @@
 <script>
 lucide.createIcons();
 
-// Club Profile announcement submit handler
-document.getElementById('btn-club-post-ann')?.addEventListener('click', () => {
-  const title = document.getElementById('input-club-ann-title')?.value.trim();
-  const body = document.getElementById('input-club-ann-body')?.value.trim();
-  const audience = document.getElementById('select-club-ann-aud')?.value || 'CSSG Members';
-  if(!title || !body) { alert('Please enter both subject and message.'); return; }
+const urlParams = new URLSearchParams(window.location.search);
+const clubId = urlParams.get('id') || 1;
 
-  AppState.addAnnouncement({ club: 'CSSG', audience, title, body });
-  closeModal('modal-announce');
-  document.getElementById('input-club-ann-title').value = '';
-  document.getElementById('input-club-ann-body').value = '';
-  AppState.showToast('Announcement Posted', `Posted "${title}" for ${audience}.`);
-});
+/* ── Fetch Live Data from Flask Backend ──────────────────────── */
+async function loadClubProfile() {
+  try {
+    // 1. Fetch Club Details (Name & Description)
+    const clubRes = await fetch(`http://localhost:5000/api/clubs/${clubId}`);
+    if (clubRes.ok) {
+      const club = await clubRes.json();
+      const titleEl = document.querySelector('.card-body h1, h1');
+      if (titleEl && club.name) titleEl.textContent = club.name;
+      const descEl = document.querySelector('.card-body p');
+      if (descEl && club.description) descEl.textContent = club.description;
+    }
+
+    // 2. Fetch Live Members & Officers from Database
+    const membersRes = await fetch(`http://localhost:5000/api/clubs/${clubId}/members`);
+    if (membersRes.ok) {
+      const dbMembers = await membersRes.json();
+      const officers = dbMembers.filter(m => m.role_in_club && m.role_in_club !== 'Member');
+      
+      // Render tables (preserving 100% of your CSS & design)
+      renderMembers(dbMembers);
+      renderOfficers(officers.length > 0 ? officers : dbMembers);
+
+      // 3. Dynamically update header stats and tabs (preserving original tab CSS)
+      updateHeaderStats(dbMembers.length, officers.length);
+    }
+  } catch (error) {
+    console.error("Error loading club profile from database:", error);
+  }
+}
+
+/* ── Safe Counter Update (Retains Original CSS & Design) ─────── */
+function updateHeaderStats(totalMembers, totalOfficers) {
+  // 1. Update the top stat cards (.club-stat)
+  document.querySelectorAll('.club-stat').forEach(card => {
+    const label = card.querySelector('.club-stat-lbl')?.textContent.trim();
+    const valueEl = card.querySelector('.club-stat-val');
+    
+    if (valueEl) {
+      if (label === 'Members') valueEl.textContent = totalMembers;
+      if (label === 'Officers') valueEl.textContent = totalOfficers;
+    }
+  });
+
+  // 2. Update Members & Officers tab badges while preserving their original HTML classes and CSS
+  document.querySelectorAll('.tab').forEach(tab => {
+    const text = tab.textContent || '';
+    const badgeEl = tab.querySelector('span') || tab.querySelector('.badge');
+
+    if (text.includes('Members') && badgeEl) {
+      badgeEl.textContent = totalMembers;
+    }
+    
+    if (text.includes('Officers') && badgeEl) {
+      badgeEl.textContent = totalOfficers;
+    }
+  });
+}
+
+/* ── Render Members Function (Keeps 100% Original Design) ────── */
+function renderMembers(data){
+  const tbody = document.getElementById('members-body') || document.querySelector('table tbody');
+  if (!tbody) return;
+  
+  tbody.innerHTML = data.map(m => {
+    const initials = (m.name || 'Student').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:var(--space-3);">
+            <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">${initials}</div>
+            <span style="font-weight:500;">${m.name}</span>
+          </div>
+        </td>
+        <td style="font-family:monospace;font-size:12px;color:var(--color-text-muted);">${m.email || 'student@qcu.edu.ph'}</td>
+        <td>${m.role_in_club || 'Member'}</td>
+        <td>BS IT</td>
+        <td style="color:var(--color-text-muted);">Active</td>
+        <td><span class="badge badge-green">Active</span></td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button class="icon-btn" title="Edit"><i data-lucide="pencil"></i></button>
+            <button class="icon-btn" title="Remove"><i data-lucide="trash-2"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  if (window.lucide) lucide.createIcons();
+}
+
+/* ── Render Officers Function (Keeps 100% Original Design) ───── */
+function renderOfficers(officers){
+  const grid = document.getElementById('officers-grid');
+  if (!grid) return;
+  const colors = ['var(--color-accent)', 'var(--color-success)', '#d97706', '#7c3aed', '#0891b2', '#db2777'];
+  
+  grid.innerHTML = officers.map((o, idx) => {
+    const initials = (o.name || 'Officer').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    return `
+      <div class="officer-card">
+        <div class="officer-avatar" style="background:${colors[idx % colors.length]};">${initials}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;">${o.name}</div>
+          <div style="font-size:12px;color:var(--color-text-muted);">${o.role_in_club || 'Officer'}</div>
+        </div>
+        <button class="icon-btn"><i data-lucide="mail"></i></button>
+      </div>
+    `;
+  }).join('');
+  if (window.lucide) lucide.createIcons();
+}
+
+/* ── Members: render, add, edit, remove ───────────────────────── */
+let members = [];
+let editingUserId = null;
+const byId = id => document.getElementById(id);
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function memberUrl(userId = '') {
+  return `http://localhost:5000/api/clubs/${clubId}/members${userId ? '/' + userId : ''}`;
+}
+
+function renderMembers(data) {
+  members = data;
+  const tbody = byId('members-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = data.map(m => {
+    const initials = (m.name || 'S').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    const joined = m.joined_at ? m.joined_at.slice(0, 10) : '—';
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:var(--space-3);">
+            <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">${escapeHtml(initials)}</div>
+            <div>
+              <div style="font-weight:500;">${escapeHtml(m.name)}</div>
+              <div style="font-size:11px;color:var(--color-text-muted);">${escapeHtml(m.email)}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-family:monospace;font-size:12px;">${escapeHtml(m.student_id || '—')}</td>
+        <td>${escapeHtml(m.year_level || '—')}</td>
+        <td>${escapeHtml(m.course || '—')}</td>
+        <td style="color:var(--color-text-muted);">${escapeHtml(joined)}</td>
+        <td><span class="badge badge-green">Active</span></td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <button type="button" class="icon-btn" title="Edit" data-action="edit" data-id="${m.id}"><i data-lucide="pencil"></i></button>
+            <button type="button" class="icon-btn" title="Remove" data-action="remove" data-id="${m.id}"><i data-lucide="trash-2"></i></button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+  if (window.lucide) lucide.createIcons();
+}
+
+function showMemberError(msg) {
+  const box = byId('member-error');
+  box.textContent = msg;
+  box.style.display = msg ? 'block' : 'none';
+}
+
+function resetMemberForm() {
+  ['member-name', 'member-student-id', 'member-course', 'member-email'].forEach(id => byId(id).value = '');
+  byId('member-year').selectedIndex = 0;
+  showMemberError('');
+}
+
+function openAddMember() {
+  editingUserId = null;
+  resetMemberForm();
+  byId('member-modal-title').textContent = 'Add Member — CSSG';
+  byId('member-submit-label').textContent = 'Add Member';
+  byId('member-email').disabled = false;
+  openModal('modal-add-member');
+}
+
+function openEditMember(userId) {
+  const m = members.find(x => x.id === userId);
+  if (!m) return;
+  editingUserId = userId;
+  showMemberError('');
+  byId('member-name').value = m.name || '';
+  byId('member-student-id').value = m.student_id || '';
+  byId('member-year').value = m.year_level || '1st Year';
+  byId('member-course').value = m.course || '';
+  byId('member-email').value = m.email || '';
+  byId('member-email').disabled = true;   // email identifies the account, so it isn't editable here
+  byId('member-modal-title').textContent = 'Edit Member';
+  byId('member-submit-label').textContent = 'Save Changes';
+  openModal('modal-add-member');
+}
+
+async function submitMember() {
+  const payload = {
+    name: byId('member-name').value.trim(),
+    student_id: byId('member-student-id').value.trim(),
+    year_level: byId('member-year').value,
+    course: byId('member-course').value.trim(),
+  };
+  if (!editingUserId) payload.email = byId('member-email').value.trim();
+
+  if (!payload.name || (!editingUserId && !payload.email)) {
+    showMemberError('Full Name and Email are required.');
+    return;
+  }
+
+  const btn = byId('member-submit');
+  btn.disabled = true;
+  try {
+    const res = await fetch(memberUrl(editingUserId || ''), {
+      method: editingUserId ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { showMemberError(data.message || 'Server error'); return; }
+
+    closeModal('modal-add-member');
+    resetMemberForm();
+    await loadClubProfile();   // refreshes the table and the counters
+  } catch (err) {
+    console.error(err);
+    showMemberError('Could not connect to the backend server.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function removeMember(userId) {
+  const m = members.find(x => x.id === userId);
+  if (!m || !confirm(`Remove ${m.name} from this club?`)) return;
+  try {
+    const res = await fetch(memberUrl(userId), { method: 'DELETE' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { alert(data.message || 'Could not remove member.'); return; }
+    await loadClubProfile();
+  } catch (err) {
+    alert('Could not connect to the backend server.');
+  }
+}
+
+/* ── UI Handlers ──────────────────────────────────────────────── */
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); }));
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) e.target.classList.remove('open'); }));
+
 function switchTab(btn, panelId){
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById(panelId).classList.add('active');
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 }
 
-/* ── Render Members ─────────────────────────────────────────── */
-const MEMBERS = [
-  { name:'Carlo Reyes',    id:'2021-0018', year:'4th Year', course:'BS CS',    joined:'Aug 2021', status:'Active', initials:'CR' },
-  { name:'Ana Santos',     id:'2022-0024', year:'3rd Year', course:'BS CS',    joined:'Aug 2022', status:'Active', initials:'AS' },
-  { name:'Marco Rivera',   id:'2022-0031', year:'3rd Year', course:'BS IT',    joined:'Aug 2022', status:'Active', initials:'MR' },
-  { name:'Lea Tan',        id:'2023-0077', year:'2nd Year', course:'BS CS',    joined:'Aug 2023', status:'Active', initials:'LT' },
-  { name:'Jun Park',       id:'2023-0099', year:'2nd Year', course:'BS CS',    joined:'Aug 2023', status:'Active', initials:'JP' },
-  { name:'Sofia Lim',      id:'2024-0009', year:'1st Year', course:'BS CS',    joined:'Aug 2024', status:'Active', initials:'SL' },
-  { name:'Ben Garcia',     id:'2024-0055', year:'1st Year', course:'BS IT',    joined:'Aug 2024', status:'Active', initials:'BG' },
-  { name:'Renz Diaz',      id:'2023-0042', year:'2nd Year', course:'BS IS',    joined:'Aug 2023', status:'Inactive', initials:'RD' },
-];
-
-const OFFICERS = [
-  { name:'Carlo Reyes',   position:'President',    initials:'CR', color:'var(--color-accent)' },
-  { name:'Ana Santos',    position:'Secretary',    initials:'AS', color:'var(--color-success)' },
-  { name:'Marco Rivera',  position:'VP External',  initials:'MR', color:'#d97706' },
-  { name:'Lea Tan',       position:'Treasurer',    initials:'LT', color:'#7c3aed' },
-  { name:'Jun Park',      position:'VP Internal',  initials:'JP', color:'#0891b2' },
-  { name:'Sofia Lim',     position:'PRO',          initials:'SL', color:'#db2777' },
-];
-
-function renderMembers(data){
-  const tbody = document.getElementById('members-body');
-  tbody.innerHTML = data.map(m => `
-    <tr>
-      <td>
-        <div style="display:flex;align-items:center;gap:var(--space-3);">
-          <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">${m.initials}</div>
-          <span style="font-weight:500;">${m.name}</span>
-        </div>
-      </td>
-      <td style="font-family:monospace;font-size:12px;color:var(--color-text-muted);">${m.id}</td>
-      <td>${m.year}</td>
-      <td>${m.course}</td>
-      <td style="color:var(--color-text-muted);">${m.joined}</td>
-      <td><span class="badge ${m.status==='Active'?'badge-green':'badge-neutral'}">${m.status}</span></td>
-      <td>
-        <div style="display:flex;gap:4px;">
-          <button class="icon-btn" title="Edit"><i data-lucide="pencil"></i></button>
-          <button class="icon-btn" title="Remove"><i data-lucide="trash-2"></i></button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-  lucide.createIcons();
-}
-
-function renderOfficers(){
-  const grid = document.getElementById('officers-grid');
-  grid.innerHTML = OFFICERS.map(o => `
-    <div class="officer-card">
-      <div class="officer-avatar" style="background:${o.color};">${o.initials}</div>
-      <div style="flex:1;">
-        <div style="font-size:13px;font-weight:600;">${o.name}</div>
-        <div style="font-size:12px;color:var(--color-text-muted);">${o.position}</div>
-      </div>
-      <button class="icon-btn"><i data-lucide="mail"></i></button>
-    </div>
-  `).join('');
-  lucide.createIcons();
-}
-
-function filterMembers(){
-  const q = document.getElementById('search-members').value.toLowerCase();
-  const filtered = MEMBERS.filter(m =>
-    m.name.toLowerCase().includes(q) ||
-    m.id.toLowerCase().includes(q) ||
-    m.course.toLowerCase().includes(q)
-  );
-  renderMembers(filtered);
-}
-
-renderMembers(MEMBERS);
-renderOfficers();
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  loadClubProfile();
+  byId('member-submit').addEventListener('click', submitMember);   // bound once
+  byId('members-body').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const id = Number(btn.dataset.id);
+    if (btn.dataset.action === 'edit') openEditMember(id);
+    if (btn.dataset.action === 'remove') removeMember(id);
+  });
+  loadClubProfile();
+  setupAddMemberForm();
+});
 </script>
 </body>
 </html>

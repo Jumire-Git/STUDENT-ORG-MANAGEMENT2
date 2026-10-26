@@ -19,7 +19,10 @@ def init_db():
             name TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            role TEXT NOT NULL CHECK(role IN ('admin', 'officer', 'faculty', 'student'))
+            role TEXT NOT NULL CHECK(role IN ('admin', 'officer', 'faculty', 'student')),
+            student_id TEXT,
+            year_level TEXT,
+            course TEXT
         )
     ''')
 
@@ -37,9 +40,11 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS club_members (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            club_id INTEGER,
-            user_id INTEGER,
+            club_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
             role_in_club TEXT DEFAULT 'Member',
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (club_id, user_id),
             FOREIGN KEY (club_id) REFERENCES clubs (id),
             FOREIGN KEY (user_id) REFERENCES users (id)
         )

@@ -1,6 +1,6 @@
 /**
  * directory.js — Membership & Directory Subsystem
- * Connects to AppState for working club management, filtering, and announcements.
+ * Fetches and displays club management, filtering, and announcements from Flask Backend API.
  */
 
 const CATEGORY_BADGE = {
@@ -10,6 +10,43 @@ const CATEGORY_BADGE = {
   Cultural:  'badge-neutral',
   Sports:    'badge-red',
 };
+
+// Global variable to keep track of fetched clubs
+let globalClubs = [];
+
+/* ── Fetch Clubs from Flask Backend ──────────────────────────── */
+async function loadClubsFromBackend() {
+  try {
+    const response = await fetch('http://localhost:5000/api/clubs');
+    if (!response.ok) {
+      throw new Error('Failed to fetch clubs from backend');
+    }
+    globalClubs = await response.json();
+    
+    // ── Update Grid View badge count dynamically ────────────────
+    updateGridCountBadge(globalClubs.length);
+
+    filterClubs(); // Render grid/table once data is loaded
+  } catch (error) {
+    console.error("Error loading clubs:", error);
+    // Fallback or empty state if backend is down
+    renderGrid([]);
+    renderTable([]);
+    updateGridCountBadge(0);
+  }
+}
+
+/* ── Helper to safely update the Grid View count badge ──────── */
+function updateGridCountBadge(count) {
+  document.querySelectorAll('.tab, button, a').forEach(tab => {
+    if (tab.textContent.includes('Grid View')) {
+      const badge = tab.querySelector('.badge') || tab.querySelector('span');
+      if (badge) {
+        badge.textContent = count;
+      }
+    }
+  });
+}
 
 /* ── Render Club Grid ────────────────────────────────────────── */
 function renderGrid(data) {
@@ -28,19 +65,19 @@ function renderGrid(data) {
   container.innerHTML = data.map(c => `
     <a href="club-profile.html?id=${c.id}" class="club-card" style="text-decoration:none;">
       <div class="club-card-head">
-        <div class="club-logo">${(c.abbr || 'CO').substring(0,2)}</div>
+        <div class="club-logo">${(c.name || 'CO').substring(0,2).toUpperCase()}</div>
         <div class="club-meta">
           <div class="club-name">${c.name}</div>
-          <div class="club-type">${c.abbr}</div>
+          <div class="club-type">${c.contact_email || 'Organization'}</div>
         </div>
-        <span class="badge ${CATEGORY_BADGE[c.category] || 'badge-neutral'}" style="flex-shrink:0;">${c.category}</span>
+        <span class="badge badge-blue" style="flex-shrink:0;">Active</span>
       </div>
-      <div class="club-desc">${c.desc}</div>
+      <div class="club-desc">${c.description || 'No description provided.'}</div>
       <div class="club-stats">
-        <div class="club-stat"><div class="club-stat-val">${c.members || 1}</div><div class="club-stat-lbl">Members</div></div>
-        <div class="club-stat"><div class="club-stat-val">${c.events || 0}</div><div class="club-stat-lbl">Events</div></div>
+        <div class="club-stat"><div class="club-stat-val">1</div><div class="club-stat-lbl">Members</div></div>
+        <div class="club-stat"><div class="club-stat-val">0</div><div class="club-stat-lbl">Events</div></div>
         <div class="club-stat" style="margin-left:auto;">
-          <span class="badge ${c.status === 'Active' ? 'badge-green' : 'badge-neutral'}">${c.status}</span>
+          <span class="badge badge-green">Active</span>
         </div>
       </div>
     </a>
@@ -53,163 +90,87 @@ function renderTable(data) {
   const tbody = document.getElementById('club-table-body');
   if (!tbody) return;
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:var(--space-6);color:var(--color-text-muted);">No organizations found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:var(--space-6);color:var(--color-text-muted);">No organizations found.</td></tr>`;
     return;
   }
   tbody.innerHTML = data.map(c => `
-    <tr>
+    <tr onclick="window.location.href='club-profile.html?id=${c.id}'" style="cursor: pointer;" title="Click to view club profile">
       <td>
         <div style="display:flex;align-items:center;gap:var(--space-3);">
-          <div class="club-logo" style="width:32px;height:32px;font-size:12px;">${(c.abbr || 'CO').substring(0,2)}</div>
+          <div class="club-logo" style="width:32px;height:32px;font-size:12px;">${(c.name || 'CO').substring(0,2).toUpperCase()}</div>
           <div>
             <div style="font-weight:500;">${c.name}</div>
-            <div style="font-size:11px;color:var(--color-text-muted);">${c.abbr}</div>
+            <div style="font-size:11px;color:var(--color-text-muted);">${c.contact_email}</div>
           </div>
         </div>
       </td>
-      <td><span class="badge ${CATEGORY_BADGE[c.category] || 'badge-neutral'}">${c.category}</span></td>
-      <td>${c.president}</td>
-      <td>${c.members || 1}</td>
-      <td><span class="badge ${c.status === 'Active' ? 'badge-green' : 'badge-neutral'}">${c.status}</span></td>
-      <td>
-        <div style="display:flex;gap:4px;">
-          <a href="club-profile.html?id=${c.id}" class="btn btn-sm btn-secondary"><i data-lucide="eye"></i> View</a>
-          <button type="button" class="icon-btn btn-delete-club" data-id="${c.id}" title="Remove club"><i data-lucide="trash-2"></i></button>
-        </div>
-      </td>
+      <td><span class="badge badge-blue">Active</span></td>
+      <td>Student Lead</td>
+      <td>1</td>
+      <td><span class="badge badge-green">Active</span></td>
     </tr>
   `).join('');
   if (window.lucide) lucide.createIcons();
-
-  // Attach delete handlers
-  tbody.querySelectorAll('.btn-delete-club').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const clubId = parseInt(btn.getAttribute('data-id'), 10);
-      if (confirm('Are you sure you want to remove this organization from the directory?')) {
-        const clubs = AppState.getClubs().filter(c => c.id !== clubId);
-        localStorage.setItem(STORAGE_KEYS.CLUBS, JSON.stringify(clubs));
-        filterClubs();
-        AppState.showToast('Organization Removed', 'The organization has been removed from the directory.');
-      }
-    });
-  });
-}
-
-/* ── Render Announcements ────────────────────────────────────── */
-function renderAnnouncements(data) {
-  const container = document.getElementById('announcements-list');
-  if (!container) return;
-  if (!data || data.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-title">No announcements yet</div><div class="empty-state-text">Club officers and admins can post updates above.</div></div>`;
-    return;
-  }
-  container.innerHTML = data.map(a => `
-    <div class="card" style="margin-bottom:var(--space-4);">
-      <div class="card-body" style="padding:var(--space-5);">
-        <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3);">
-          <div class="avatar" style="width:32px;height:32px;font-size:11px;">${(a.author || 'JM').split(' ').map(w=>w[0]).join('').substring(0,2)}</div>
-          <div>
-            <div style="font-size:13px;font-weight:600;">${a.author}</div>
-            <div style="font-size:11px;color:var(--color-text-muted);">${a.role} · ${a.club} · ${a.date}</div>
-          </div>
-          <span class="badge badge-blue" style="margin-left:auto;">${a.audience}</span>
-        </div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:var(--space-2);">${a.title}</div>
-        <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;">${a.body}</p>
-      </div>
-    </div>
-  `).join('');
 }
 
 /* ── Filter Logic ────────────────────────────────────────────── */
 function filterClubs() {
   const q   = (document.getElementById('search-clubs')?.value || '').toLowerCase();
   const cat = (document.getElementById('filter-type')?.value || '');
-  const allClubs = AppState.getClubs();
-  const filtered = allClubs.filter(c =>
-    (!q   || c.name.toLowerCase().includes(q) || c.abbr.toLowerCase().includes(q) || (c.president && c.president.toLowerCase().includes(q))) &&
-    (!cat || c.category === cat)
+  
+  const filtered = globalClubs.filter(c =>
+    (!q || c.name.toLowerCase().includes(q) || (c.description && c.description.toLowerCase().includes(q)))
   );
+  
   renderGrid(filtered);
   renderTable(filtered);
 
   // Update total badge
   const countEl = document.getElementById('stat-total-clubs');
-  if (countEl) countEl.textContent = allClubs.length;
+  if (countEl) countEl.textContent = globalClubs.length;
+}
+
+/* ── Handle Add Club Form Submission ─────────────────────────── */
+function setupAddClubForm() {
+  const form = document.getElementById('add-club-form'); // Make sure this matches your HTML modal form ID
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const newClub = {
+      name: document.getElementById('club-name').value,
+      acronym: document.getElementById('club-acronym')?.value || '',
+      description: document.getElementById('club-desc').value,
+      category: document.getElementById('club-category')?.value || 'Technical',
+      contact_email: document.getElementById('club-email')?.value || ''
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/clubs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClub)
+      });
+
+      if (response.ok) {
+        // Close modal (assuming your modal uses a function like closeModal or hides via class)
+        const modal = document.getElementById('add-club-modal');
+        if (modal) modal.classList.remove('open');
+        
+        form.reset();
+        loadClubsFromBackend(); // Instantly refresh grid, table, and counts!
+      } else {
+        alert('Failed to add club.');
+      }
+    } catch (error) {
+      console.error('Error adding club:', error);
+    }
+  });
 }
 
 /* ── Form Modal Handlers ─────────────────────────────────────── */
 function setupDirectoryForms() {
-  // 1. Add Club Form
-  const addClubBtn = document.getElementById('btn-save-club');
-  if (addClubBtn) {
-    addClubBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const nameInput = document.getElementById('input-club-name');
-      const catSelect = document.getElementById('select-club-cat');
-      const presInput = document.getElementById('input-club-pres');
-      const descInput = document.getElementById('input-club-desc');
-
-      const name = nameInput ? nameInput.value.trim() : '';
-      if (!name) {
-        alert('Please enter a club or organization name.');
-        return;
-      }
-
-      const newClub = AppState.addClub({
-        name,
-        category: catSelect ? catSelect.value : 'Academic',
-        president: presInput ? presInput.value.trim() || 'Student Lead' : 'Student Lead',
-        desc: descInput ? descInput.value.trim() : ''
-      });
-
-      // Clear & close
-      if (nameInput) nameInput.value = '';
-      if (presInput) presInput.value = '';
-      if (descInput) descInput.value = '';
-      if (typeof closeModal === 'function') closeModal('modal-add-club');
-
-      filterClubs();
-      AppState.showToast('Club Created', `Successfully added ${newClub.name} to the directory!`);
-    });
-  }
-
-  // 2. Post Announcement Form
-  const postAnnBtn = document.getElementById('btn-post-announcement');
-  if (postAnnBtn) {
-    postAnnBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const audSelect = document.getElementById('select-ann-aud');
-      const titleInput = document.getElementById('input-ann-title');
-      const bodyInput = document.getElementById('input-ann-body');
-
-      const title = titleInput ? titleInput.value.trim() : '';
-      const body = bodyInput ? bodyInput.value.trim() : '';
-
-      if (!title || !body) {
-        alert('Please fill out both the announcement subject and message.');
-        return;
-      }
-
-      const user = window.Auth ? window.Auth.getCurrentUser() : null;
-      const newAnn = AppState.addAnnouncement({
-        audience: audSelect ? audSelect.value : 'All Students',
-        title,
-        body,
-        club: user && user.organization ? user.organization : 'Campus Org'
-      });
-
-      // Clear & close
-      if (titleInput) titleInput.value = '';
-      if (bodyInput) bodyInput.value = '';
-      if (typeof closeModal === 'function') closeModal('modal-announce');
-
-      renderAnnouncements(AppState.getAnnouncements());
-      AppState.showToast('Announcement Published', `"${newAnn.title}" is now visible to ${newAnn.audience}.`);
-    });
-  }
-
   // Search input live listener
   const searchInput = document.getElementById('search-clubs');
   if (searchInput) {
@@ -219,11 +180,11 @@ function setupDirectoryForms() {
   if (filterCat) {
     filterCat.addEventListener('change', filterClubs);
   }
+  setupAddClubForm();
 }
 
-/* ── Init ────────────────────────────────────────────────────── */
+/* ── Init ────────────────────────────────______________________ */
 document.addEventListener('DOMContentLoaded', () => {
-  filterClubs();
-  renderAnnouncements(AppState.getAnnouncements());
+  loadClubsFromBackend();
   setupDirectoryForms();
 });
