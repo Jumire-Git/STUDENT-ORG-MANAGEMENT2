@@ -1,0 +1,5 @@
+### Test Health Check
+GET http://localhost:5000/api/health
+
+### Test Get Clubs
+GET http://localhost:5000/api/clubs
