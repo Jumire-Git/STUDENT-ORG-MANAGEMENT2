@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from database import init_db
@@ -6,7 +7,10 @@ from routes.auth import auth_bp
 from routes.members import members_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # default allows the Authorization header and PATCH/DELETE
+
+# Signs login tokens. Set a real value in production: export SECRET_KEY="long-random-string"
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-only-change-me')
 
 # Initialize database tables on startup
 init_db()

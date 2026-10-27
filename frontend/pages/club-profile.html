@@ -139,28 +139,27 @@
               <button class="btn btn-secondary" onclick="openModal('modal-announce')">
                 <i data-lucide="megaphone"></i> Post Announcement
               </button>
-              <button class="btn btn-primary" onclick="openAddMember()">
+              <button class="btn btn-primary" id="btn-add-member" onclick="openAddMember()" style="display:none;">
                 <i data-lucide="user-plus"></i> Add Member
               </button>
-              <button class="icon-btn" title="Edit club"><i data-lucide="pencil"></i></button>
             </div>
           </div>
           <hr class="divider" style="margin:var(--space-4) 0;" />
           <div style="display:flex;gap:var(--space-8);">
             <div class="club-stat">
-              <div class="club-stat-val">52</div>
+              <div class="club-stat-val">0</div>
               <div class="club-stat-lbl">Members</div>
             </div>
             <div class="club-stat">
-              <div class="club-stat-val">8</div>
+              <div class="club-stat-val">0</div>
               <div class="club-stat-lbl">Officers</div>
             </div>
             <div class="club-stat">
-              <div class="club-stat-val">6</div>
+              <div class="club-stat-val">0</div>
               <div class="club-stat-lbl">Events (Sem)</div>
             </div>
             <div class="club-stat">
-              <div class="club-stat-val">3</div>
+              <div class="club-stat-val">0</div>
               <div class="club-stat-lbl">Bookings</div>
             </div>
           </div>
@@ -170,13 +169,13 @@
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" onclick="switchTab(this,'tab-members')">
-          <i data-lucide="users"></i> Members <span class="tab-count">52</span>
+          <i data-lucide="users"></i> Members <span class="tab-count">0</span>
         </button>
         <button class="tab" onclick="switchTab(this,'tab-officers')">
-          <i data-lucide="shield"></i> Officers <span class="tab-count">8</span>
+          <i data-lucide="shield"></i> Officers <span class="tab-count">0</span>
         </button>
         <button class="tab" onclick="switchTab(this,'tab-announcements')">
-          <i data-lucide="megaphone"></i> Announcements <span class="ann-count-badge" id="ann-tab-count">3</span>
+          <i data-lucide="megaphone"></i> Announcements <span class="ann-count-badge" id="ann-tab-count">0</span>
         </button>
         <button class="tab" onclick="switchTab(this,'tab-events')">
           <i data-lucide="ticket"></i> Events
@@ -211,7 +210,7 @@
                 <th>Year Level</th>
                 <th>Course</th>
                 <th>Date Joined</th>
-                <th>Status</th>
+                <th>Role</th>
                 <th></th>
               </tr>
             </thead>
@@ -359,6 +358,13 @@
         <label class="form-label" for="member-email">Email</label>
         <input class="form-control" id="member-email" type="email" placeholder="student@school.edu.ph" />
       </div>
+      <div class="form-group">
+        <label class="form-label" for="member-role">Club Role</label>
+        <select class="form-control" id="member-role"><option>Member</option></select>
+        <div id="member-role-hint" style="display:none;font-size:12px;color:var(--color-text-muted);margin-top:4px;">
+          Only the club President or an admin can assign officer roles.
+        </div>
+      </div>
       <div id="member-error" style="display:none;color:#dc2626;font-size:13px;"></div>
     </div>
     <div class="modal-footer">
@@ -419,6 +425,7 @@ async function loadClubProfile() {
       const club = await clubRes.json();
       const titleEl = document.querySelector('.card-body h1, h1');
       if (titleEl && club.name) titleEl.textContent = club.name;
+      clubName = club.name || '';
       const descEl = document.querySelector('.card-body p');
       if (descEl && club.description) descEl.textContent = club.description;
     }
@@ -431,7 +438,7 @@ async function loadClubProfile() {
       
       // Render tables (preserving 100% of your CSS & design)
       renderMembers(dbMembers);
-      renderOfficers(officers.length > 0 ? officers : dbMembers);
+      renderOfficers(officers);
 
       // 3. Dynamically update header stats and tabs (preserving original tab CSS)
       updateHeaderStats(dbMembers.length, officers.length);
@@ -469,64 +476,18 @@ function updateHeaderStats(totalMembers, totalOfficers) {
   });
 }
 
-/* ── Render Members Function (Keeps 100% Original Design) ────── */
-function renderMembers(data){
-  const tbody = document.getElementById('members-body') || document.querySelector('table tbody');
-  if (!tbody) return;
-  
-  tbody.innerHTML = data.map(m => {
-    const initials = (m.name || 'Student').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-    return `
-      <tr>
-        <td>
-          <div style="display:flex;align-items:center;gap:var(--space-3);">
-            <div class="avatar" style="width:28px;height:28px;font-size:10px;flex-shrink:0;">${initials}</div>
-            <span style="font-weight:500;">${m.name}</span>
-          </div>
-        </td>
-        <td style="font-family:monospace;font-size:12px;color:var(--color-text-muted);">${m.email || 'student@qcu.edu.ph'}</td>
-        <td>${m.role_in_club || 'Member'}</td>
-        <td>BS IT</td>
-        <td style="color:var(--color-text-muted);">Active</td>
-        <td><span class="badge badge-green">Active</span></td>
-        <td>
-          <div style="display:flex;gap:4px;">
-            <button class="icon-btn" title="Edit"><i data-lucide="pencil"></i></button>
-            <button class="icon-btn" title="Remove"><i data-lucide="trash-2"></i></button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-  if (window.lucide) lucide.createIcons();
-}
-
-/* ── Render Officers Function (Keeps 100% Original Design) ───── */
-function renderOfficers(officers){
-  const grid = document.getElementById('officers-grid');
-  if (!grid) return;
-  const colors = ['var(--color-accent)', 'var(--color-success)', '#d97706', '#7c3aed', '#0891b2', '#db2777'];
-  
-  grid.innerHTML = officers.map((o, idx) => {
-    const initials = (o.name || 'Officer').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-    return `
-      <div class="officer-card">
-        <div class="officer-avatar" style="background:${colors[idx % colors.length]};">${initials}</div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;">${o.name}</div>
-          <div style="font-size:12px;color:var(--color-text-muted);">${o.role_in_club || 'Officer'}</div>
-        </div>
-        <button class="icon-btn"><i data-lucide="mail"></i></button>
-      </div>
-    `;
-  }).join('');
-  if (window.lucide) lucide.createIcons();
-}
-
-/* ── Members: render, add, edit, remove ───────────────────────── */
+/* ── Permissions (the backend enforces them; the UI only hides what you can't use) ── */
+let perms = { logged_in: false, can_manage: false, can_assign_roles: false, club_role: null, club_roles: [] };
+let clubName = '';
 let members = [];
 let editingUserId = null;
 const byId = id => document.getElementById(id);
+
+function withAuth(extra = {}) {
+  let token = null;
+  try { token = localStorage.getItem('token'); } catch (e) { /* storage unavailable */ }
+  return token ? { ...extra, Authorization: `Bearer ${token}` } : extra;
+}
 
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g,
@@ -537,14 +498,72 @@ function memberUrl(userId = '') {
   return `http://localhost:5000/api/clubs/${clubId}/members${userId ? '/' + userId : ''}`;
 }
 
+async function loadPermissions() {
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/permissions`, { headers: withAuth() });
+    if (res.ok) perms = await res.json();
+  } catch (err) {
+    console.error('Could not load permissions:', err);
+  }
+  const addBtn = byId('btn-add-member');
+  if (addBtn) addBtn.style.display = perms.can_manage ? '' : 'none';
+  const sel = byId('member-role');
+  if (sel && perms.club_roles.length) {
+    sel.innerHTML = perms.club_roles.map(r => `<option>${escapeHtml(r)}</option>`).join('');
+  }
+}
+
+/* ── Officers tab (only members whose club role is not "Member") ── */
+function renderOfficers(officers) {
+  const grid = byId('officers-grid');
+  if (!grid) return;
+  if (!officers.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:var(--space-4);font-size:13px;color:var(--color-text-muted);">
+      No officers assigned yet. Give a member a role such as President or Secretary to list them here.</div>`;
+    return;
+  }
+  const rank = o => { const i = perms.club_roles.indexOf(o.role_in_club); return i < 0 ? 99 : i; };
+  const sorted = [...officers].sort((a, b) => rank(a) - rank(b));   // President first
+  const colors = ['var(--color-accent)', 'var(--color-success)', '#d97706', '#7c3aed', '#0891b2', '#db2777'];
+
+  grid.innerHTML = sorted.map((o, idx) => {
+    const initials = (o.name || 'O').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    return `
+      <div class="officer-card">
+        <div class="officer-avatar" style="background:${colors[idx % colors.length]};">${escapeHtml(initials)}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;">${escapeHtml(o.name)}</div>
+          <div style="font-size:12px;color:var(--color-text-muted);">${escapeHtml(o.role_in_club)}</div>
+        </div>
+        <a class="icon-btn" href="mailto:${escapeHtml(o.email)}" title="Email ${escapeHtml(o.name)}"><i data-lucide="mail"></i></a>
+      </div>`;
+  }).join('');
+  if (window.lucide) lucide.createIcons();
+}
+
+/* ── Members table ── */
 function renderMembers(data) {
   members = data;
   const tbody = byId('members-body');
   if (!tbody) return;
 
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:var(--space-6);color:var(--color-text-muted);">No members yet.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = data.map(m => {
     const initials = (m.name || 'S').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
     const joined = m.joined_at ? m.joined_at.slice(0, 10) : '—';
+    const role = m.role_in_club || 'Member';
+    const badge = role === 'Member' ? 'badge-neutral' : 'badge-blue';
+    // Same rule as the backend: managers may touch plain members; only President/admin may touch officers
+    const canTouch = perms.can_manage && (perms.can_assign_roles || role === 'Member');
+    const actions = canTouch ? `
+          <div style="display:flex;gap:4px;">
+            <button type="button" class="icon-btn" title="Edit" data-action="edit" data-id="${m.id}"><i data-lucide="pencil"></i></button>
+            <button type="button" class="icon-btn" title="Remove" data-action="remove" data-id="${m.id}"><i data-lucide="trash-2"></i></button>
+          </div>` : '';
     return `
       <tr>
         <td>
@@ -560,22 +579,25 @@ function renderMembers(data) {
         <td>${escapeHtml(m.year_level || '—')}</td>
         <td>${escapeHtml(m.course || '—')}</td>
         <td style="color:var(--color-text-muted);">${escapeHtml(joined)}</td>
-        <td><span class="badge badge-green">Active</span></td>
-        <td>
-          <div style="display:flex;gap:4px;">
-            <button type="button" class="icon-btn" title="Edit" data-action="edit" data-id="${m.id}"><i data-lucide="pencil"></i></button>
-            <button type="button" class="icon-btn" title="Remove" data-action="remove" data-id="${m.id}"><i data-lucide="trash-2"></i></button>
-          </div>
-        </td>
+        <td><span class="badge ${badge}">${escapeHtml(role)}</span></td>
+        <td>${actions}</td>
       </tr>`;
   }).join('');
   if (window.lucide) lucide.createIcons();
 }
 
+/* ── Add / Edit modal ── */
 function showMemberError(msg) {
   const box = byId('member-error');
   box.textContent = msg;
   box.style.display = msg ? 'block' : 'none';
+}
+
+function setRoleField(value) {
+  const sel = byId('member-role');
+  sel.value = value;
+  sel.disabled = !perms.can_assign_roles;   // only President / admin may change roles
+  byId('member-role-hint').style.display = perms.can_assign_roles ? 'none' : 'block';
 }
 
 function resetMemberForm() {
@@ -587,9 +609,10 @@ function resetMemberForm() {
 function openAddMember() {
   editingUserId = null;
   resetMemberForm();
-  byId('member-modal-title').textContent = 'Add Member — CSSG';
+  byId('member-modal-title').textContent = `Add Member — ${clubName || 'Club'}`;
   byId('member-submit-label').textContent = 'Add Member';
   byId('member-email').disabled = false;
+  setRoleField('Member');
   openModal('modal-add-member');
 }
 
@@ -606,6 +629,7 @@ function openEditMember(userId) {
   byId('member-email').disabled = true;   // email identifies the account, so it isn't editable here
   byId('member-modal-title').textContent = 'Edit Member';
   byId('member-submit-label').textContent = 'Save Changes';
+  setRoleField(m.role_in_club || 'Member');
   openModal('modal-add-member');
 }
 
@@ -616,6 +640,7 @@ async function submitMember() {
     year_level: byId('member-year').value,
     course: byId('member-course').value.trim(),
   };
+  if (perms.can_assign_roles) payload.role_in_club = byId('member-role').value;
   if (!editingUserId) payload.email = byId('member-email').value.trim();
 
   if (!payload.name || (!editingUserId && !payload.email)) {
@@ -628,7 +653,7 @@ async function submitMember() {
   try {
     const res = await fetch(memberUrl(editingUserId || ''), {
       method: editingUserId ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: withAuth({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(payload)
     });
     const data = await res.json().catch(() => ({}));
@@ -636,7 +661,8 @@ async function submitMember() {
 
     closeModal('modal-add-member');
     resetMemberForm();
-    await loadClubProfile();   // refreshes the table and the counters
+    await loadPermissions();      // a role change can change what this user may do
+    await loadClubProfile();      // refreshes the tables and the counters
   } catch (err) {
     console.error(err);
     showMemberError('Could not connect to the backend server.');
@@ -649,7 +675,7 @@ async function removeMember(userId) {
   const m = members.find(x => x.id === userId);
   if (!m || !confirm(`Remove ${m.name} from this club?`)) return;
   try {
-    const res = await fetch(memberUrl(userId), { method: 'DELETE' });
+    const res = await fetch(memberUrl(userId), { method: 'DELETE', headers: withAuth() });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) { alert(data.message || 'Could not remove member.'); return; }
     await loadClubProfile();
@@ -672,7 +698,8 @@ function switchTab(btn, panelId){
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadPermissions();      // first, so the table is drawn with the right buttons
   loadClubProfile();
   byId('member-submit').addEventListener('click', submitMember);   // bound once
   byId('members-body').addEventListener('click', e => {
@@ -682,8 +709,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn.dataset.action === 'edit') openEditMember(id);
     if (btn.dataset.action === 'remove') removeMember(id);
   });
-  loadClubProfile();
-  setupAddMemberForm();
 });
 </script>
 </body>

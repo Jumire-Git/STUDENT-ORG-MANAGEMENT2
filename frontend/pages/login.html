@@ -375,7 +375,7 @@
               <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
             </span>
             <input type="email" id="input-email" class="form-control" placeholder="you@campus.edu" autocomplete="email"
-              required value="admin@campus.edu" />
+              required value="admin@qcu.edu.ph" />
           </div>
         </div>
 
@@ -386,7 +386,7 @@
               <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
             </span>
             <input type="password" id="input-password" class="form-control" placeholder="Enter your password"
-              autocomplete="current-password" required value="password123" />
+              autocomplete="current-password" required value="admin123" />
             <button type="button" id="btn-toggle-password" class="input-action-btn" title="Show password"
               aria-label="Toggle password visibility">
               <i data-lucide="eye" id="icon-eye" style="width: 16px; height: 16px;"></i>
@@ -426,20 +426,24 @@
           <div id="helper-dropdown" class="helper-dropdown">
             <div style="font-weight: 600; margin-bottom: 6px; color: var(--color-text-secondary);">Select an account to
               auto-fill:</div>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('admin@campus.edu', 'password123')">
-              <span><strong>Admin:</strong> admin@campus.edu</span>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('admin@qcu.edu.ph', 'admin123')">
+              <span><strong>Admin:</strong> admin@qcu.edu.ph</span>
               <span class="badge badge-purple" style="font-size: 9px;">Admin</span>
             </button>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('officer@campus.edu', 'password123')">
-              <span><strong>Officer:</strong> officer@campus.edu</span>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('carlo@qcu.edu.ph', 'password123')">
+              <span><strong>President:</strong> carlo@qcu.edu.ph</span>
               <span class="badge badge-blue" style="font-size: 9px;">Officer</span>
             </button>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@campus.edu', 'password123')">
-              <span><strong>Faculty:</strong> faculty@campus.edu</span>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('ana@qcu.edu.ph', 'password123')">
+              <span><strong>Secretary:</strong> ana@qcu.edu.ph</span>
+              <span class="badge badge-blue" style="font-size: 9px;">Secretary</span>
+            </button>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@qcu.edu.ph', 'password123')">
+              <span><strong>Faculty:</strong> faculty@qcu.edu.ph</span>
               <span class="badge badge-amber" style="font-size: 9px;">Faculty</span>
             </button>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('student@campus.edu', 'password123')">
-              <span><strong>Student:</strong> student@campus.edu</span>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('paolo@qcu.edu.ph', 'password123')">
+              <span><strong>Student:</strong> paolo@qcu.edu.ph</span>
               <span class="badge badge-green" style="font-size: 9px;">Student</span>
             </button>
           </div>
@@ -512,8 +516,8 @@
       submitBtn.disabled = true;
       submitBtn.innerHTML = `<span>Signing in…</span>`;
 
-      setTimeout(() => {
-        const result = Auth.login(email, password);
+      setTimeout(async () => {
+        const result = await Auth.login(email, password);
         if (result.success) {
           alertBox.className = 'auth-alert auth-alert-success';
           alertMsg.textContent = `Welcome, ${result.user.name}. Redirecting to dashboard…`;

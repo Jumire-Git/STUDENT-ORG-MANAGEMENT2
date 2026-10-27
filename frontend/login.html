@@ -7,215 +7,80 @@
   <title>Sign In — Student Organization Management Platform</title>
   <meta name="description"
     content="Sign in to your Student Organization Management account to access campus directories, room reservations, and event passes." />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="../css/style.css" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
       min-height: 100vh;
       display: flex;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: #0f172a;
-    }
-
-    /* ── Split layout ─────────────── */
-    .login-split {
-      display: flex;
-      width: 100%;
-      min-height: 100vh;
-    }
-
-    /* ── LEFT PANEL ─────────────────── */
-    .login-left {
-      flex: 1;
-      background: linear-gradient(145deg, #1e3a8a 0%, #312e81 40%, #4c1d95 80%, #1e1b4b 100%);
-      display: flex;
       flex-direction: column;
-      justify-content: center;
-      padding: 60px 52px;
-      position: relative;
-      overflow: hidden;
+      justify-content: space-between;
+      background: #f8fafc;
+      color: var(--color-text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    /* Decorative blobs */
-    .login-left::before {
-      content: '';
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      background: rgba(99, 102, 241, 0.25);
-      border-radius: 50%;
-      top: -100px;
-      left: -100px;
-      filter: blur(80px);
-    }
-
-    .login-left::after {
-      content: '';
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      background: rgba(167, 139, 250, 0.2);
-      border-radius: 50%;
-      bottom: -80px;
-      right: -80px;
-      filter: blur(60px);
-    }
-
-    .login-left-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .brand-logo {
+    .login-wrapper {
+      flex: 1;
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 56px;
+      justify-content: center;
+      padding: var(--space-8) var(--space-4);
     }
 
-    .brand-logo-icon {
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      padding: var(--space-8);
+      animation: fadeIn 150ms ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .brand-section {
+      text-align: center;
+      margin-bottom: var(--space-8);
+    }
+
+    .brand-badge-icon {
       width: 48px;
       height: 48px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 14px;
-      display: flex;
+      background: var(--color-accent);
+      border-radius: var(--radius-md);
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(10px);
+      color: #ffffff;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
     }
 
-    .brand-logo-icon svg {
-      width: 24px;
-      height: 24px;
-      color: #fff;
-    }
-
-    .brand-logo-text {
-      font-size: 16px;
+    .brand-title {
+      font-size: 20px;
       font-weight: 700;
-      color: #fff;
-      line-height: 1.2;
+      color: var(--color-text-primary);
       letter-spacing: -0.02em;
+      margin-bottom: var(--space-2);
     }
 
-    .brand-logo-sub {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-top: 2px;
-    }
-
-    .left-headline {
-      font-size: 36px;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      margin-bottom: 16px;
-    }
-
-    .left-headline span {
-      color: #a5b4fc;
-    }
-
-    .left-sub {
-      font-size: 15px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.65;
-      max-width: 360px;
-      margin-bottom: 48px;
-    }
-
-    .feature-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .feature-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .feature-icon svg {
-      width: 16px;
-      height: 16px;
-      color: #a5b4fc;
-    }
-
-    .feature-text {
+    .brand-sub {
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.75);
-      font-weight: 500;
-    }
-
-    .left-footer {
-      margin-top: 60px;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* ── RIGHT PANEL ─────────────────── */
-    .login-right {
-      width: 460px;
-      flex-shrink: 0;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 52px 48px;
-      overflow-y: auto;
-    }
-
-    .right-header {
-      margin-bottom: 36px;
-    }
-
-    .right-title {
-      font-size: 26px;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.03em;
-      margin-bottom: 6px;
-    }
-
-    .right-sub {
-      font-size: 14px;
-      color: #64748b;
-    }
-
-    /* Form elements */
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 6px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
     }
 
     .input-wrapper {
@@ -226,120 +91,162 @@
 
     .input-icon-left {
       position: absolute;
-      left: 13px;
-      color: #94a3b8;
+      left: var(--space-3);
+      color: var(--color-text-muted);
       pointer-events: none;
       display: flex;
+      align-items: center;
     }
 
-    .input-icon-left svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .input-field {
-      width: 100%;
-      height: 44px;
-      padding: 0 42px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 14px;
-      font-family: inherit;
-      color: #0f172a;
-      background: #f8fafc;
-      outline: none;
-      transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
-    }
-
-    .input-field:focus {
-      border-color: #6366f1;
-      background: #fff;
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
-    }
-
-    .input-field::placeholder {
-      color: #cbd5e1;
+    .input-wrapper .form-control {
+      padding-left: 38px;
+      padding-right: 38px;
+      height: 40px;
+      font-size: 13px;
     }
 
     .input-action-btn {
       position: absolute;
-      right: 13px;
+      right: var(--space-3);
       background: none;
       border: none;
-      color: #94a3b8;
+      color: var(--color-text-muted);
       cursor: pointer;
       display: flex;
+      align-items: center;
       padding: 0;
-      transition: color 150ms;
+      transition: color var(--transition);
     }
 
     .input-action-btn:hover {
-      color: #475569;
+      color: var(--color-text-primary);
     }
 
-    .input-action-btn svg {
-      width: 16px;
-      height: 16px;
+    .login-btn {
+      width: 100%;
+      height: 42px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      border-radius: var(--radius-md);
+      background: var(--color-accent);
+      color: #fff;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background var(--transition), box-shadow var(--transition);
     }
 
-    /* Auth alert */
+    .login-btn:hover {
+      background: var(--color-accent-hover);
+      box-shadow: 0 2px 4px rgba(29, 78, 216, 0.25);
+    }
+
+    .login-btn:active {
+      transform: translateY(1px);
+    }
+
     .auth-alert {
       display: none;
       align-items: flex-start;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      margin-bottom: 20px;
-      border: 1.5px solid;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      margin-bottom: var(--space-5);
+      border: 1px solid;
     }
 
     .auth-alert-error {
-      background: #fef2f2;
+      background: var(--color-danger-bg);
       border-color: #fecaca;
-      color: #991b1b;
+      color: var(--color-danger);
     }
 
     .auth-alert-success {
-      background: #f0fdf4;
+      background: var(--color-success-bg);
       border-color: #bbf7d0;
-      color: #166534;
+      color: var(--color-success);
     }
 
-    .auth-alert svg {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      margin-top: 1px;
+    .divider-text {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      margin: var(--space-6) 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    /* Options row */
+    .divider-text::before,
+    .divider-text::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .divider-text::before {
+      margin-right: var(--space-3);
+    }
+
+    .divider-text::after {
+      margin-left: var(--space-3);
+    }
+
+    .sso-btn {
+      width: 100%;
+      height: 40px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .sso-btn:hover {
+      background: var(--color-surface-2);
+      border-color: #d1d5db;
+    }
+
     .form-options {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 22px;
-      font-size: 13px;
+      margin-bottom: var(--space-6);
+      font-size: 12px;
     }
 
     .checkbox-label {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 7px;
-      color: #475569;
+      gap: var(--space-2);
+      color: var(--color-text-secondary);
       cursor: pointer;
+      user-select: none;
     }
 
     .checkbox-label input[type="checkbox"] {
       width: 15px;
       height: 15px;
-      accent-color: #6366f1;
+      accent-color: var(--color-accent);
       cursor: pointer;
     }
 
     .forgot-link {
-      color: #6366f1;
-      font-weight: 600;
+      color: var(--color-accent);
+      font-weight: 500;
       text-decoration: none;
     }
 
@@ -347,154 +254,69 @@
       text-decoration: underline;
     }
 
-    /* Submit button */
-    .login-btn {
-      width: 100%;
-      height: 46px;
-      font-size: 14px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: opacity 150ms ease, transform 100ms ease, box-shadow 150ms ease;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-      letter-spacing: -0.01em;
-    }
-
-    .login-btn:hover {
-      opacity: 0.92;
-      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
-    }
-
-    .login-btn:active {
-      transform: translateY(1px);
-    }
-
-    .login-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .login-btn svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    /* Divider */
-    .divider-text {
-      display: flex;
-      align-items: center;
+    .login-footer {
       text-align: center;
-      color: #94a3b8;
+      padding: var(--space-6);
       font-size: 12px;
-      font-weight: 500;
-      margin: 22px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+      border-top: 1px solid var(--color-border);
     }
 
-    .divider-text::before,
-    .divider-text::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .divider-text::before {
-      margin-right: 12px;
-    }
-
-    .divider-text::after {
-      margin-left: 12px;
-    }
-
-    /* SSO button */
-    .sso-btn {
-      width: 100%;
-      height: 44px;
-      font-size: 13px;
-      font-weight: 600;
+    .login-footer-links {
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 10px;
-      border-radius: 10px;
-      background: #f8fafc;
-      color: #334155;
-      border: 1.5px solid #e2e8f0;
-      cursor: pointer;
-      transition: background 150ms, border-color 150ms;
+      gap: var(--space-4);
+      margin-top: var(--space-2);
     }
 
-    .sso-btn:hover {
-      background: #f1f5f9;
-      border-color: #cbd5e1;
+    .login-footer-links a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
     }
 
-    .sso-btn svg {
-      width: 16px;
-      height: 16px;
+    .login-footer-links a:hover {
+      color: var(--color-text-primary);
+      text-decoration: underline;
     }
 
-    /* Quick fill helper */
+    /* Discreet quick-fill helper */
     .credentials-helper {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid #f1f5f9;
+      margin-top: var(--space-6);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-border-soft);
+      text-align: center;
     }
 
     .helper-toggle {
-      font-size: 12px;
-      color: #94a3b8;
+      font-size: 11px;
+      color: var(--color-text-muted);
       background: none;
       border: none;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 6px;
-      border-radius: 6px;
-      transition: color 150ms, background 150ms;
-      width: 100%;
-      justify-content: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
     }
 
     .helper-toggle:hover {
-      color: #475569;
-      background: #f1f5f9;
-    }
-
-    .helper-toggle svg {
-      width: 12px;
-      height: 12px;
+      color: var(--color-text-secondary);
+      background: var(--color-surface-2);
     }
 
     .helper-dropdown {
       display: none;
-      margin-top: 10px;
-      padding: 10px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
+      margin-top: var(--space-3);
+      padding: var(--space-3);
+      background: var(--color-surface-2);
+      border-radius: var(--radius-md);
+      font-size: 11px;
+      text-align: left;
     }
 
     .helper-dropdown.show {
       display: block;
-    }
-
-    .helper-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #94a3b8;
-      margin-bottom: 8px;
     }
 
     .quick-account-btn {
@@ -502,17 +324,15 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 8px 10px;
-      margin-bottom: 5px;
+      padding: 6px 8px;
+      margin-bottom: 4px;
       background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 12px;
-      font-family: inherit;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
       cursor: pointer;
       text-align: left;
-      transition: all 150ms;
-      color: #334155;
+      transition: background var(--transition);
     }
 
     .quick-account-btn:last-child {
@@ -520,158 +340,56 @@
     }
 
     .quick-account-btn:hover {
-      background: #eff0ff;
-      border-color: #c7d2fe;
-      color: #3730a3;
-    }
-
-    .quick-account-btn strong {
-      font-weight: 700;
-    }
-
-    /* role pill tags in quick fill */
-    .role-pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .rp-admin {
-      background: #f3e8ff;
-      color: #6d28d9;
-    }
-
-    .rp-officer {
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
-
-    .rp-faculty {
-      background: #fffbeb;
-      color: #b45309;
-    }
-
-    .rp-student {
-      background: #f0fdf4;
-      color: #166534;
-    }
-
-    /* Right footer */
-    .right-footer {
-      margin-top: 28px;
-      text-align: center;
-      font-size: 11px;
-      color: #94a3b8;
-      line-height: 1.6;
-    }
-
-    .right-footer a {
-      color: #6366f1;
-      text-decoration: none;
-    }
-
-    .right-footer a:hover {
-      text-decoration: underline;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .login-left {
-        display: none;
-      }
-
-      .login-right {
-        width: 100%;
-        padding: 40px 28px;
-      }
+      background: var(--color-accent-light);
+      border-color: #bfdbfe;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="login-split">
+  <div class="login-wrapper">
+    <div class="login-card">
 
-    <!-- ── LEFT PANEL ────────────────────────────── -->
-    <div class="login-left">
-      <div class="login-left-content">
-
-        <div class="brand-logo">
-          <div class="brand-logo-icon">
-            <i data-lucide="graduation-cap"></i>
-          </div>
-          <div>
-            <div class="brand-logo-text">Student Org</div>
-            <div class="brand-logo-sub">Management Platform</div>
-          </div>
+      <!-- Brand Header -->
+      <div class="brand-section">
+        <div class="brand-badge-icon">
+          <i data-lucide="graduation-cap" style="width: 24px; height: 24px;"></i>
         </div>
-
-        <h1 class="left-headline">One platform,<br><span>every campus org.</span></h1>
-        <p class="left-sub">Manage clubs, reserve facilities, track events, and connect with your university community —
-          all in one place.</p>
-
-        <div class="feature-list">
-          <div class="feature-item">
-            <div class="feature-icon"><i data-lucide="users"></i></div>
-            <span class="feature-text">Organization Directory & Club Profiles</span>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon"><i data-lucide="calendar-check"></i></div>
-            <span class="feature-text">Facility Booking & Venue Management</span>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon"><i data-lucide="ticket"></i></div>
-            <span class="feature-text">Events Calendar & QR Attendance Passes</span>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon"><i data-lucide="megaphone"></i></div>
-            <span class="feature-text">Campus Announcements & Notifications</span>
-          </div>
-        </div>
-
-        <div class="left-footer">© 2026 Student Organization Management Platform. All rights reserved.</div>
-      </div>
-    </div>
-
-    <!-- ── RIGHT PANEL ────────────────────────────── -->
-    <div class="login-right">
-
-      <div class="right-header">
-        <div class="right-title">Welcome back</div>
-        <div class="right-sub">Sign in to your campus account to continue.</div>
+        <h1 class="brand-title">Sign In</h1>
+        <p class="brand-sub">Student Organization Management Platform</p>
       </div>
 
       <!-- Alert Message -->
       <div id="auth-alert" class="auth-alert auth-alert-error" role="alert">
-        <i data-lucide="alert-circle"></i>
+        <i data-lucide="alert-circle" style="width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;"></i>
         <span id="auth-alert-message">Invalid email or password.</span>
       </div>
 
       <!-- Login Form -->
       <form id="form-login" novalidate>
-
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: var(--space-4);">
           <label class="form-label" for="input-email">Institutional Email</label>
           <div class="input-wrapper">
-            <span class="input-icon-left"><i data-lucide="mail"></i></span>
-            <input type="email" id="input-email" class="input-field" placeholder="you@campus.edu" autocomplete="email"
-              required value="admin@campus.edu" />
+            <span class="input-icon-left">
+              <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+            </span>
+            <input type="email" id="input-email" class="form-control" placeholder="you@campus.edu" autocomplete="email"
+              required value="admin@qcu.edu.ph" />
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: var(--space-4);">
           <label class="form-label" for="input-password">Password</label>
           <div class="input-wrapper">
-            <span class="input-icon-left"><i data-lucide="lock"></i></span>
-            <input type="password" id="input-password" class="input-field" placeholder="Enter your password"
-              autocomplete="current-password" required value="password123" />
+            <span class="input-icon-left">
+              <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
+            </span>
+            <input type="password" id="input-password" class="form-control" placeholder="Enter your password"
+              autocomplete="current-password" required value="admin123" />
             <button type="button" id="btn-toggle-password" class="input-action-btn" title="Show password"
               aria-label="Toggle password visibility">
-              <i data-lucide="eye" id="icon-eye"></i>
+              <i data-lucide="eye" id="icon-eye" style="width: 16px; height: 16px;"></i>
             </button>
           </div>
         </div>
@@ -688,56 +406,67 @@
 
         <button type="submit" id="btn-submit" class="login-btn">
           <span>Sign In</span>
-          <i data-lucide="arrow-right"></i>
+          <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
         </button>
 
         <div class="divider-text">or continue with</div>
 
         <button type="button" class="sso-btn"
           onclick="alert('Connecting to Campus Single Sign-On (SSO) Identity Provider…')">
-          <i data-lucide="key-round"></i>
+          <i data-lucide="key-round" style="width: 16px; height: 16px; color: var(--color-text-secondary);"></i>
           <span>Campus Single Sign-On (SSO)</span>
         </button>
 
-        <!-- Quick Demo Accounts -->
+        <!-- Discreet Quick Demo Accounts Popover -->
         <div class="credentials-helper">
           <button type="button" id="btn-toggle-helper" class="helper-toggle">
-            <i data-lucide="chevrons-down"></i>
-            <span>Demo Accounts — Click to auto-fill</span>
+            <i data-lucide="help-circle" style="width: 12px; height: 12px;"></i>
+            <span>Mock Credentials (Click to fill)</span>
           </button>
           <div id="helper-dropdown" class="helper-dropdown">
-            <div class="helper-label">Select a role to sign in as</div>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('admin@campus.edu','password123')">
-              <span><strong>Juan Miguel R.</strong> — admin@campus.edu</span>
-              <span class="role-pill rp-admin">Admin</span>
+            <div style="font-weight: 600; margin-bottom: 6px; color: var(--color-text-secondary);">Select an account to
+              auto-fill:</div>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('admin@qcu.edu.ph', 'admin123')">
+              <span><strong>Admin:</strong> admin@qcu.edu.ph</span>
+              <span class="badge badge-purple" style="font-size: 9px;">Admin</span>
             </button>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('officer@campus.edu','password123')">
-              <span><strong>Maria Santos</strong> — officer@campus.edu</span>
-              <span class="role-pill rp-officer">Club Officer</span>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('carlo@qcu.edu.ph', 'password123')">
+              <span><strong>President:</strong> carlo@qcu.edu.ph</span>
+              <span class="badge badge-blue" style="font-size: 9px;">Officer</span>
             </button>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@campus.edu','password123')">
-              <span><strong>Dr. Roberto Diaz</strong> — faculty@campus.edu</span>
-              <span class="role-pill rp-faculty">Faculty</span>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('ana@qcu.edu.ph', 'password123')">
+              <span><strong>Secretary:</strong> ana@qcu.edu.ph</span>
+              <span class="badge badge-blue" style="font-size: 9px;">Secretary</span>
             </button>
-            <button type="button" class="quick-account-btn" onclick="fillAccount('student@campus.edu','password123')">
-              <span><strong>Alex Rivera</strong> — student@campus.edu</span>
-              <span class="role-pill rp-student">Student</span>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@qcu.edu.ph', 'password123')">
+              <span><strong>Faculty:</strong> faculty@qcu.edu.ph</span>
+              <span class="badge badge-amber" style="font-size: 9px;">Faculty</span>
+            </button>
+            <button type="button" class="quick-account-btn" onclick="fillAccount('paolo@qcu.edu.ph', 'password123')">
+              <span><strong>Student:</strong> paolo@qcu.edu.ph</span>
+              <span class="badge badge-green" style="font-size: 9px;">Student</span>
             </button>
           </div>
         </div>
-
       </form>
-
-      <div class="right-footer">
-        By signing in you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.<br>
-        Need help? <a href="#">Contact Campus Helpdesk</a>
-      </div>
 
     </div>
   </div>
 
-  <script src="js/auth.js"></script>
+  <footer class="login-footer">
+    <div>Student Organization Management Platform &copy; 2026. All rights reserved.</div>
+    <div class="login-footer-links">
+      <a href="#">Privacy Policy</a>
+      <span>&bull;</span>
+      <a href="#">Terms of Service</a>
+      <span>&bull;</span>
+      <a href="#">Campus Helpdesk</a>
+    </div>
+  </footer>
+
+  <script src="../js/auth.js"></script>
   <script>
+    // Initialize Lucide icons
     lucide.createIcons();
 
     const form = document.getElementById('form-login');
@@ -751,6 +480,7 @@
     const helperToggle = document.getElementById('btn-toggle-helper');
     const helperDropdown = document.getElementById('helper-dropdown');
 
+    // Toggle password visibility
     togglePassBtn.addEventListener('click', () => {
       const isPassword = passwordInput.getAttribute('type') === 'password';
       passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
@@ -758,18 +488,20 @@
       lucide.createIcons();
     });
 
+    // Toggle mock helper
     helperToggle.addEventListener('click', () => {
       helperDropdown.classList.toggle('show');
     });
 
+    // Quick fill function
     window.fillAccount = function (email, password) {
       emailInput.value = email;
       passwordInput.value = password;
       helperDropdown.classList.remove('show');
       alertBox.style.display = 'none';
-      emailInput.focus();
     };
 
+    // Form submission
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const email = emailInput.value.trim();
@@ -780,29 +512,31 @@
         return;
       }
 
+      // Visual feedback
       submitBtn.disabled = true;
       submitBtn.innerHTML = `<span>Signing in…</span>`;
 
-      setTimeout(() => {
-        const result = Auth.login(email, password);
+      setTimeout(async () => {
+        const result = await Auth.login(email, password);
         if (result.success) {
           alertBox.className = 'auth-alert auth-alert-success';
-          alertBox.innerHTML = `<i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"></i><span>Welcome, ${result.user.name}. Redirecting…</span>`;
+          alertMsg.textContent = `Welcome, ${result.user.name}. Redirecting to dashboard…`;
           alertBox.style.display = 'flex';
-          lucide.createIcons();
-          setTimeout(() => { window.location.href = 'index.html'; }, 400);
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 400);
         } else {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" style="width:16px;height:16px;"></i>`;
+          submitBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
           lucide.createIcons();
-          showAlert(result.message || 'Invalid email or password.');
+          showAlert(result.message);
         }
       }, 350);
     });
 
     function showAlert(message) {
       alertBox.className = 'auth-alert auth-alert-error';
-      alertBox.innerHTML = `<i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"></i><span>${message}</span>`;
+      alertMsg.textContent = message;
       alertBox.style.display = 'flex';
       lucide.createIcons();
     }

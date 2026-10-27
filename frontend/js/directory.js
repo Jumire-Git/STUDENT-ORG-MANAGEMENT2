@@ -17,11 +17,18 @@ let globalClubs = [];
 /* ── Fetch Clubs from Flask Backend ──────────────────────────── */
 async function loadClubsFromBackend() {
   try {
-    const response = await fetch('http://localhost:5000/api/clubs');
+      const [response, countsRes] = await Promise.all([
+      fetch('http://localhost:5000/api/clubs'),
+      fetch('http://localhost:5000/api/member-counts')
+    ]);
     if (!response.ok) {
       throw new Error('Failed to fetch clubs from backend');
     }
     globalClubs = await response.json();
+
+    // Attach the real membership count to each club (0 if it has no members)
+    const counts = countsRes.ok ? await countsRes.json() : {};
+    globalClubs.forEach(c => { c.member_count = counts[c.id] ?? 0; });
     
     // ── Update Grid View badge count dynamically ────────────────
     updateGridCountBadge(globalClubs.length);
@@ -74,7 +81,7 @@ function renderGrid(data) {
       </div>
       <div class="club-desc">${c.description || 'No description provided.'}</div>
       <div class="club-stats">
-        <div class="club-stat"><div class="club-stat-val">1</div><div class="club-stat-lbl">Members</div></div>
+        <div class="club-stat"><div class="club-stat-val">${c.member_count ?? 0}</div><div class="club-stat-lbl">Members</div></div>
         <div class="club-stat"><div class="club-stat-val">0</div><div class="club-stat-lbl">Events</div></div>
         <div class="club-stat" style="margin-left:auto;">
           <span class="badge badge-green">Active</span>
@@ -106,7 +113,7 @@ function renderTable(data) {
       </td>
       <td><span class="badge badge-blue">Active</span></td>
       <td>Student Lead</td>
-      <td>1</td>
+      <td>${c.member_count ?? 0}</td>
       <td><span class="badge badge-green">Active</span></td>
     </tr>
   `).join('');
