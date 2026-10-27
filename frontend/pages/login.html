@@ -408,6 +408,10 @@
           <span>Sign In</span>
           <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
         </button>
+        
+        <div style="text-align:center;margin-top:var(--space-4);font-size:13px;color:var(--color-text-secondary);">
+          Don't have an account? <a href="#" onclick="openModal('modal-register'); return false;" style="color:var(--color-accent);font-weight:500;text-decoration:none;">Create an account</a>
+        </div>
 
         <div class="divider-text">or continue with</div>
 
@@ -450,6 +454,58 @@
         </div>
       </form>
 
+     <!-- Modal: Create Student Account -->
+      <div class="modal-overlay" id="modal-register">
+        <div class="modal">
+          <div class="modal-header">
+            <span class="modal-title">Create Student Account</span>
+            <button type="button" class="icon-btn" onclick="closeModal('modal-register')"><i data-lucide="x"></i></button>
+          </div>
+          <div class="modal-body">
+            <div id="reg-alert" class="auth-alert auth-alert-error" style="display:none;margin-bottom:var(--space-4);"></div>
+            <form onsubmit="handleRegister(event)" id="form-register">
+              <div class="form-group">
+                <label class="form-label" for="reg-name">Full Name</label>
+                <input class="form-control" type="text" id="reg-name" placeholder="John Doe" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-email">Institutional Email</label>
+                <input class="form-control" type="email" id="reg-email" placeholder="student@qcu.edu.ph" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-password">Password</label>
+                <input class="form-control" type="password" id="reg-password" placeholder="At least 6 characters" required />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+                <div class="form-group">
+                  <label class="form-label" for="reg-studentid">Student ID</label>
+                  <input class="form-control" type="text" id="reg-studentid" placeholder="2024-01234" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="reg-year">Year Level</label>
+                  <select class="form-control" id="reg-year">
+                    <option>1st Year</option>
+                    <option>2nd Year</option>
+                    <option>3rd Year</option>
+                    <option>4th Year</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-course">Course</label>
+                <input class="form-control" type="text" id="reg-course" value="BS Information Technology" required />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modal-register')">Cancel</button>
+            <button type="submit" form="form-register" class="btn btn-primary" id="btn-reg-submit">
+              <i data-lucide="user-plus" style="width:14px;height:14px;"></i> Register Account
+            </button>
+          </div>
+        </div>
+      </div>
+      
     </div>
   </div>
 
@@ -501,6 +557,66 @@
       alertBox.style.display = 'none';
     };
 
+    // Modal open/close helpers matching the rest of the platform
+    window.openModal = function(id) {
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.add('open');
+        if (window.lucide) lucide.createIcons();
+      }
+    };
+
+    window.closeModal = function(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('open');
+    };
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { 
+        if (e.target === el) el.classList.remove('open'); 
+      });
+    });
+
+    // Handle student registration submission
+    window.handleRegister = async function(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('reg-alert');
+      alertBox.style.display = 'none';
+
+      const payload = {
+        name: document.getElementById('reg-name').value.trim(),
+        email: document.getElementById('reg-email').value.trim(),
+        password: document.getElementById('reg-password').value,
+        student_id: document.getElementById('reg-studentid').value.trim(),
+        year_level: document.getElementById('reg-year').value,
+        course: document.getElementById('reg-course').value.trim()
+      };
+
+      try {
+        const res = await fetch('http://localhost:5000/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          alert(data.message);
+          closeModal('modal-register');
+          // Auto-fill the login email for convenience
+          document.getElementById('input-email').value = payload.email;
+          document.getElementById('input-password').value = '';
+        } else {
+          alertBox.textContent = data.error || 'Registration failed';
+          alertBox.style.display = 'flex';
+        }
+      } catch (err) {
+        alertBox.textContent = 'Could not connect to the backend server.';
+        alertBox.style.display = 'flex';
+      }
+    };
+    
     // Form submission
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -540,6 +656,7 @@
       alertBox.style.display = 'flex';
       lucide.createIcons();
     }
+    
   </script>
 
 </body>

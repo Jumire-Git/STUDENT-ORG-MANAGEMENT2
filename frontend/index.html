@@ -273,6 +273,20 @@
         </div>
       </div>
 
+      <!-- Campus Announcements Card -->
+     <div class="card" style="margin-top:var(--space-6);">
+       <div class="card-header">
+         <div>
+           <div class="card-title">Campus Announcements</div>
+           <div class="card-subtitle">Public updates from student organizations</div>
+         </div>
+         <i data-lucide="megaphone" style="color:var(--color-accent);width:20px;height:20px;"></i>
+       </div>
+       <div class="card-body" style="padding:var(--space-5);" id="dashboard-announcements-list">
+         <!-- Dynamically loaded by JS -->
+       </div>
+     </div>
+
       <!-- Pending Approvals Table (Admin & Faculty Only) -->
       <div class="card" data-roles="admin,faculty">
         <div class="card-header">
@@ -361,6 +375,7 @@
 
 <script src="js/auth.js"></script>
 <script src="js/app-state.js"></script>
+<script src="js/announcements.js"></script>
 <script>
   function renderDashboardPending() {
     const tbody = document.getElementById('dashboard-pending-body');
@@ -411,10 +426,53 @@
     }
   };
 
-  document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
-    renderDashboardPending();
-  });
+  document.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+
+      // Check localStorage first for instant load, then verify with backend session token
+      let user = JSON.parse(localStorage.getItem('currentUser'));
+      if (window.Auth) {
+        const verifiedUser = await Auth.getCurrentUser();
+        if (verifiedUser) {
+          user = verifiedUser;
+          localStorage.setItem('currentUser', JSON.stringify(user));
+        }
+      }
+
+      if (user) {
+        // Update dashboard greeting name
+        const greetingH2 = document.querySelector('.dashboard-card h2, h2');
+        if (greetingH2) {
+          greetingH2.textContent = `Good day, ${user.name.split(' ')[0]}`;
+        }
+
+        // Update bottom-left sidebar profile card
+        const sidebarName = document.querySelector('.sidebar-footer strong, .user-name');
+        const sidebarRole = document.querySelector('.sidebar-footer span:not(.user-name), .user-role');
+        const avatarBadge = document.querySelector('.sidebar-footer .avatar, .user-avatar');
+        
+        if (sidebarName) sidebarName.textContent = user.name;
+        if (sidebarRole) sidebarRole.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+        if (avatarBadge) {
+          const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+          avatarBadge.textContent = initials;
+        }
+
+        // Hide restricted action buttons if the user is a regular student
+        if (user.role === 'student') {
+          document.querySelectorAll('.admin-only, .officer-only, #btn-add-club, #btn-create-announcement').forEach(el => {
+            el.style.display = 'none';
+          });
+        }
+      } else {
+        // Redirect to login if no active session
+        window.location.href = 'pages/login.html';
+      }
+
+      renderDashboardPending();
+      loadDashboardAnnouncements();
+    });
+  
 </script>
 </body>
 </html>

@@ -142,6 +142,9 @@
               <button class="btn btn-primary" id="btn-add-member" onclick="openAddMember()" style="display:none;">
                 <i data-lucide="user-plus"></i> Add Member
               </button>
+              <button class="icon-btn" title="Edit club" id="btn-edit-club" onclick="openEditClub()" style="display:none;">
+                <i data-lucide="pencil"></i>
+              </button>
             </div>
           </div>
           <hr class="divider" style="margin:var(--space-4) 0;" />
@@ -165,7 +168,7 @@
           </div>
         </div>
       </div>
-
+      
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" onclick="switchTab(this,'tab-members')">
@@ -407,9 +410,58 @@
   </div>
 </div>
 
+<!-- Modal: Edit Club -->
+<div class="modal-overlay" id="modal-edit-club">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Club Profile</span>
+      <button type="button" class="icon-btn" onclick="closeModal('modal-edit-club')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="edit-club-name">Club Name</label>
+        <input class="form-control" id="edit-club-name" type="text" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label" for="edit-club-acronym">Acronym</label>
+          <input class="form-control" id="edit-club-acronym" type="text" placeholder="e.g. CSSG" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-club-cat">Category</label>
+          <select class="form-control" id="edit-club-cat">
+            <option>Academic</option>
+            <option>Cultural</option>
+            <option>Service</option>
+            <option>Sports</option>
+            <option>Technical</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-club-logo">Logo / Initials (Box)</label>
+        <input class="form-control" id="edit-club-logo" type="text" maxlength="4" placeholder="e.g. CS" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-club-desc">Description / Bio</label>
+        <textarea class="form-control" id="edit-club-desc" rows="4" style="resize:vertical;"></textarea>
+      </div>
+      <div id="edit-club-error" style="display:none;color:#dc2626;font-size:13px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-club')">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-submit-edit-club">
+        <i data-lucide="save"></i> Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/app-state.js"></script>
+<script src="../js/announcements.js"></script>
+
 <script>
 lucide.createIcons();
 
@@ -684,6 +736,125 @@ async function removeMember(userId) {
   }
 }
 
+let currentClubData = {};
+
+/* ── Load Live Club Profile & Update Breadcrumb ──────────────── */
+async function loadClubProfile() {
+  try {
+    const clubRes = await fetch(`http://localhost:5000/api/clubs/${clubId}`);
+    if (clubRes.ok) {
+      const club = await clubRes.json();
+      currentClubData = club;
+
+      // 1. Update Title & Description
+      const titleEl = document.querySelector('.profile-hero h1');
+      if (titleEl && club.name) titleEl.textContent = club.name;
+      
+      const descEl = document.querySelector('.profile-hero p');
+      if (descEl && club.description) descEl.textContent = club.description;
+
+      // 2. Update Acronym & Category badges in hero
+      const metaEl = document.querySelector('.profile-hero div[style*="color:var(--color-text-secondary)"]');
+      if (metaEl) {
+        metaEl.innerHTML = `Acronym: <strong>${escapeHtml(club.acronym || 'CLUB')}</strong> &nbsp;·&nbsp; Category: <span class="tag"><i data-lucide="cpu" style="width:10px;height:10px;"></i> ${escapeHtml(club.category || 'Technical')}</span> &nbsp;·&nbsp; <span class="badge badge-green"><i data-lucide="check-circle"></i> Active</span>`;
+      }
+
+      // 3. Update Logo Box
+      const logoEl = document.querySelector('.profile-logo');
+      if (logoEl) logoEl.textContent = club.logo || (club.name || 'CO').substring(0,2).toUpperCase();
+
+      // 4. Update Breadcrumb Path Live (e.g. Directory > CSSG)
+      const breadcrumbSpan = document.querySelector('.breadcrumb span');
+      if (breadcrumbSpan) breadcrumbSpan.textContent = club.acronym || club.name;
+    }
+
+    const membersRes = await fetch(`http://localhost:5000/api/clubs/${clubId}/members`);
+    if (membersRes.ok) {
+      const dbMembers = await membersRes.json();
+      const officers = dbMembers.filter(m => m.role_in_club && m.role_in_club !== 'Member');
+      renderMembers(dbMembers);
+      renderOfficers(officers);
+      updateHeaderStats(dbMembers.length, officers.length);
+    }
+  } catch (error) {
+    console.error("Error loading club profile from database:", error);
+  }
+}
+
+/* ── Permissions check to show/hide Edit Club button ─────────── */
+async function loadPermissions() {
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/permissions`, { headers: withAuth() });
+    if (res.ok) perms = await res.json();
+  } catch (err) {
+    console.error('Could not load permissions:', err);
+  }
+  
+  // 1. Add Member button visibility
+  const addBtn = byId('btn-add-member');
+  if (addBtn) addBtn.style.display = perms.can_manage ? '' : 'none';
+
+  // 2. Edit Club Pencil Button visibility (Admins & Managers ONLY)
+  const editClubBtn = byId('btn-edit-club');
+  if (editClubBtn) {
+    editClubBtn.style.display = perms.can_manage ? '' : 'none';
+  }
+
+  const sel = byId('member-role');
+  if (sel && perms.club_roles.length) {
+    sel.innerHTML = perms.club_roles.map(r => `<option>${escapeHtml(r)}</option>`).join('');
+  }
+}
+
+/* ── Edit Club Modal Handlers ────────────────────────────────── */
+function openEditClub() {
+  byId('edit-club-name').value = currentClubData.name || '';
+  byId('edit-club-acronym').value = currentClubData.acronym || '';
+  byId('edit-club-cat').value = currentClubData.category || 'Technical';
+  byId('edit-club-logo').value = currentClubData.logo || '';
+  byId('edit-club-desc').value = currentClubData.description || '';
+  byId('edit-club-error').style.display = 'none';
+  openModal('modal-edit-club');
+}
+
+async function submitEditClub() {
+  const payload = {
+    name: byId('edit-club-name').value.trim(),
+    acronym: byId('edit-club-acronym').value.trim(),
+    category: byId('edit-club-cat').value,
+    logo: byId('edit-club-logo').value.trim(),
+    description: byId('edit-club-desc').value.trim()
+  };
+
+  if (!payload.name) {
+    const errBox = byId('edit-club-error');
+    errBox.textContent = 'Club name is required.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}`, {
+      method: 'PATCH',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const errBox = byId('edit-club-error');
+      errBox.textContent = data.message || 'Failed to update club';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    closeModal('modal-edit-club');
+    await loadClubProfile(); // Instantly refreshes hero, logo, and breadcrumb path!
+  } catch (err) {
+    console.error(err);
+    alert('Could not connect to backend server.');
+  }
+}
+
 /* ── UI Handlers ──────────────────────────────────────────────── */
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
@@ -701,7 +872,8 @@ function switchTab(btn, panelId){
 document.addEventListener('DOMContentLoaded', async () => {
   await loadPermissions();      // first, so the table is drawn with the right buttons
   loadClubProfile();
-  byId('member-submit').addEventListener('click', submitMember);   // bound once
+  byId('member-submit').addEventListener('click', submitMember);
+  byId('btn-submit-edit-club').addEventListener('click', submitEditClub);
   byId('members-body').addEventListener('click', e => {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
@@ -709,6 +881,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btn.dataset.action === 'edit') openEditMember(id);
     if (btn.dataset.action === 'remove') removeMember(id);
   });
+  loadClubAnnouncements(clubId);
+  setupAnnouncementForm(clubId);
 });
 </script>
 </body>

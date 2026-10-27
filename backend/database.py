@@ -55,10 +55,13 @@ def init_db():
         CREATE TABLE IF NOT EXISTS announcements (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             club_id INTEGER,
+            user_id INTEGER,
             title TEXT NOT NULL,
             content TEXT NOT NULL,
+            visibility TEXT DEFAULT 'public' CHECK(visibility IN ('public', 'members_only')),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (club_id) REFERENCES clubs (id)
+            FOREIGN KEY (club_id) REFERENCES clubs (id),
+            FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')
 

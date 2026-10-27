@@ -408,6 +408,10 @@
           <span>Sign In</span>
           <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
         </button>
+        
+        <div style="text-align:center;margin-top:var(--space-4);font-size:13px;color:var(--color-text-secondary);">
+          Don't have an account? <a href="#" onclick="openModal('modal-register'); return false;" style="color:var(--color-accent);font-weight:500;text-decoration:none;">Create an account</a>
+        </div>
 
         <div class="divider-text">or continue with</div>
 
@@ -450,6 +454,59 @@
         </div>
       </form>
 
+      <!-- Modal: Create Student Account -->
+<div class="modal-overlay" id="modal-register" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:1000;">
+  <div class="modal" style="background:var(--color-surface);border-radius:var(--radius-lg);width:100%;max-width:440px;padding:var(--space-6);box-shadow:var(--shadow-lg);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-4);">
+      <span style="font-size:16px;font-weight:700;">Create Student Account</span>
+      <button type="button" class="icon-btn" onclick="closeModal('modal-register')"><i data-lucide="x"></i></button>
+    </div>
+    
+    <div id="reg-alert" class="auth-alert auth-alert-error" style="display:none;margin-bottom:var(--space-4);"></div>
+
+    <form onsubmit="handleRegister(event)">
+      <div class="form-group" style="margin-bottom:var(--space-3);">
+        <label class="form-label" style="font-size:12px;font-weight:600;">Full Name</label>
+        <input class="form-control" type="text" id="reg-name" placeholder="John Doe" required style="height:38px;font-size:13px;" />
+      </div>
+      <div class="form-group" style="margin-bottom:var(--space-3);">
+        <label class="form-label" style="font-size:12px;font-weight:600;">Institutional Email</label>
+        <input class="form-control" type="email" id="reg-email" placeholder="student@qcu.edu.ph" required style="height:38px;font-size:13px;" />
+      </div>
+      <div class="form-group" style="margin-bottom:var(--space-3);">
+        <label class="form-label" style="font-size:12px;font-weight:600;">Password</label>
+        <input class="form-control" type="password" id="reg-password" placeholder="At least 6 characters" required style="height:38px;font-size:13px;" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-3);">
+        <div class="form-group">
+          <label class="form-label" style="font-size:12px;font-weight:600;">Student ID</label>
+          <input class="form-control" type="text" id="reg-studentid" placeholder="2024-01234" style="height:38px;font-size:13px;" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size:12px;font-weight:600;">Year Level</label>
+          <select class="form-control" id="reg-year" style="height:38px;font-size:13px;">
+            <option>1st Year</option>
+            <option>2nd Year</option>
+            <option>3rd Year</option>
+            <option>4th Year</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:var(--space-5);">
+        <label class="form-label" style="font-size:12px;font-weight:600;">Course</label>
+        <input class="form-control" type="text" id="reg-course" value="BS Information Technology" required style="height:38px;font-size:13px;" />
+      </div>
+
+      <div style="display:flex;gap:var(--space-2);justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-register')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btn-reg-submit">
+          <i data-lucide="user-plus" style="width:14px;height:14px;"></i> Register Account
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+      
     </div>
   </div>
 

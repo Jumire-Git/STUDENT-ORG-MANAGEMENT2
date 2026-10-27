@@ -44,6 +44,7 @@ def seed_data():
         (1, 4, 'Treasurer'),    # Lea    -> officer, but NOT a manager
         (1, 5, 'Member'),       # Paolo  -> plain member
         (2, 1, 'Member'),       # Carlo  -> IT Society member
+        (2, 3, 'President'),
     ]
     cursor.executemany('INSERT INTO club_members (club_id, user_id, role_in_club) VALUES (?, ?, ?)', memberships)
 
