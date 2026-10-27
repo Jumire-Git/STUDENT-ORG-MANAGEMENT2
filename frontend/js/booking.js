@@ -1,45 +1,121 @@
 /**
- * booking.js — Resource & Facility Booking Subsystem
- * Connects to AppState for real-time booking requests, faculty approvals, and stats.
+ * booking.js — Resource & Facility Booking Subsystem (Connected to SQLite Database)
  */
 
 const STATUS_BADGE = {
   Pending:  'badge-amber',
   Approved: 'badge-green',
   Denied:   'badge-red',
+  Rejected: 'badge-red',
 };
 
 const STATUS_ICON = {
   Pending:  'clock',
   Approved: 'check-circle',
   Denied:   'x-circle',
+  Rejected: 'x-circle',
 };
 
 let currentStatusFilter = 'All';
+let cachedBookings = [];
+let cachedVenues = [];
 
 /**
- * Render bookings table.
- * @param {string} filterStatus - 'All' | 'Pending' | 'Approved' | 'Denied'
+ * Fetch Venues from Backend and Render
  */
-function renderBookings(filterStatus = currentStatusFilter) {
+async function loadVenues() {
+  const grid = document.getElementById('venues-grid');
+  if (!grid) return;
+
+  try {
+    const res = await fetch('http://localhost:5000/api/venues');
+    if (res.ok) {
+      cachedVenues = await res.json();
+      grid.innerHTML = cachedVenues.map(v => `
+        <div class="venue-card">
+          <div class="venue-card-img"><i data-lucide="${v.type === 'Equipment' ? 'projector' : v.type === 'Space' ? 'map' : 'presentation'}"></i></div>
+          <div class="venue-card-body">
+            <div class="venue-name">${v.name}</div>
+            <div class="venue-meta">
+              <i data-lucide="users"></i> Cap. ${v.capacity || 'N/A'} &nbsp;&nbsp; 
+              <span class="badge badge-green" style="margin-left:auto;">Available</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+  } catch (err) {
+    console.error('Error loading venues:', err);
+  }
+}
+
+/**
+ * Render Dynamic Availability Calendar from Database Bookings
+ */
+function renderCalendar(bookings) {
+  const dayCells = document.querySelectorAll('.cal-day:not(.other-month)');
+  
+  // Clear any existing dynamically injected dots first
+  document.querySelectorAll('.cal-event-dot').forEach(dot => {
+    if (!dot.dataset.static) dot.remove();
+  });
+
+  dayCells.forEach(cell => {
+    const numEl = cell.querySelector('.cal-day-num');
+    if (!numEl) return;
+    const dayNum = numEl.textContent.trim();
+
+    // Find bookings matching November and this day number
+    const matchingBookings = bookings.filter(b => {
+      // b.date is e.g. "Nov 3, 2026"
+      return b.date.includes('Nov') && b.date.includes(` ${dayNum},`) || b.date === `Nov ${dayNum}, 2026`;
+    });
+
+    matchingBookings.forEach(b => {
+      const dot = document.createElement('div');
+      // Use blue for Approved, amber for Pending
+      const dotClass = b.status === 'Approved' ? 'blue' : 'amber';
+      dot.className = `cal-event-dot ${dotClass}`;
+      dot.textContent = `${b.club} — ${b.venue}`;
+      cell.appendChild(dot);
+    });
+  });
+}
+
+/**
+ * Fetch Bookings from Backend and Render Table + Calendar
+ */
+async function renderBookings(filterStatus = currentStatusFilter) {
   currentStatusFilter = filterStatus;
   const tbody = document.getElementById('bookings-table-body');
   if (!tbody) return;
 
-  const allBookings = AppState.getBookings();
-  const data = filterStatus === 'All' ? allBookings : allBookings.filter(b => b.status === filterStatus);
+  try {
+    const res = await fetch('http://localhost:5000/api/bookings');
+    if (res.ok) {
+      cachedBookings = await res.json();
+    }
+  } catch (err) {
+    console.error('Error loading bookings:', err);
+    cachedBookings = [];
+  }
 
-  // Update tab counters if present
-  const pendingCount = allBookings.filter(b => b.status === 'Pending').length;
-  const approvedCount = allBookings.filter(b => b.status === 'Approved').length;
-  const deniedCount = allBookings.filter(b => b.status === 'Denied').length;
+  // Render the calendar with the fetched database bookings
+  renderCalendar(cachedBookings);
+
+  const data = filterStatus === 'All' ? cachedBookings : cachedBookings.filter(b => b.status === filterStatus);
+
+  // Update counters
+  const pendingCount = cachedBookings.filter(b => b.status === 'Pending').length;
+  const approvedCount = cachedBookings.filter(b => b.status === 'Approved').length;
+  const deniedCount = cachedBookings.filter(b => b.status === 'Denied' || b.status === 'Rejected').length;
 
   document.querySelectorAll('.tab-count-pending').forEach(el => el.textContent = pendingCount);
   document.querySelectorAll('.tab-count-approved').forEach(el => el.textContent = approvedCount);
   document.querySelectorAll('.tab-count-denied').forEach(el => el.textContent = deniedCount);
-  document.querySelectorAll('.tab-count-all').forEach(el => el.textContent = allBookings.length);
+  document.querySelectorAll('.tab-count-all').forEach(el => el.textContent = cachedBookings.length);
 
-  // Update stat cards
   const pendingStatEl = document.getElementById('stat-pending-bookings');
   if (pendingStatEl) pendingStatEl.textContent = pendingCount;
 
@@ -71,18 +147,9 @@ function renderBookings(filterStatus = currentStatusFilter) {
       </td>
       <td>
         <div style="display:flex;gap:4px;">
-          ${b.status === 'Pending' ? `
-            <button class="btn btn-sm btn-primary" onclick="handleBookingAction('${b.ref}', 'Approved')" title="Approve Request">
-              <i data-lucide="check"></i> Approve
-            </button>
-            <button class="btn btn-sm btn-danger" onclick="handleBookingAction('${b.ref}', 'Denied')" title="Deny Request">
-              <i data-lucide="x"></i> Deny
-            </button>
-          ` : `
-            <button class="btn btn-sm btn-secondary" onclick="viewBookingDetails('${b.ref}')" title="View Details">
-              <i data-lucide="eye"></i> View
-            </button>
-          `}
+          <button class="btn btn-sm btn-secondary" onclick="viewBookingDetails('${b.ref}')" title="View Details">
+            <i data-lucide="eye"></i> View
+          </button>
         </div>
       </td>
     </tr>
@@ -91,20 +158,8 @@ function renderBookings(filterStatus = currentStatusFilter) {
   if (window.lucide) lucide.createIcons();
 }
 
-/**
- * Handle Approve or Deny action on booking
- */
-window.handleBookingAction = function(ref, newStatus) {
-  const updated = AppState.updateBookingStatus(ref, newStatus);
-  if (updated) {
-    renderBookings();
-    const actionWord = newStatus === 'Approved' ? 'Approved' : 'Denied';
-    AppState.showToast(`Booking ${actionWord}`, `Reservation ${ref} for ${updated.venue} was marked ${actionWord.toLowerCase()}. Requester notified via institutional email.`);
-  }
-};
-
 window.viewBookingDetails = function(ref) {
-  const b = AppState.getBookings().find(x => x.ref === ref);
+  const b = cachedBookings.find(x => x.ref === ref);
   if (b) {
     alert(`Booking Reference: ${b.ref}\nOrganization: ${b.club}\nVenue: ${b.venue}\nDate & Time: ${b.date} (${b.time})\nStatus: ${b.status}\nPurpose: ${b.purpose}\nEquipment: ${b.equipment || 'None'}`);
   }
@@ -118,48 +173,13 @@ function setupBookingForm() {
   if (submitBtn) {
     submitBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      const clubSelect = document.getElementById('select-booking-club');
-      const venueSelect = document.getElementById('select-booking-venue');
-      const dateInput = document.getElementById('input-booking-date');
-      const startInput = document.getElementById('input-booking-start');
-      const endInput = document.getElementById('input-booking-end');
-      const purposeInput = document.getElementById('input-booking-purpose');
-      const equipInput = document.getElementById('input-booking-equip');
-
-      const venue = venueSelect ? venueSelect.value : 'Auditorium A';
-      const date = dateInput ? dateInput.value : '';
-      const purpose = purposeInput ? purposeInput.value.trim() : '';
-
-      if (!date || !purpose) {
-        alert('Please fill out the booking date and purpose.');
-        return;
-      }
-
-      const user = window.Auth ? window.Auth.getCurrentUser() : null;
-      const newBooking = AppState.addBooking({
-        club: clubSelect ? clubSelect.value : (user && user.organization ? user.organization : 'Campus Club'),
-        venue: venue,
-        date: date,
-        startTime: startInput && startInput.value ? startInput.value : '1:00 PM',
-        endTime: endInput && endInput.value ? endInput.value : '5:00 PM',
-        purpose: purpose,
-        equipment: equipInput ? equipInput.value.trim() : '',
-        requester: user ? user.name : 'Student Officer'
-      });
-
-      // Clear & Close
-      if (purposeInput) purposeInput.value = '';
-      if (equipInput) equipInput.value = '';
-      if (typeof closeModal === 'function') closeModal('modal-booking');
-
-      renderBookings();
-      AppState.showToast('Request Submitted', `Booking ${newBooking.ref} for ${newBooking.venue} submitted and routed to Faculty for review!`);
     });
   }
 }
 
 /* ── Init ────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+  loadVenues();
   renderBookings();
   setupBookingForm();
 });

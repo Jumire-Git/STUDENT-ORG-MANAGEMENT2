@@ -209,23 +209,23 @@ Then open `http://localhost:8000`.
 Each subsystem must work standalone, so they are built one at a time on top of a shared foundation.
 
 ### Phase 0: Setup and Foundation
-- [ ] Create the folder structure and a Flask app with a test route
-- [ ] Design the database tables: `users`, `clubs`, `club_members`, `announcements`, `venues`, `bookings`, `events`, `attendance`
-- [ ] Add login with roles (admin, officer, faculty, student)
-- [ ] Build one shared layout (navbar, CSS) reused by all pages
+- [/] Create the folder structure and a Flask app with a test route
+- [/] Design the database tables: `users`, `clubs`, `club_members`, `announcements`, `venues`, `bookings`, `events`, `attendance`
+- [/] Add login with roles (admin, officer, faculty, student)
+- [/] Build one shared layout (navbar, CSS) reused by all pages
 
 **Done when:** you can log in and see an empty dashboard.
 
 ### Phase 1: Membership & Directory (Subsystem 1)
-- [ ] Club list page with search
-- [ ] Club profile page showing officers and members
-- [ ] Admin and officer forms to add or edit clubs and members
-- [ ] Announcements: officers post, members see them on their dashboard
+- [/] Club list page with search
+- [/] Club profile page showing officers and members
+- [/] Admin and officer forms to add or edit clubs and members
+- [/] Announcements: officers post, members see them on their dashboard
 
 **Done when:** it works as a standalone directory with no booking or events.
 
 ### Phase 2: Facility Booking (Subsystem 2)
-- [ ] Venue and equipment list with an availability calendar
+- [/] Venue and equipment list with an availability calendar
 - [ ] Booking form (date, time, venue, equipment, description) with conflict checking
 - [ ] Faculty approval page with approve and deny buttons
 - [ ] Approval and denial emails (Gmail SMTP)
