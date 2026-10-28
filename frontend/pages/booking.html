@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../css/style.css" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
+    /* ── Venue Cards ── */
     .venue-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; transition: box-shadow var(--transition), border-color var(--transition); cursor:pointer; }
     .venue-card:hover { box-shadow: var(--shadow-sm); border-color: #d1d5db; }
     .venue-card-img { height: 100px; background: var(--color-surface-2); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--color-border); }
@@ -16,8 +17,119 @@
     .venue-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
     .venue-meta { font-size: 12px; color: var(--color-text-muted); display: flex; align-items: center; gap: var(--space-3); }
     .venue-meta svg { width: 12px; height: 12px; }
-    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-5); }
-    .cal-month { font-size: 15px; font-weight: 600; }
+
+    /* ── Calendar Header Row ── */
+    .cal-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .cal-nav-group { display: flex; align-items: center; gap: 8px; }
+    .cal-nav-btn {
+      width: 30px; height: 30px;
+      border: 1px solid #e2e8f0; border-radius: 8px;
+      background: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #374151; transition: background 0.15s;
+    }
+    .cal-nav-btn:hover { background: #f3f4f6; }
+    .cal-nav-btn svg { width: 14px; height: 14px; }
+    .cal-month-label {
+      font-size: 17px; font-weight: 700;
+      color: #111827; min-width: 160px; text-align: center;
+    }
+    .cal-today-btn {
+      padding: 5px 14px; border-radius: 8px;
+      border: 1px solid #e2e8f0; background: #fff;
+      font-size: 13px; font-weight: 500; color: #374151;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .cal-today-btn:hover { background: #f3f4f6; }
+    .cal-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .cal-venue-select {
+      padding: 6px 30px 6px 10px;
+      border: 1px solid #e2e8f0; border-radius: 8px;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center;
+      font-size: 13px; font-weight: 500; color: #374151;
+      appearance: none; cursor: pointer; outline: none;
+    }
+    .cal-legend { display: flex; align-items: center; gap: 14px; }
+    .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: #4b5563; }
+    .cal-legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .cal-legend-dot.green { background: #22c55e; }
+    .cal-legend-dot.amber { background: #f59e0b; }
+    .cal-legend-dot.red   { background: #ef4444; }
+
+    /* ── Calendar Grid ── */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      border-left: 1px solid #e5e7eb;
+      border-top: 1px solid #e5e7eb;
+    }
+    .cal-day-header {
+      background: #f9fafb;
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 8px;
+      font-size: 12px; font-weight: 600;
+      color: #6b7280; text-align: left;
+      letter-spacing: 0.03em;
+    }
+    .cal-day {
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      min-height: 110px;
+      padding: 6px 8px;
+      position: relative;
+      background: #fff;
+      border-top: 4px solid #22c55e; /* default: available */
+      transition: background 0.12s;
+    }
+    .cal-day:hover { background: #f9fafb; }
+    .cal-day.status-pending  { border-top-color: #f59e0b; }
+    .cal-day.status-booked   { border-top-color: #ef4444; }
+    .cal-day.status-available{ border-top-color: #22c55e; }
+    .cal-day.other-month {
+      background: #fafafa;
+      border-top-color: #e5e7eb;
+    }
+    .cal-day.other-month .cal-day-num { color: #d1d5db; }
+    .cal-day.today { background: #eff6ff; }
+    .cal-day.today .cal-day-num {
+      background: #2563eb;
+      color: #fff;
+      border-radius: 6px;
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cal-day-num {
+      font-size: 13px; font-weight: 600; color: #111827;
+      margin-bottom: 6px;
+    }
+    /* Status badge inside day */
+    .cal-status-badge {
+      display: inline-flex; align-items: center;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 999px;
+      margin-bottom: 5px; letter-spacing: 0.02em;
+    }
+    .cal-status-badge.available { background: #dcfce7; color: #15803d; }
+    .cal-status-badge.pending   { background: #fef3c7; color: #b45309; }
+    .cal-status-badge.booked    { background: #fee2e2; color: #b91c1c; }
+    /* Booking event pill */
+    .cal-event-pill {
+      display: block;
+      font-size: 11px; font-weight: 600;
+      padding: 3px 8px; border-radius: 6px;
+      margin-top: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cal-event-pill.booked  { background: #fee2e2; color: #b91c1c; }
+    .cal-event-pill.pending { background: #fef3c7; color: #92400e; }
   </style>
 </head>
 <body>
@@ -115,14 +227,36 @@
       <!-- Calendar Tab -->
       <div id="tab-availability" class="tab-panel active">
         <div class="card">
-          <div class="card-header">
-            <div class="cal-nav" style="flex:1;">
-              <button class="icon-btn" id="cal-prev"><i data-lucide="chevron-left"></i></button>
-              <span class="cal-month" id="cal-label">November 2026</span>
-              <button class="icon-btn" id="cal-next"><i data-lucide="chevron-right"></i></button>
+          <div class="card-body" style="padding-top: var(--space-5);">
+
+            <!-- Calendar Header -->
+            <div class="cal-header-row">
+              <div class="cal-nav-group">
+                <button class="cal-nav-btn" id="cal-prev"><i data-lucide="chevron-left"></i></button>
+                <span class="cal-month-label" id="cal-label">November 2026</span>
+                <button class="cal-nav-btn" id="cal-next"><i data-lucide="chevron-right"></i></button>
+                <button class="cal-today-btn" id="cal-today">Today</button>
+              </div>
+              <div class="cal-controls">
+                <select class="cal-venue-select" id="cal-venue-filter">
+                  <option value="all">All venues</option>
+                  <option>Auditorium A</option>
+                  <option>MPH Room B</option>
+                  <option>MPH Room C</option>
+                  <option>Computer Lab 3</option>
+                  <option>Projector Set</option>
+                  <option>AVR Room</option>
+                  <option>Campus Quadrangle</option>
+                </select>
+                <div class="cal-legend">
+                  <div class="cal-legend-item"><div class="cal-legend-dot green"></div> Available</div>
+                  <div class="cal-legend-item"><div class="cal-legend-dot amber"></div> Pending</div>
+                  <div class="cal-legend-item"><div class="cal-legend-dot red"></div> Booked</div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="card-body">
+
+            <!-- Calendar Grid -->
             <div class="cal-grid">
               <div class="cal-day-header">Sun</div>
               <div class="cal-day-header">Mon</div>
@@ -131,6 +265,7 @@
               <div class="cal-day-header">Thu</div>
               <div class="cal-day-header">Fri</div>
               <div class="cal-day-header">Sat</div>
+
               <!-- Oct spillover -->
               <div class="cal-day other-month"><div class="cal-day-num">26</div></div>
               <div class="cal-day other-month"><div class="cal-day-num">27</div></div>
@@ -138,44 +273,95 @@
               <div class="cal-day other-month"><div class="cal-day-num">29</div></div>
               <div class="cal-day other-month"><div class="cal-day-num">30</div></div>
               <div class="cal-day other-month"><div class="cal-day-num">31</div></div>
-              <!-- Nov -->
-              <div class="cal-day"><div class="cal-day-num">1</div></div>
-              <div class="cal-day"><div class="cal-day-num">2</div></div>
-              <div class="cal-day"><div class="cal-day-num">3</div><div class="cal-event-dot blue">CSSG — Aud A</div></div>
-              <div class="cal-day"><div class="cal-day-num">4</div></div>
-              <div class="cal-day"><div class="cal-day-num">5</div><div class="cal-event-dot amber">IEEE — MPH C</div></div>
-              <div class="cal-day"><div class="cal-day-num">6</div></div>
-              <div class="cal-day"><div class="cal-day-num">7</div></div>
-              <div class="cal-day"><div class="cal-day-num">8</div><div class="cal-event-dot amber">RCY — Projector</div></div>
-              <div class="cal-day"><div class="cal-day-num">9</div></div>
-              <div class="cal-day"><div class="cal-day-num">10</div></div>
-              <div class="cal-day"><div class="cal-day-num">11</div></div>
-              <div class="cal-day"><div class="cal-day-num">12</div></div>
-              <div class="cal-day"><div class="cal-day-num">13</div></div>
-              <div class="cal-day"><div class="cal-day-num">14</div></div>
-              <div class="cal-day"><div class="cal-day-num">15</div><div class="cal-event-dot blue">Robotics — Lab 3</div></div>
-              <div class="cal-day"><div class="cal-day-num">16</div></div>
-              <div class="cal-day today"><div class="cal-day-num">17</div></div>
-              <div class="cal-day"><div class="cal-day-num">18</div></div>
-              <div class="cal-day"><div class="cal-day-num">19</div></div>
-              <div class="cal-day"><div class="cal-day-num">20</div></div>
-              <div class="cal-day"><div class="cal-day-num">21</div></div>
-              <div class="cal-day"><div class="cal-day-num">22</div><div class="cal-event-dot blue">JPIA — AVR</div></div>
-              <div class="cal-day"><div class="cal-day-num">23</div></div>
-              <div class="cal-day"><div class="cal-day-num">24</div></div>
-              <div class="cal-day"><div class="cal-day-num">25</div></div>
-              <div class="cal-day"><div class="cal-day-num">26</div></div>
-              <div class="cal-day"><div class="cal-day-num">27</div></div>
-              <div class="cal-day"><div class="cal-day-num">28</div></div>
-              <div class="cal-day"><div class="cal-day-num">29</div></div>
-              <div class="cal-day"><div class="cal-day-num">30</div></div>
+
+              <!-- Nov 1 -->
+              <div class="cal-day status-available">
+                <div class="cal-day-num">1</div>
+                <span class="cal-status-badge available">Available</span>
+              </div>
+              <!-- Nov 2 -->
+              <div class="cal-day status-available">
+                <div class="cal-day-num">2</div>
+                <span class="cal-status-badge available">Available</span>
+              </div>
+              <!-- Nov 3 Booked -->
+              <div class="cal-day status-booked">
+                <div class="cal-day-num">3</div>
+                <span class="cal-status-badge booked">Booked</span>
+                <span class="cal-event-pill booked">CSSG · Aud A</span>
+              </div>
+              <!-- Nov 4 -->
+              <div class="cal-day status-available">
+                <div class="cal-day-num">4</div>
+                <span class="cal-status-badge available">Available</span>
+              </div>
+              <!-- Nov 5 Pending -->
+              <div class="cal-day status-pending">
+                <div class="cal-day-num">5</div>
+                <span class="cal-status-badge pending">Pending</span>
+                <span class="cal-event-pill pending">IEEE · MPH C</span>
+              </div>
+              <!-- Nov 6 -->
+              <div class="cal-day status-available">
+                <div class="cal-day-num">6</div>
+                <span class="cal-status-badge available">Available</span>
+              </div>
+              <!-- Nov 7 -->
+              <div class="cal-day status-available">
+                <div class="cal-day-num">7</div>
+                <span class="cal-status-badge available">Available</span>
+              </div>
+
+              <!-- Nov 8 Pending -->
+              <div class="cal-day status-pending">
+                <div class="cal-day-num">8</div>
+                <span class="cal-status-badge pending">Pending</span>
+                <span class="cal-event-pill pending">RCY · Projector</span>
+              </div>
+              <div class="cal-day status-available"><div class="cal-day-num">9</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">10</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">11</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">12</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">13</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">14</div><span class="cal-status-badge available">Available</span></div>
+
+              <!-- Nov 15 Booked -->
+              <div class="cal-day status-booked">
+                <div class="cal-day-num">15</div>
+                <span class="cal-status-badge booked">Booked</span>
+                <span class="cal-event-pill booked">Robotics · La...</span>
+              </div>
+              <div class="cal-day status-available"><div class="cal-day-num">16</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">17</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">18</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">19</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">20</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">21</div><span class="cal-status-badge available">Available</span></div>
+
+              <!-- Nov 22 Booked -->
+              <div class="cal-day status-booked">
+                <div class="cal-day-num">22</div>
+                <span class="cal-status-badge booked">Booked</span>
+                <span class="cal-event-pill booked">JPIA · AVR</span>
+              </div>
+              <div class="cal-day status-available"><div class="cal-day-num">23</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">24</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">25</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">26</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">27</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">28</div><span class="cal-status-badge available">Available</span></div>
+
+              <div class="cal-day status-available"><div class="cal-day-num">29</div><span class="cal-status-badge available">Available</span></div>
+              <div class="cal-day status-available"><div class="cal-day-num">30</div><span class="cal-status-badge available">Available</span></div>
+
+              <!-- Dec spillover -->
               <div class="cal-day other-month"><div class="cal-day-num">1</div></div>
               <div class="cal-day other-month"><div class="cal-day-num">2</div></div>
               <div class="cal-day other-month"><div class="cal-day-num">3</div></div>
               <div class="cal-day other-month"><div class="cal-day-num">4</div></div>
               <div class="cal-day other-month"><div class="cal-day-num">5</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">6</div></div>
             </div>
+
           </div>
         </div>
       </div>
