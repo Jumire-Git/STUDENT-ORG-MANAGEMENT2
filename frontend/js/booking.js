@@ -77,7 +77,9 @@ async function loadVenues() {
   if (!grid) return;
 
   try {
-    const res = await fetch('http://localhost:5000/api/venues');
+    const res = await fetch('http://localhost:5000/api/venues', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
     if (res.ok) {
       cachedVenues = await res.json();
       grid.innerHTML = cachedVenues.map(v => `
@@ -144,13 +146,10 @@ function renderCalendar(bookings) {
 
   // 2. Current month days
   for (let day = 1; day <= totalDays; day++) {
-    // Format date string to match backend storage e.g. "Nov 3, 2026"
     const currDateObj = new Date(year, month, day);
     const monthShort = currDateObj.toLocaleString('en-US', { month: 'short' });
     
-    // Find matching approved bookings for this specific date
     const matchingBookings = approvedBookings.filter(b => {
-      // Matches formats like "Nov 3, 2026" or contains the date string
       return b.date.includes(`${monthShort} ${day},`) || b.date === `${monthShort} ${day}, ${year}`;
     });
 
@@ -209,7 +208,9 @@ async function renderBookings(filterStatus = currentStatusFilter) {
   if (!tbody) return;
 
   try {
-    const res = await fetch('http://localhost:5000/api/bookings');
+    const res = await fetch('http://localhost:5000/api/bookings', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
     if (res.ok) {
       cachedBookings = await res.json();
     }
@@ -218,7 +219,6 @@ async function renderBookings(filterStatus = currentStatusFilter) {
     cachedBookings = [];
   }
 
-  // Re-render calendar dynamically with fresh database bookings
   renderCalendar(cachedBookings);
 
   const data = filterStatus === 'All' ? cachedBookings : cachedBookings.filter(b => b.status === filterStatus);
@@ -244,6 +244,7 @@ async function renderBookings(filterStatus = currentStatusFilter) {
   currentUser = getActiveUser();
   const role = currentUser && currentUser.role ? currentUser.role.toLowerCase() : 'admin';
   const isStudent = role === 'student' || role === 'member';
+  const isAdmin = role === 'admin'; // Properly define isAdmin here
 
   tbody.innerHTML = data.map((b) => `
     <tr>
@@ -271,7 +272,7 @@ async function renderBookings(filterStatus = currentStatusFilter) {
           <button class="btn btn-sm btn-secondary" onclick="viewBookingDetails('${b.ref}')" title="View Details">
             <i data-lucide="eye"></i> View
           </button>
-          ${!isStudent && b.status === 'Pending' ? `
+          ${isAdmin && b.status === 'Pending' ? `
             <button class="btn btn-sm" style="background:#10b981;color:white;padding:2px 8px;border-radius:4px;cursor:pointer;" onclick="updateBookingStatus(${b.id}, 'Approved')" title="Approve Request">
               Approve
             </button>
@@ -288,13 +289,16 @@ async function renderBookings(filterStatus = currentStatusFilter) {
 };
 
 /**
- * Admin / Faculty Action: Approve or Reject Booking
+ * Admin Action: Approve or Reject Booking
  */
 window.updateBookingStatus = async function(id, status) {
   try {
     const res = await fetch(`http://localhost:5000/api/bookings/${id}/status`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
       body: JSON.stringify({ status })
     });
     if (res.ok) {
@@ -323,7 +327,7 @@ function setupBookingForm() {
   currentUser = getActiveUser();
   const role = currentUser && currentUser.role ? currentUser.role.toLowerCase() : 'admin';
   if (role === 'student' || role === 'member') {
-    return; // Students cannot submit bookings
+    return;
   }
 
   let submitBtn = document.getElementById('btn-submit-booking');
@@ -378,7 +382,10 @@ function setupBookingForm() {
       try {
         const res = await fetch('http://localhost:5000/api/bookings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
           body: JSON.stringify(payload)
         });
 

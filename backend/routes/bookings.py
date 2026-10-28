@@ -2,6 +2,9 @@ from flask import Blueprint, jsonify, request
 from database import get_db_connection
 from mail import send_booking_status_email
 from mail import verify_action_token
+from permissions import current_user  
+
+
 
 bookings_bp = Blueprint('bookings', __name__)
 
@@ -59,21 +62,46 @@ def get_current_user():
     finally:
         conn.close()
 
+
+
 @bookings_bp.route('/api/bookings', methods=['GET'])
 def get_bookings():
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+
     conn = get_db_connection()
     try:
-        query = '''
-            SELECT b.id, b.status, b.event_description, b.start_time, b.end_time,
-                   v.name as venue_name, u.name as requester_name, MIN(c.name) as club_name
-            FROM bookings b
-            LEFT JOIN venues v ON b.venue_id = v.id
-            LEFT JOIN users u ON b.user_id = u.id
-            LEFT JOIN club_members cm ON u.id = cm.user_id
-            LEFT JOIN clubs c ON cm.club_id = c.id
-            GROUP BY b.id
-        '''
-        rows = conn.execute(query).fetchall()
+        if user['role'] == 'admin':
+            # Admin sees ALL campus bookings
+            query = '''
+                SELECT b.id, b.status, b.event_description, b.start_time, b.end_time,
+                       v.name as venue_name, u.name as requester_name, MIN(c.name) as club_name
+                FROM bookings b
+                LEFT JOIN venues v ON b.venue_id = v.id
+                LEFT JOIN users u ON b.user_id = u.id
+                LEFT JOIN club_members cm ON u.id = cm.user_id
+                LEFT JOIN clubs c ON cm.club_id = c.id
+                GROUP BY b.id
+                ORDER BY b.id DESC
+            '''
+            rows = conn.execute(query).fetchall()
+        else:
+            # Presidents, Officers, and Students see ONLY their own bookings history
+            query = '''
+                SELECT b.id, b.status, b.event_description, b.start_time, b.end_time,
+                       v.name as venue_name, u.name as requester_name, MIN(c.name) as club_name
+                FROM bookings b
+                LEFT JOIN venues v ON b.venue_id = v.id
+                LEFT JOIN users u ON b.user_id = u.id
+                LEFT JOIN club_members cm ON u.id = cm.user_id
+                LEFT JOIN clubs c ON cm.club_id = c.id
+                WHERE b.user_id = ?
+                GROUP BY b.id
+                ORDER BY b.id DESC
+            '''
+            rows = conn.execute(query, (user['id'],)).fetchall()
+
         bookings_list = []
         for r in rows:
             full_start = r["start_time"] or ""
@@ -95,6 +123,8 @@ def get_bookings():
     finally:
         conn.close()
     return jsonify(bookings_list), 200
+
+
 
 @bookings_bp.route('/api/bookings', methods=['POST'])
 def create_booking():
@@ -155,6 +185,14 @@ def create_booking():
 
 @bookings_bp.route('/api/bookings/<int:booking_id>/status', methods=['PUT'])
 def update_booking_status(booking_id):
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    # 🔒 STRICT RBAC: ONLY ADMIN CAN APPROVE/DENY BOOKINGS
+    if user['role'] != 'admin':
+        return jsonify({"error": "Only campus administrators can approve or reject facility bookings."}), 403
+
     data = request.get_json() or {}
     new_status = data.get('status')
     
@@ -163,7 +201,6 @@ def update_booking_status(booking_id):
 
     conn = get_db_connection()
     try:
-        # Fetch booking and requester details before updating status
         booking_info = conn.execute('''
             SELECT b.id, b.event_description, b.start_time,
                    v.name as venue_name, u.name as requester_name, u.email as requester_email
@@ -176,7 +213,6 @@ def update_booking_status(booking_id):
         conn.execute('UPDATE bookings SET status = ? WHERE id = ?', (new_status, booking_id))
         conn.commit()
 
-        # Send status update email (Approval / Denial)
         if booking_info:
             booking_ref = f"#BK-0{booking_info['id'] + 40}"
             send_booking_status_email(
@@ -186,7 +222,8 @@ def update_booking_status(booking_id):
                 venue=booking_info['venue_name'] or 'Auditorium A',
                 date_time=booking_info['start_time'] or 'Nov 2026',
                 status=new_status,
-                purpose=booking_info['event_description'] or 'Facility Reservation'
+                purpose=booking_info['event_description'] or 'Facility Reservation',
+                booking_id=booking_id
             )
 
     except Exception as e:
