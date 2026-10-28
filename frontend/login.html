@@ -4,83 +4,209 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign In — Student Organization Management Platform</title>
+  <title>CampusConnect — Sign In</title>
   <meta name="description"
-    content="Sign in to your Student Organization Management account to access campus directories, room reservations, and event passes." />
-  <link rel="stylesheet" href="../css/style.css" />
+    content="Sign in to CampusConnect — Student Organization Management Platform to access campus directories, room reservations, and event passes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: #f8fafc;
-      color: var(--color-text-primary);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    .login-wrapper {
-      flex: 1;
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #edf3fc;
+      color: #0f172a;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--space-8) var(--space-4);
+      position: relative;
+      overflow-x: hidden;
+      padding: 40px 24px;
     }
 
-    .login-card {
+    /* ── SHARP PASTEL CIRCLES (EXACTLY LIKE THE REFERENCE IMAGE) ── */
+    .shape-circle-top {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: #e0ebf9;
+      top: -160px;
+      left: -140px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .shape-circle-bottom {
+      position: fixed;
+      width: 680px;
+      height: 680px;
+      border-radius: 50%;
+      background: #e3eefa;
+      bottom: -220px;
+      left: -190px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Outer Wrapper */
+    .login-container {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      max-width: 420px;
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      padding: var(--space-8);
-      animation: fadeIn 150ms ease-out;
+      max-width: 1080px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 70px;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    /* ── LEFT HERO BRANDING ─────────────────── */
+    .brand-hero {
+      flex: 1;
+      max-width: 480px;
     }
 
-    .brand-section {
-      text-align: center;
-      margin-bottom: var(--space-8);
-    }
-
-    .brand-badge-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--color-accent);
-      border-radius: var(--radius-md);
+    .brand-badge {
+      width: 66px;
+      height: 66px;
+      background: #1d58d8;
+      border-radius: 20px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      margin-bottom: var(--space-4);
-      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
+      margin-bottom: 26px;
+      box-shadow: 0 10px 25px rgba(29, 88, 216, 0.28);
+    }
+
+    .brand-badge svg {
+      width: 34px;
+      height: 34px;
     }
 
     .brand-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--color-text-primary);
-      letter-spacing: -0.02em;
-      margin-bottom: var(--space-2);
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      color: #0f172a;
+      margin-bottom: 10px;
     }
 
-    .brand-sub {
+    .brand-title .accent-blue {
+      color: #1d58d8;
+    }
+
+    .brand-subtitle {
+      font-size: 15px;
+      font-weight: 500;
+      color: #64748b;
+      margin-bottom: 26px;
+    }
+
+    .brand-bar {
+      width: 48px;
+      height: 3.5px;
+      background: #1d58d8;
+      border-radius: 999px;
+      margin-bottom: 26px;
+    }
+
+    .brand-tagline {
+      font-size: 14px;
+      font-weight: 500;
+      color: #8da2bd;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── RIGHT SIGN IN CARD ─────────────────── */
+    .login-card {
+      width: 460px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border-radius: 26px;
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.08), 0 8px 20px -6px rgba(15, 23, 42, 0.03);
+      padding: 44px 40px;
+    }
+
+    /* Perfectly centered header */
+    .login-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .card-badge {
+      width: 46px;
+      height: 46px;
+      background: #1d58d8;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 16px rgba(29, 88, 216, 0.25);
+    }
+
+    .card-badge svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .card-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 6px;
+      color: #0f172a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .card-title .title-accent {
+      color: #1d58d8;
+    }
+
+    .card-subtitle {
       font-size: 13px;
-      color: var(--color-text-secondary);
-      line-height: 1.5;
+      color: #64748b;
+      font-weight: 500;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
     }
 
     .input-wrapper {
@@ -89,229 +215,231 @@
       align-items: center;
     }
 
-    .input-icon-left {
+    .input-icon {
       position: absolute;
-      left: var(--space-3);
-      color: var(--color-text-muted);
+      left: 14px;
+      color: #94a3b8;
       pointer-events: none;
       display: flex;
       align-items: center;
     }
 
-    .input-wrapper .form-control {
-      padding-left: 38px;
-      padding-right: 38px;
-      height: 40px;
-      font-size: 13px;
+    .input-icon svg {
+      width: 17px;
+      height: 17px;
     }
 
-    .input-action-btn {
+    .text-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 42px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 11px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+      transition: all 150ms ease;
+    }
+
+    .text-input:focus {
+      border-color: #1d58d8;
+      box-shadow: 0 0 0 3.5px rgba(29, 88, 216, 0.12);
+    }
+
+    .text-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .btn-toggle-eye {
       position: absolute;
-      right: var(--space-3);
+      right: 14px;
       background: none;
       border: none;
-      color: var(--color-text-muted);
+      color: #94a3b8;
       cursor: pointer;
       display: flex;
       align-items: center;
       padding: 0;
-      transition: color var(--transition);
+      transition: color 150ms;
     }
 
-    .input-action-btn:hover {
-      color: var(--color-text-primary);
+    .btn-toggle-eye:hover {
+      color: #475569;
     }
 
-    .login-btn {
+    .btn-toggle-eye svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    /* Options Row */
+    .options-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      font-size: 13px;
+    }
+
+    .remember-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #334155;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .remember-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #1d58d8;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .link-forgot {
+      color: #1d58d8;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .link-forgot:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit Button */
+    .btn-primary-signin {
       width: 100%;
-      height: 42px;
+      height: 46px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 11px;
+      background: #1d58d8;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      transition: background 150ms ease, box-shadow 150ms ease, transform 100ms ease;
+      box-shadow: 0 4px 14px rgba(29, 88, 216, 0.28);
+    }
+
+    .btn-primary-signin:hover {
+      background: #194fd0;
+      box-shadow: 0 6px 18px rgba(29, 88, 216, 0.36);
+    }
+
+    .btn-primary-signin:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary-signin:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn-primary-signin svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 22px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .divider::before {
+      margin-right: 14px;
+    }
+
+    .divider::after {
+      margin-left: 14px;
+    }
+
+    /* SSO Button */
+    .btn-sso {
+      width: 100%;
+      height: 44px;
       font-size: 13px;
       font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-2);
-      border-radius: var(--radius-md);
-      background: var(--color-accent);
-      color: #fff;
-      border: 1px solid transparent;
+      gap: 8px;
+      border-radius: 11px;
+      background: #ffffff;
+      color: #1d58d8;
+      border: 1.5px solid #dbeafe;
       cursor: pointer;
-      transition: background var(--transition), box-shadow var(--transition);
+      transition: all 150ms ease;
     }
 
-    .login-btn:hover {
-      background: var(--color-accent-hover);
-      box-shadow: 0 2px 4px rgba(29, 78, 216, 0.25);
+    .btn-sso:hover {
+      background: #f0f6ff;
+      border-color: #bfdbfe;
     }
 
-    .login-btn:active {
-      transform: translateY(1px);
+    .btn-sso svg {
+      width: 16px;
+      height: 16px;
     }
 
-    .auth-alert {
-      display: none;
-      align-items: flex-start;
-      gap: var(--space-3);
-      padding: var(--space-3) var(--space-4);
-      border-radius: var(--radius-md);
-      font-size: 12px;
-      margin-bottom: var(--space-5);
-      border: 1px solid;
-    }
-
-    .auth-alert-error {
-      background: var(--color-danger-bg);
-      border-color: #fecaca;
-      color: var(--color-danger);
-    }
-
-    .auth-alert-success {
-      background: var(--color-success-bg);
-      border-color: #bbf7d0;
-      color: var(--color-success);
-    }
-
-    .divider-text {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: var(--color-text-muted);
-      font-size: 11px;
-      font-weight: 500;
-      margin: var(--space-6) 0;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .divider-text::before,
-    .divider-text::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .divider-text::before {
-      margin-right: var(--space-3);
-    }
-
-    .divider-text::after {
-      margin-left: var(--space-3);
-    }
-
-    .sso-btn {
-      width: 100%;
-      height: 40px;
-      font-size: 13px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-3);
-      border-radius: var(--radius-md);
-      background: var(--color-surface);
-      color: var(--color-text-primary);
-      border: 1px solid var(--color-border);
-      cursor: pointer;
-      transition: background var(--transition), border-color var(--transition);
-    }
-
-    .sso-btn:hover {
-      background: var(--color-surface-2);
-      border-color: #d1d5db;
-    }
-
-    .form-options {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: var(--space-6);
-      font-size: 12px;
-    }
-
-    .checkbox-label {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      color: var(--color-text-secondary);
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-      width: 15px;
-      height: 15px;
-      accent-color: var(--color-accent);
-      cursor: pointer;
-    }
-
-    .forgot-link {
-      color: var(--color-accent);
-      font-weight: 500;
-      text-decoration: none;
-    }
-
-    .forgot-link:hover {
-      text-decoration: underline;
-    }
-
-    .login-footer {
-      text-align: center;
-      padding: var(--space-6);
-      font-size: 12px;
-      color: var(--color-text-muted);
-      border-top: 1px solid var(--color-border);
-    }
-
-    .login-footer-links {
-      display: flex;
-      justify-content: center;
-      gap: var(--space-4);
-      margin-top: var(--space-2);
-    }
-
-    .login-footer-links a {
-      color: var(--color-text-secondary);
-      text-decoration: none;
-    }
-
-    .login-footer-links a:hover {
-      color: var(--color-text-primary);
-      text-decoration: underline;
-    }
-
-    /* Discreet quick-fill helper */
-    .credentials-helper {
-      margin-top: var(--space-6);
-      padding-top: var(--space-4);
-      border-top: 1px solid var(--color-border-soft);
+    /* Mock Credentials Helper */
+    .helper-wrap {
+      margin-top: 20px;
       text-align: center;
     }
 
-    .helper-toggle {
-      font-size: 11px;
-      color: var(--color-text-muted);
+    .btn-helper-toggle {
       background: none;
       border: none;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 150ms;
     }
 
-    .helper-toggle:hover {
-      color: var(--color-text-secondary);
-      background: var(--color-surface-2);
+    .btn-helper-toggle:hover {
+      color: #1d58d8;
+    }
+
+    .btn-helper-toggle svg {
+      width: 11px;
+      height: 11px;
     }
 
     .helper-dropdown {
       display: none;
-      margin-top: var(--space-3);
-      padding: var(--space-3);
-      background: var(--color-surface-2);
-      border-radius: var(--radius-md);
-      font-size: 11px;
+      margin-top: 12px;
+      padding: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
       text-align: left;
     }
 
@@ -319,20 +447,31 @@
       display: block;
     }
 
+    .helper-dropdown-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
     .quick-account-btn {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 6px 8px;
-      margin-bottom: 4px;
+      padding: 8px 10px;
+      margin-bottom: 5px;
       background: #fff;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      font-size: 11px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: inherit;
       cursor: pointer;
       text-align: left;
-      transition: background var(--transition);
+      transition: all 150ms;
+      color: #334155;
     }
 
     .quick-account-btn:last-child {
@@ -340,188 +479,400 @@
     }
 
     .quick-account-btn:hover {
-      background: var(--color-accent-light);
+      background: #eff6ff;
       border-color: #bfdbfe;
+      color: #1d58d8;
+    }
+
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .rp-admin   { background: #f3e8ff; color: #6d28d9; }
+    .rp-officer { background: #eff6ff; color: #1d4ed8; }
+    .rp-faculty { background: #fffbeb; color: #b45309; }
+    .rp-student { background: #f0fdf4; color: #166534; }
+
+    /* Register Prompt */
+    .register-prompt {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #64748b;
+    }
+
+    .register-prompt a {
+      color: #1d58d8;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .register-prompt a:hover {
+      text-decoration: underline;
+    }
+
+    /* Auth alert */
+    .auth-alert {
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      border: 1.5px solid;
+    }
+
+    .auth-alert-error {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .auth-alert-success {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .auth-alert svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── MODAL STYLES ─────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .reg-modal-card {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      animation: modalFade 150ms ease-out;
+    }
+
+    @keyframes modalFade {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .reg-modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .reg-modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .reg-modal-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .reg-modal-close:hover {
+      color: #0f172a;
+      background: #f1f5f9;
+    }
+
+    .reg-modal-body {
+      padding: 24px;
+    }
+
+    .reg-modal-footer {
+      padding: 16px 24px;
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      background: #fff;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+    }
+
+    .btn-primary {
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: none;
+      background: #1d58d8;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary:hover {
+      background: #194fd0;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .login-container {
+        flex-direction: column;
+        gap: 36px;
+        align-items: center;
+      }
+      .brand-hero {
+        text-align: center;
+        max-width: 100%;
+      }
+      .brand-bar {
+        margin: 0 auto 20px auto;
+      }
+      .login-card {
+        width: 100%;
+        max-width: 440px;
+        padding: 36px 28px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="login-wrapper">
+  <!-- Crisp circular shapes matching the reference image -->
+  <div class="shape-circle-top"></div>
+  <div class="shape-circle-bottom"></div>
+
+  <div class="login-container">
+
+    <!-- ── LEFT HERO BRANDING ─────────────────── -->
+    <div class="brand-hero">
+      <div class="brand-badge">
+        <i data-lucide="graduation-cap"></i>
+      </div>
+      <h1 class="brand-title">Campus<span class="accent-blue">Connect</span></h1>
+      <p class="brand-subtitle">Student Organization Management Platform</p>
+      <div class="brand-bar"></div>
+      <p class="brand-tagline">Connect. Organize. Build a Better Campus.</p>
+    </div>
+
+    <!-- ── RIGHT SIGN IN CARD ─────────────────── -->
     <div class="login-card">
 
-      <!-- Brand Header -->
-      <div class="brand-section">
-        <div class="brand-badge-icon">
-          <i data-lucide="graduation-cap" style="width: 24px; height: 24px;"></i>
+      <div class="login-header">
+        <div class="card-badge">
+          <i data-lucide="graduation-cap"></i>
         </div>
-        <h1 class="brand-title">Sign In</h1>
-        <p class="brand-sub">Student Organization Management Platform</p>
+        <div class="card-title">Sign <span class="title-accent">In</span></div>
+        <div class="card-subtitle">Student Organization Management Platform</div>
       </div>
 
-      <!-- Alert Message -->
+      <!-- Alert Box -->
       <div id="auth-alert" class="auth-alert auth-alert-error" role="alert">
-        <i data-lucide="alert-circle" style="width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;"></i>
+        <i data-lucide="alert-circle"></i>
         <span id="auth-alert-message">Invalid email or password.</span>
       </div>
 
-      <!-- Login Form -->
+      <!-- Form -->
       <form id="form-login" novalidate>
-        <div class="form-group" style="margin-bottom: var(--space-4);">
+
+        <div class="form-group">
           <label class="form-label" for="input-email">Institutional Email</label>
           <div class="input-wrapper">
-            <span class="input-icon-left">
-              <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
-            </span>
-            <input type="email" id="input-email" class="form-control" placeholder="you@campus.edu" autocomplete="email"
-              required value="admin@qcu.edu.ph" />
+            <span class="input-icon"><i data-lucide="mail"></i></span>
+            <input
+              type="email"
+              id="input-email"
+              class="text-input"
+              placeholder="admin@campus.edu"
+              autocomplete="email"
+              required
+              value="admin@qcu.edu.ph"
+            />
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom: var(--space-4);">
+        <div class="form-group">
           <label class="form-label" for="input-password">Password</label>
           <div class="input-wrapper">
-            <span class="input-icon-left">
-              <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
-            </span>
-            <input type="password" id="input-password" class="form-control" placeholder="Enter your password"
-              autocomplete="current-password" required value="admin123" />
-            <button type="button" id="btn-toggle-password" class="input-action-btn" title="Show password"
-              aria-label="Toggle password visibility">
-              <i data-lucide="eye" id="icon-eye" style="width: 16px; height: 16px;"></i>
+            <span class="input-icon"><i data-lucide="lock"></i></span>
+            <input
+              type="password"
+              id="input-password"
+              class="text-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+              value="admin123"
+            />
+            <button type="button" id="btn-toggle-password" class="btn-toggle-eye" title="Show password" aria-label="Toggle password visibility">
+              <i data-lucide="eye" id="icon-eye"></i>
             </button>
           </div>
         </div>
 
-        <div class="form-options">
-          <label class="checkbox-label">
+        <div class="options-row">
+          <label class="remember-label">
             <input type="checkbox" id="check-remember" checked />
             <span>Remember me</span>
           </label>
-          <a href="#" class="forgot-link"
-            onclick="alert('Password reset instructions have been sent to your institutional email.'); return false;">Forgot
-            password?</a>
+          <a href="#" class="link-forgot" onclick="alert('Password reset instructions have been sent to your institutional email.'); return false;">Forgot password?</a>
         </div>
 
-        <button type="submit" id="btn-submit" class="login-btn">
+        <button type="submit" id="btn-submit" class="btn-primary-signin">
           <span>Sign In</span>
-          <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
-        </button>
-        
-        <div style="text-align:center;margin-top:var(--space-4);font-size:13px;color:var(--color-text-secondary);">
-          Don't have an account? <a href="#" onclick="openModal('modal-register'); return false;" style="color:var(--color-accent);font-weight:500;text-decoration:none;">Create an account</a>
-        </div>
-
-        <div class="divider-text">or continue with</div>
-
-        <button type="button" class="sso-btn"
-          onclick="alert('Connecting to Campus Single Sign-On (SSO) Identity Provider…')">
-          <i data-lucide="key-round" style="width: 16px; height: 16px; color: var(--color-text-secondary);"></i>
-          <span>Campus Single Sign-On (SSO)</span>
+          <i data-lucide="arrow-right"></i>
         </button>
 
-        <!-- Discreet Quick Demo Accounts Popover -->
-        <div class="credentials-helper">
-          <button type="button" id="btn-toggle-helper" class="helper-toggle">
-            <i data-lucide="help-circle" style="width: 12px; height: 12px;"></i>
+
+
+        <!-- Mock Credentials Helper -->
+        <div class="helper-wrap">
+          <button type="button" id="btn-toggle-helper" class="btn-helper-toggle">
+            <i data-lucide="play" style="fill:currentColor;width:10px;height:10px;"></i>
             <span>Mock Credentials (Click to fill)</span>
           </button>
           <div id="helper-dropdown" class="helper-dropdown">
-            <div style="font-weight: 600; margin-bottom: 6px; color: var(--color-text-secondary);">Select an account to
-              auto-fill:</div>
+            <div class="helper-dropdown-title">Select an account to auto-fill:</div>
             <button type="button" class="quick-account-btn" onclick="fillAccount('admin@qcu.edu.ph', 'admin123')">
               <span><strong>Admin:</strong> admin@qcu.edu.ph</span>
-              <span class="badge badge-purple" style="font-size: 9px;">Admin</span>
+              <span class="role-pill rp-admin">Admin</span>
             </button>
             <button type="button" class="quick-account-btn" onclick="fillAccount('carlo@qcu.edu.ph', 'password123')">
               <span><strong>President:</strong> carlo@qcu.edu.ph</span>
-              <span class="badge badge-blue" style="font-size: 9px;">Officer</span>
+              <span class="role-pill rp-officer">Officer</span>
             </button>
             <button type="button" class="quick-account-btn" onclick="fillAccount('ana@qcu.edu.ph', 'password123')">
               <span><strong>Secretary:</strong> ana@qcu.edu.ph</span>
-              <span class="badge badge-blue" style="font-size: 9px;">Secretary</span>
+              <span class="role-pill rp-officer">Secretary</span>
             </button>
             <button type="button" class="quick-account-btn" onclick="fillAccount('faculty@qcu.edu.ph', 'password123')">
               <span><strong>Faculty:</strong> faculty@qcu.edu.ph</span>
-              <span class="badge badge-amber" style="font-size: 9px;">Faculty</span>
+              <span class="role-pill rp-faculty">Faculty</span>
             </button>
             <button type="button" class="quick-account-btn" onclick="fillAccount('paolo@qcu.edu.ph', 'password123')">
               <span><strong>Student:</strong> paolo@qcu.edu.ph</span>
-              <span class="badge badge-green" style="font-size: 9px;">Student</span>
+              <span class="role-pill rp-student">Student</span>
             </button>
           </div>
         </div>
+
+        <div class="register-prompt">
+          Don't have an account? <a href="#" onclick="openModal('modal-register'); return false;">Create Student Account</a>
+        </div>
+
       </form>
 
-      <!-- Modal: Create Student Account -->
-<div class="modal-overlay" id="modal-register" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:1000;">
-  <div class="modal" style="background:var(--color-surface);border-radius:var(--radius-lg);width:100%;max-width:440px;padding:var(--space-6);box-shadow:var(--shadow-lg);">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-4);">
-      <span style="font-size:16px;font-weight:700;">Create Student Account</span>
-      <button type="button" class="icon-btn" onclick="closeModal('modal-register')"><i data-lucide="x"></i></button>
     </div>
-    
-    <div id="reg-alert" class="auth-alert auth-alert-error" style="display:none;margin-bottom:var(--space-4);"></div>
+  </div>
 
-    <form onsubmit="handleRegister(event)">
-      <div class="form-group" style="margin-bottom:var(--space-3);">
-        <label class="form-label" style="font-size:12px;font-weight:600;">Full Name</label>
-        <input class="form-control" type="text" id="reg-name" placeholder="John Doe" required style="height:38px;font-size:13px;" />
-      </div>
-      <div class="form-group" style="margin-bottom:var(--space-3);">
-        <label class="form-label" style="font-size:12px;font-weight:600;">Institutional Email</label>
-        <input class="form-control" type="email" id="reg-email" placeholder="student@qcu.edu.ph" required style="height:38px;font-size:13px;" />
-      </div>
-      <div class="form-group" style="margin-bottom:var(--space-3);">
-        <label class="form-label" style="font-size:12px;font-weight:600;">Password</label>
-        <input class="form-control" type="password" id="reg-password" placeholder="At least 6 characters" required style="height:38px;font-size:13px;" />
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-3);">
-        <div class="form-group">
-          <label class="form-label" style="font-size:12px;font-weight:600;">Student ID</label>
-          <input class="form-control" type="text" id="reg-studentid" placeholder="2024-01234" style="height:38px;font-size:13px;" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" style="font-size:12px;font-weight:600;">Year Level</label>
-          <select class="form-control" id="reg-year" style="height:38px;font-size:13px;">
-            <option>1st Year</option>
-            <option>2nd Year</option>
-            <option>3rd Year</option>
-            <option>4th Year</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group" style="margin-bottom:var(--space-5);">
-        <label class="form-label" style="font-size:12px;font-weight:600;">Course</label>
-        <input class="form-control" type="text" id="reg-course" value="BS Information Technology" required style="height:38px;font-size:13px;" />
+  <!-- ── MODAL: CREATE STUDENT ACCOUNT ────────────────────────────── -->
+  <div class="modal-overlay" id="modal-register">
+    <div class="reg-modal-card">
+      <div class="reg-modal-header">
+        <span class="reg-modal-title">Create Student Account</span>
+        <button type="button" class="reg-modal-close" onclick="closeModal('modal-register')">
+          <i data-lucide="x"></i>
+        </button>
       </div>
 
-      <div style="display:flex;gap:var(--space-2);justify-content:flex-end;">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-register')">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="btn-reg-submit">
+      <div class="reg-modal-body">
+        <div id="reg-alert" class="auth-alert auth-alert-error" style="display:none;margin-bottom:16px;"></div>
+
+        <form id="form-register" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Full Name</label>
+            <input class="text-input" style="padding:0 14px;" type="text" id="reg-name" placeholder="John Doe" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reg-email">Institutional Email</label>
+            <input class="text-input" style="padding:0 14px;" type="email" id="reg-email" placeholder="student@qcu.edu.ph" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reg-password">Password</label>
+            <input class="text-input" style="padding:0 14px;" type="password" id="reg-password" placeholder="At least 6 characters" required />
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+            <div>
+              <label class="form-label" for="reg-studentid">Student ID</label>
+              <input class="text-input" style="padding:0 14px;" type="text" id="reg-studentid" placeholder="2024-01234" />
+            </div>
+            <div>
+              <label class="form-label" for="reg-year">Year Level</label>
+              <select class="text-input" style="padding:0 10px;" id="reg-year">
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option>3rd Year</option>
+                <option>4th Year</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="reg-course">Course</label>
+            <input class="text-input" style="padding:0 14px;" type="text" id="reg-course" value="BS Information Technology" required />
+          </div>
+        </form>
+      </div>
+
+      <div class="reg-modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modal-register')">Cancel</button>
+        <button type="submit" form="form-register" class="btn-primary" id="btn-reg-submit">
           <i data-lucide="user-plus" style="width:14px;height:14px;"></i> Register Account
         </button>
       </div>
-    </form>
-  </div>
-</div>
-      
     </div>
   </div>
 
-  <footer class="login-footer">
-    <div>Student Organization Management Platform &copy; 2026. All rights reserved.</div>
-    <div class="login-footer-links">
-      <a href="#">Privacy Policy</a>
-      <span>&bull;</span>
-      <a href="#">Terms of Service</a>
-      <span>&bull;</span>
-      <a href="#">Campus Helpdesk</a>
-    </div>
-  </footer>
-
-  <script src="../js/auth.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    if (typeof Auth === 'undefined' && !window.Auth) {
+      document.write('<script src="../js/auth.js"><\/script>');
+    }
+  </script>
   <script>
     // Initialize Lucide icons
     lucide.createIcons();
@@ -545,7 +896,7 @@
       lucide.createIcons();
     });
 
-    // Toggle mock helper
+    // Toggle test accounts helper
     helperToggle.addEventListener('click', () => {
       helperDropdown.classList.toggle('show');
     });
@@ -556,6 +907,67 @@
       passwordInput.value = password;
       helperDropdown.classList.remove('show');
       alertBox.style.display = 'none';
+      emailInput.focus();
+    };
+
+    // Modal open/close helpers
+    window.openModal = function (id) {
+      const modal = document.getElementById(id);
+      if (modal) {
+        modal.classList.add('open');
+        if (window.lucide) lucide.createIcons();
+      }
+    };
+
+    window.closeModal = function (id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('open');
+    };
+
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => {
+        if (e.target === el) el.classList.remove('open');
+      });
+    });
+
+    // Handle student registration submission
+    window.handleRegister = async function (e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('reg-alert');
+      alertBox.style.display = 'none';
+
+      const payload = {
+        name: document.getElementById('reg-name').value.trim(),
+        email: document.getElementById('reg-email').value.trim(),
+        password: document.getElementById('reg-password').value,
+        student_id: document.getElementById('reg-studentid').value.trim(),
+        year_level: document.getElementById('reg-year').value,
+        course: document.getElementById('reg-course').value.trim()
+      };
+
+      try {
+        const res = await fetch('http://localhost:5000/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          alert(data.message || 'Account successfully created!');
+          closeModal('modal-register');
+          emailInput.value = payload.email;
+          passwordInput.value = '';
+          passwordInput.focus();
+        } else {
+          alertBox.textContent = data.error || 'Registration failed';
+          alertBox.style.display = 'flex';
+        }
+      } catch (err) {
+        alertBox.textContent = 'Could not connect to the backend server.';
+        alertBox.style.display = 'flex';
+      }
     };
 
     // Form submission
@@ -574,26 +986,37 @@
       submitBtn.innerHTML = `<span>Signing in…</span>`;
 
       setTimeout(async () => {
-        const result = await Auth.login(email, password);
+        const authHandler = window.Auth || (typeof Auth !== 'undefined' ? Auth : null);
+        if (!authHandler) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
+          lucide.createIcons();
+          showAlert('Authentication module failed to load. Please refresh.');
+          return;
+        }
+
+        const result = await authHandler.login(email, password);
         if (result.success) {
           alertBox.className = 'auth-alert auth-alert-success';
-          alertMsg.textContent = `Welcome, ${result.user.name}. Redirecting to dashboard…`;
+          alertBox.innerHTML = `<i data-lucide="check-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"></i><span>Welcome, ${result.user.name}. Redirecting to dashboard…</span>`;
           alertBox.style.display = 'flex';
+          lucide.createIcons();
           setTimeout(() => {
-            window.location.href = '../index.html';
+            const isInsidePages = window.location.pathname.includes('/pages/');
+            window.location.href = isInsidePages ? '../index.html' : 'index.html';
           }, 400);
         } else {
           submitBtn.disabled = false;
           submitBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
           lucide.createIcons();
-          showAlert(result.message);
+          showAlert(result.message || 'Invalid email or password.');
         }
       }, 350);
     });
 
     function showAlert(message) {
       alertBox.className = 'auth-alert auth-alert-error';
-      alertMsg.textContent = message;
+      alertBox.innerHTML = `<i data-lucide="alert-circle" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;"></i><span>${message}</span>`;
       alertBox.style.display = 'flex';
       lucide.createIcons();
     }

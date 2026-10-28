@@ -34,7 +34,16 @@ const Auth = {
     window.location.href = isInsidePages ? 'login.html' : 'pages/login.html';
   },
 
-  async getCurrentUser() {
+  getCurrentUser() {
+    try {
+      const stored = localStorage.getItem('currentUser');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  async fetchCurrentUser() {
     const token = localStorage.getItem('token');
     if (!token) return null;
 
@@ -44,7 +53,10 @@ const Auth = {
       });
       if (res.ok) {
         const data = await res.json();
-        return data.user;
+        if (data.user) {
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          return data.user;
+        }
       }
     } catch (err) {
       console.error('Session check error:', err);
@@ -52,6 +64,8 @@ const Auth = {
     return null;
   }
 };
+
+window.Auth = Auth;
 
 // ==========================================
 // GLOBAL AUTO-SYNC ACROSS ALL PAGES
@@ -63,10 +77,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let user = JSON.parse(localStorage.getItem('currentUser'));
   
   if (window.Auth) {
-    const verifiedUser = await Auth.getCurrentUser();
+    const verifiedUser = await Auth.fetchCurrentUser();
     if (verifiedUser) {
       user = verifiedUser;
-      localStorage.setItem('currentUser', JSON.stringify(user));
     }
   }
 
