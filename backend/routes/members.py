@@ -30,10 +30,10 @@ def get_club_members(club_id):
     try:
         rows = conn.execute('''
             SELECT u.id, u.name, u.email, u.student_id, u.year_level, u.course,
-                   cm.role_in_club, cm.joined_at
+                   cm.role_in_club, cm.status, cm.joined_at
             FROM club_members cm
             JOIN users u ON cm.user_id = u.id
-            WHERE cm.club_id = ?
+            WHERE cm.club_id = ? AND cm.status = 'Approved'
             ORDER BY u.name
         ''', (club_id,)).fetchall()
         return jsonify([dict(r) for r in rows])
@@ -87,8 +87,6 @@ def add_member(club_id):
                         WHERE id = ?
                     ''', (student_id, year_level, course, user_id))
                 else:
-                    # Global role is set by the server, never by the request.
-                    # Password is a random unusable hash: roster record, no login.
                     cur = conn.execute('''
                         INSERT INTO users (name, email, password, role, student_id, year_level, course)
                         VALUES (?, ?, ?, 'student', ?, ?, ?)
@@ -98,6 +96,11 @@ def add_member(club_id):
 
                 conn.execute('INSERT INTO club_members (club_id, user_id, role_in_club) VALUES (?, ?, ?)',
                              (club_id, user_id, role_in_club))
+                
+                # ── AUTO-UPGRADE TO OFFICER IF PRESIDENT ──
+                if role_in_club == 'President':
+                    conn.execute("UPDATE users SET role = 'officer' WHERE id = ?", (user_id,))
+
         except sqlite3.IntegrityError:
             return err('That student is already a member of this club.', 409)
 
@@ -124,11 +127,10 @@ def update_member(club_id, user_id):
         current = target_role(conn, club_id, user_id)
         if current is None:
             return err('Member not found in this club.', 404)
-        # Secretaries etc. may only touch regular members, never officers
         if current != 'Member' and not g.perms['can_assign_roles']:
             return err('Only the club President or an admin can modify officers.', 403)
 
-        fields = {}  # keys below are a fixed whitelist, so the f-string is safe
+        fields = {} 
         if 'name' in data:
             name = (data['name'] or '').strip()
             if not name:
@@ -148,7 +150,6 @@ def update_member(club_id, user_id):
             denied = check_role_change(new_role)
             if denied:
                 return denied
-            # A non-admin President may not demote themselves and leave the club leaderless
             if (current == 'President' and new_role != 'President'
                     and g.user['role'] != 'admin' and g.user['id'] == user_id):
                 return err('Transfer the presidency to someone else first (ask an admin).', 403)
@@ -160,6 +161,10 @@ def update_member(club_id, user_id):
             if new_role is not None and new_role != current:
                 conn.execute('UPDATE club_members SET role_in_club = ? WHERE club_id = ? AND user_id = ?',
                              (new_role, club_id, user_id))
+                
+                # ── AUTO-UPGRADE TO OFFICER IF PROMOTED TO PRESIDENT ──
+                if new_role == 'President':
+                    conn.execute("UPDATE users SET role = 'officer' WHERE id = ?", (user_id,))
 
         return jsonify({"message": "Member updated."})
     except Exception as e:
@@ -192,5 +197,102 @@ def member_counts():
     try:
         rows = conn.execute('SELECT club_id, COUNT(*) AS n FROM club_members GROUP BY club_id').fetchall()
         return jsonify({str(r['club_id']): r['n'] for r in rows})
+    finally:
+        conn.close()
+
+@members_bp.route('/api/clubs/<int:club_id>/join', methods=['POST'])
+def join_club(club_id):
+    """Allows a logged-in student to request club membership (Pending status)."""
+    user = current_user()
+    if not user:
+        return err('Please log in first.', 401)
+
+    conn = get_db_connection()
+    try:
+        # Check if club exists
+        if not conn.execute('SELECT 1 FROM clubs WHERE id = ?', (club_id,)).fetchone():
+            return err('Club not found.', 404)
+
+        # Check existing membership or request
+        existing = conn.execute(
+            'SELECT status FROM club_members WHERE club_id = ? AND user_id = ?',
+            (club_id, user['id'])
+        ).fetchone()
+
+        if existing:
+            status = existing['status']
+            if status == 'Approved':
+                return err('You are already an approved member of this club.', 409)
+            elif status == 'Pending':
+                return err('Your membership request is already pending approval.', 409)
+            else: # Rejected, allow re-applying
+                conn.execute('''
+                    UPDATE club_members SET status = 'Pending', joined_at = CURRENT_TIMESTAMP
+                    WHERE club_id = ? AND user_id = ?
+                ''', (club_id, user['id']))
+                conn.commit()
+                return jsonify({"status": "success", "message": "Membership re-application submitted!"}), 201
+
+        # Insert new pending membership request
+        conn.execute('''
+            INSERT INTO club_members (club_id, user_id, role_in_club, status)
+            VALUES (?, ?, 'Member', 'Pending')
+        ''', (club_id, user['id']))
+        conn.commit()
+
+        return jsonify({"status": "success", "message": "Join request submitted! Please wait for officer approval."}), 201
+    except Exception as e:
+        print("ERROR joining club:", e)
+        return err('Server error while submitting join request.', 500)
+    finally:
+        conn.close()
+
+
+@members_bp.route('/api/clubs/<int:club_id>/members/<int:user_id>/status', methods=['PUT'])
+@require_club_manager
+def update_membership_status(club_id, user_id):
+    """Allows Club President or Admin to Approve or Reject a membership request."""
+    data = request.get_json(silent=True) or {}
+    new_status = data.get('status')
+
+    if new_status not in ['Approved', 'Rejected']:
+        return err('Invalid status. Must be Approved or Rejected.', 400)
+
+    conn = get_db_connection()
+    try:
+        existing = conn.execute(
+            'SELECT 1 FROM club_members WHERE club_id = ? AND user_id = ?',
+            (club_id, user_id)
+        ).fetchone()
+
+        if not existing:
+            return err('Membership record not found.', 404)
+
+        conn.execute('''
+            UPDATE club_members SET status = ? WHERE club_id = ? AND user_id = ?
+        ''', (new_status, club_id, user_id))
+        conn.commit()
+
+        return jsonify({"status": "success", "message": f"Membership request has been {new_status.lower()}."}), 200
+    except Exception as e:
+        print("ERROR updating membership status:", e)
+        return err('Server error.', 500)
+    finally:
+        conn.close()
+
+@members_bp.route('/api/clubs/<int:club_id>/pending-members', methods=['GET'])
+@require_club_manager
+def get_pending_members(club_id):
+    """Returns a list of pending membership requests for club managers/officers."""
+    conn = get_db_connection()
+    try:
+        rows = conn.execute('''
+            SELECT u.id, u.name, u.email, u.student_id, u.year_level, u.course, cm.joined_at
+            FROM club_members cm
+            JOIN users u ON cm.user_id = u.id
+            WHERE cm.club_id = ? AND cm.status = 'Pending'
+            ORDER BY cm.joined_at DESC
+        ''', (club_id,)).fetchall()
+        return jsonify([dict(r) for r in rows]), 200
     finally:
         conn.close()

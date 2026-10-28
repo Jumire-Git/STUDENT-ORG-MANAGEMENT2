@@ -107,7 +107,6 @@
       </div>
       <div class="topbar-right">
         <div style="display:flex;align-items:center;gap:var(--space-2);margin-right:var(--space-2);">
-          <span class="badge badge-purple auth-user-role" id="topbar-role-badge">Admin</span>
           <a href="login.html" class="btn btn-secondary btn-sm" style="display:flex;align-items:center;gap:4px;">
             <i data-lucide="arrow-left-right" style="width:12px;height:12px;"></i>
             <span>Switch Role</span>
@@ -177,6 +176,9 @@
         <button class="tab" onclick="switchTab(this,'tab-officers')">
           <i data-lucide="shield"></i> Officers <span class="tab-count">0</span>
         </button>
+        <button class="tab" onclick="switchTab(this,'tab-pending')" id="tab-pending-btn" style="display:none;">
+          <i data-lucide="user-check"></i> Pending Requests <span class="badge badge-amber" id="pending-count-badge">0</span>
+        </button>
         <button class="tab" onclick="switchTab(this,'tab-announcements')">
           <i data-lucide="megaphone"></i> Announcements <span class="ann-count-badge" id="ann-tab-count">0</span>
         </button>
@@ -228,6 +230,26 @@
       <div id="tab-officers" class="tab-panel">
         <div class="grid-3" id="officers-grid">
           <!-- JS rendered -->
+        </div>
+      </div>
+
+      <!-- Pending Requests Tab Panel (Officers/Admins Only) -->
+      <div id="tab-pending" class="tab-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Applicant</th>
+                <th>Student ID</th>
+                <th>Year & Course</th>
+                <th>Requested At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pending-members-body">
+              <!-- JS rendered -->
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -776,6 +798,23 @@ async function loadClubProfile() {
       renderOfficers(officers);
       updateHeaderStats(dbMembers.length, officers.length);
     }
+
+    await checkMyMembershipStatus();
+    const heroActions = document.querySelector('.profile-hero div[style*="display:flex;gap:var(--space-2);flex-shrink:0;"]');
+    if (heroActions && !perms.can_manage) {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (currentUser.role === 'student') {
+        if (myMembershipStatus === 'Pending') {
+          heroActions.innerHTML = `<button class="btn btn-secondary" disabled><i data-lucide="clock"></i> Request Pending</button>`;
+        } else {
+          heroActions.innerHTML = `<button class="btn btn-primary" onclick="joinClub()"><i data-lucide="user-plus"></i> Join Club</button>`;
+        }
+      }
+    }
+    if (perms.can_manage) {
+      loadPendingRequests();
+    }
+    
   } catch (error) {
     console.error("Error loading club profile from database:", error);
   }
@@ -852,6 +891,106 @@ async function submitEditClub() {
   } catch (err) {
     console.error(err);
     alert('Could not connect to backend server.');
+  }
+}
+
+let myMembershipStatus = null; // 'Approved', 'Pending', 'Rejected', or null
+
+async function checkMyMembershipStatus() {
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/members`, { headers: withAuth() });
+    if (res.ok) {
+      const membersList = await res.json();
+      const currentUserData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const mine = membersList.find(m => m.id === currentUserData.id);
+      if (mine) {
+        myMembershipStatus = mine.status || 'Approved';
+      }
+    }
+  } catch (err) {
+    console.error('Error checking membership:', err);
+  }
+}
+
+async function loadPendingRequests() {
+  if (!perms.can_manage) return;
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/pending-members`, { headers: withAuth() });
+    if (res.ok) {
+      const pending = await res.json();
+      const badge = document.getElementById('pending-count-badge');
+      if (badge) badge.textContent = pending.length;
+      
+      const tabBtn = document.getElementById('tab-pending-btn');
+      if (tabBtn) tabBtn.style.display = pending.length > 0 || perms.can_manage ? '' : 'none';
+
+      const tbody = document.getElementById('pending-members-body');
+      if (tbody) {
+        if (pending.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:var(--space-6);color:var(--color-text-muted);">No pending membership requests.</td></tr>`;
+        } else {
+          tbody.innerHTML = pending.map(p => `
+            <tr>
+              <td>
+                <div style="font-weight:500;">${escapeHtml(p.name)}</div>
+                <div style="font-size:11px;color:var(--color-text-muted);">${escapeHtml(p.email)}</div>
+              </td>
+              <td style="font-family:monospace;font-size:12px;">${escapeHtml(p.student_id || '—')}</td>
+              <td>${escapeHtml(p.year_level || '—')} · ${escapeHtml(p.course || '—')}</td>
+              <td style="color:var(--color-text-muted);">${escapeHtml(p.joined_at ? p.joined_at.slice(0, 10) : '—')}</td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <button class="btn btn-sm" style="background:#10b981;color:white;padding:2px 8px;border-radius:4px;cursor:pointer;" onclick="updateMembershipStatus(${p.id}, 'Approved')">Approve</button>
+                  <button class="btn btn-sm" style="background:#ef4444;color:white;padding:2px 8px;border-radius:4px;cursor:pointer;" onclick="updateMembershipStatus(${p.id}, 'Rejected')">Reject</button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error loading pending requests:', err);
+  }
+}
+
+async function joinClub() {
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/join`, {
+      method: 'POST',
+      headers: withAuth({ 'Content-Type': 'application/json' })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert(data.message);
+      location.reload();
+    } else {
+      alert(data.message || 'Failed to submit join request.');
+    }
+  } catch (err) {
+    console.error('Error joining club:', err);
+    alert('Network error while joining club.');
+  }
+}
+
+async function updateMembershipStatus(userId, status) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/members/${userId}/status`, {
+      method: 'PUT',
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      loadClubProfile();
+      loadPendingRequests();
+      alert(`Membership request ${status.toLowerCase()} successfully.`);
+    } else {
+      alert(data.message || 'Failed to update status.');
+    }
+  } catch (err) {
+    console.error('Error updating status:', err);
+    alert('Network error.');
   }
 }
 

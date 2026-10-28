@@ -58,7 +58,6 @@
       </div>
       <div class="topbar-right">
         <div style="display:flex;align-items:center;gap:var(--space-2);margin-right:var(--space-2);">
-          <span class="badge badge-purple auth-user-role" id="topbar-role-badge">Admin</span>
           <a href="login.html" class="btn btn-secondary btn-sm" style="display:flex;align-items:center;gap:4px;">
             <i data-lucide="arrow-left-right" style="width:12px;height:12px;"></i>
             <span>Switch Role</span>
@@ -80,7 +79,7 @@
           <button class="btn btn-secondary" onclick="openModal('modal-announce')" data-roles="admin,officer">
             <i data-lucide="megaphone"></i> Post Announcement
           </button>
-          <button class="btn btn-primary" onclick="openModal('modal-add-club')" data-roles="admin">
+          <button class="btn btn-primary" id="btn-add-club" onclick="openModal('modal-add-club')" data-roles="admin">
             <i data-lucide="plus"></i> Add Club
           </button>
         </div>

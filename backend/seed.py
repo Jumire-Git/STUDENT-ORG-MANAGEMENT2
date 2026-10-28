@@ -23,13 +23,13 @@ def seed_data():
     cursor.execute('INSERT INTO clubs (id, name, description, contact_email) VALUES (?, ?, ?, ?)',
                    (2, "Information Technology Society", "The official organization for BSIT students focused on coding and tech workshops.", "itsociety@qcu.edu.ph"))
 
-    # 2. Insert Sample Users
+    # 2. Insert Sample Users (Carlo & Ana updated to 'officer' system role)
     users_data = [
-        (1, "Carlo Reyes",   "carlo@qcu.edu.ph",  "password123", "student", "2022-0101", "4th Year", "BS Computer Science"),
-        (2, "Ana Santos",    "ana@qcu.edu.ph",    "password123", "student", "2022-0102", "4th Year", "BS Computer Science"),
+        (1, "Carlo Reyes",   "carlo@qcu.edu.ph",  "password123", "officer", "2022-0101", "4th Year", "BS Computer Science"),
+        (2, "Ana Santos",    "ana@qcu.edu.ph",    "password123", "officer", "2022-0102", "4th Year", "BS Computer Science"),
         (3, "Marco Rivera",  "marco@qcu.edu.ph",  "password123", "student", "2023-0215", "3rd Year", "BS Information Technology"),
         (4, "Lea Tan",       "lea@qcu.edu.ph",    "password123", "student", "2023-0230", "3rd Year", "BS Information Technology"),
-        (5, "Paolo Dizon",   "paolo@qcu.edu.ph",  "password123", "student", "2024-0311", "2nd Year", "BS Computer Science"),
+        (5, "Paolo Dizon",   "paolo@qcu.edu.ph",  "password123",     "student", "2024-0311", "2nd Year", "BS Computer Science"),
         (6, "Juan Miguel Repas", "admin@qcu.edu.ph", "admin123", "admin",  None, None, None),
         (7, "Dr. Roberto Diaz", "faculty@qcu.edu.ph", "password123", "faculty", None, None, None),
     ]

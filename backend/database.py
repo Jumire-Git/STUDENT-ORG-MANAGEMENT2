@@ -36,13 +36,14 @@ def init_db():
         )
     ''')
 
-    # 3. Club Members table (Subsystem 1 - Linking users to clubs)
+    # 3. Club Members table (Subsystem 1 - Linking users to clubs with approval status)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS club_members (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             club_id INTEGER NOT NULL,
             user_id INTEGER NOT NULL,
             role_in_club TEXT DEFAULT 'Member',
+            status TEXT DEFAULT 'Approved' CHECK(status IN ('Pending', 'Approved', 'Rejected')),
             joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE (club_id, user_id),
             FOREIGN KEY (club_id) REFERENCES clubs (id),

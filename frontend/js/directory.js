@@ -138,40 +138,62 @@ function filterClubs() {
 }
 
 /* ── Handle Add Club Form Submission ─────────────────────────── */
-function setupAddClubForm() {
-  const form = document.getElementById('add-club-form'); // Make sure this matches your HTML modal form ID
-  if (!form) return;
+/* ── Auth Header Helper ──────────────────────────────────────── */
+function withAuth(extra = {}) {
+  let token = null;
+  try { token = localStorage.getItem('token'); } catch (e) { /* storage unavailable */ }
+  return token ? { ...extra, Authorization: `Bearer ${token}` } : extra;
+}
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+/* ── Handle Add Club Modal Submission ────────────────────────── */
+function setupAddClubForm() {
+  const saveBtn = document.getElementById('btn-save-club');
+  if (!saveBtn) return;
+
+  saveBtn.addEventListener('click', async () => {
+    const name = (document.getElementById('input-club-name')?.value || '').trim();
+    const category = document.getElementById('select-club-cat')?.value || 'Technical';
+    const description = (document.getElementById('input-club-desc')?.value || '').trim();
+    const acronym = name.substring(0, 4).toUpperCase();
     
+    if (!name) {
+      alert('Club name is required.');
+      return;
+    }
+
     const newClub = {
-      name: document.getElementById('club-name').value,
-      acronym: document.getElementById('club-acronym')?.value || '',
-      description: document.getElementById('club-desc').value,
-      category: document.getElementById('club-category')?.value || 'Technical',
-      contact_email: document.getElementById('club-email')?.value || ''
+      name,
+      acronym,
+      category,
+      description,
+      contact_email: `${acronym.toLowerCase()}@qcu.edu.ph`
     };
 
     try {
       const response = await fetch('http://localhost:5000/api/clubs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: withAuth({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(newClub)
       });
 
       if (response.ok) {
-        // Close modal (assuming your modal uses a function like closeModal or hides via class)
-        const modal = document.getElementById('add-club-modal');
+        // Close modal and reset fields
+        const modal = document.getElementById('modal-add-club');
         if (modal) modal.classList.remove('open');
         
-        form.reset();
+        const nameInput = document.getElementById('input-club-name');
+        if (nameInput) nameInput.value = '';
+        const descInput = document.getElementById('input-club-desc');
+        if (descInput) descInput.value = '';
+
         loadClubsFromBackend(); // Instantly refresh grid, table, and counts!
       } else {
-        alert('Failed to add club.');
+        const data = await response.json().catch(() => ({}));
+        alert(data.message || 'Failed to add club.');
       }
     } catch (error) {
       console.error('Error adding club:', error);
+      alert('Could not connect to backend server.');
     }
   });
 }
