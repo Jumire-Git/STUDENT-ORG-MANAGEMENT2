@@ -80,6 +80,17 @@ def seed_data():
         bookings_data
     )
 
+    # 6. Insert Sample Events (Subsystem 3)
+    events_data = [
+        (1, "Tech Summit 2026", "Annual campus technology keynote and networking event.", "Carlo Reyes", "Nov 3, 2026 1:00 PM", "Auditorium A"),
+        (2, "PCB Design & IoT Workshop", "Hands-on hardware assembly and circuit board design.", "Maria Santos", "Nov 5, 2026 3:00 PM", "MPH Room C"),
+        (3, "First Aid & Emergency Seminar", "Life-saving first aid techniques and disaster preparedness.", "Ana Cruz", "Nov 8, 2026 8:00 AM", "AVR Room")
+    ]
+    cursor.executemany(
+        'INSERT INTO events (id, title, description, speaker, start_time, venue) VALUES (?, ?, ?, ?, ?, ?)',
+        events_data
+    )
+
     conn.commit()
     conn.close()
     print("Database seeded successfully with venues, bookings, and relational schema!")

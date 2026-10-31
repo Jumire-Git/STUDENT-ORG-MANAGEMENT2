@@ -226,10 +226,10 @@ Each subsystem must work standalone, so they are built one at a time on top of a
 
 ### Phase 2: Facility Booking (Subsystem 2)
 - [/] Venue and equipment list with an availability calendar
-- [ ] Booking form (date, time, venue, equipment, description) with conflict checking
-- [ ] Faculty approval page with approve and deny buttons
-- [ ] Approval and denial emails (Gmail SMTP)
-- [ ] Locked calendar slots and confirmation receipt
+- [/] Booking form (date, time, venue, equipment, description) with conflict checking
+- [/] Faculty approval page with approve and deny buttons
+- [/] Approval and denial emails (Gmail SMTP)
+- [/] Locked calendar slots and confirmation receipt
 
 **Done when:** a student submits a request, faculty approves it, and the slot locks.
 

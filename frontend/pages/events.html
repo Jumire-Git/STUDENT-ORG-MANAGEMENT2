@@ -85,7 +85,7 @@
       <div class="grid-4" style="margin-bottom:var(--space-6);">
         <div class="stat-card">
           <div class="stat-header"><span class="stat-label">Upcoming Events</span><div class="stat-icon stat-icon-blue"><i data-lucide="calendar"></i></div></div>
-          <div class="stat-value">12</div>
+          <div class="stat-value" id="stat-upcoming-count">3</div>
           <div class="stat-delta">Next 30 days</div>
         </div>
         <div class="stat-card">
@@ -107,7 +107,7 @@
 
       <!-- Tabs -->
       <div class="tabs">
-        <button class="tab active" onclick="switchTab(this,'tab-upcoming')"><i data-lucide="calendar-clock"></i> Upcoming <span class="tab-count">12</span></button>
+        <button class="tab active" onclick="switchTab(this,'tab-upcoming')"><i data-lucide="calendar-clock"></i> Upcoming <span class="tab-count" id="tab-upcoming-badge">3</span></button>
         <button class="tab" onclick="switchTab(this,'tab-calendar')"><i data-lucide="calendar"></i> Calendar View</button>
         <button class="tab" onclick="switchTab(this,'tab-past')"><i data-lucide="archive"></i> Past Events</button>
       </div>
@@ -128,7 +128,7 @@
           </select>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+        <div id="events-upcoming" style="display:flex;flex-direction:column;gap:var(--space-3);">          
           <!-- Event: Tech Summit -->
           <div class="event-row">
             <div class="event-date-block">
@@ -258,34 +258,8 @@
                 <th>Event</th><th>Club</th><th>Date</th><th>Registered</th><th>Attended</th><th>Rate</th><th>Export</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><div style="font-weight:500;">General Assembly — Q3</div><div style="font-size:11px;color:var(--color-text-muted);">Campus-wide</div></td>
-                <td>Supreme Student Council</td>
-                <td>Oct 15, 2026</td>
-                <td>450</td>
-                <td>412</td>
-                <td><span class="badge badge-green">91.6%</span></td>
-                <td><button class="btn btn-sm btn-secondary"><i data-lucide="download"></i> CSV</button></td>
-              </tr>
-              <tr>
-                <td><div style="font-weight:500;">Hackathon 2026</div></td>
-                <td>CSSG</td>
-                <td>Oct 10, 2026</td>
-                <td>80</td>
-                <td>75</td>
-                <td><span class="badge badge-green">93.8%</span></td>
-                <td><button class="btn btn-sm btn-secondary"><i data-lucide="download"></i> CSV</button></td>
-              </tr>
-              <tr>
-                <td><div style="font-weight:500;">Career Expo</div></td>
-                <td>JPIA</td>
-                <td>Oct 5, 2026</td>
-                <td>200</td>
-                <td>138</td>
-                <td><span class="badge badge-amber">69%</span></td>
-                <td><button class="btn btn-sm btn-secondary"><i data-lucide="download"></i> CSV</button></td>
-              </tr>
+            <tbody id="past-events-body">
+              <!-- Dynamically populated from database -->
             </tbody>
           </table>
         </div>
@@ -382,6 +356,31 @@
         <button type="button" class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="downloadQRPass()"><i data-lucide="download"></i> Download PNG</button>
         <button type="button" class="btn btn-primary" style="flex:1;justify-content:center;" onclick="emailQRPass()"><i data-lucide="send"></i> Email Pass</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Event Details / Info -->
+<div class="modal-overlay" id="modal-event-info">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="info-evt-title">Event Information</span>
+      <button class="icon-btn" onclick="closeModal('modal-event-info')"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:var(--space-4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="badge badge-blue" id="info-evt-club">CSSG</span>
+        <span style="font-size:13px;color:var(--color-text-muted);" id="info-evt-date">Nov 3, 2026</span>
+      </div>
+      <div style="font-size:13px;color:var(--color-text-secondary);display:flex;flex-direction:column;gap:6px;">
+        <div><strong>Venue:</strong> <span id="info-evt-venue">Auditorium A</span></div>
+        <div><strong>Time:</strong> <span id="info-evt-time">1:00 PM – 6:00 PM</span></div>
+        <div><strong>Capacity:</strong> <span id="info-evt-capacity">200 seats</span></div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;gap:var(--space-3);">
+      <button type="button" class="btn btn-secondary" style="flex:1;" onclick="closeModal('modal-event-info')">Close</button>
+      <button type="button" class="btn btn-primary" style="flex:1;" id="btn-modal-qr-trigger"><i data-lucide="qr-code"></i> View QR Pass</button>
     </div>
   </div>
 </div>

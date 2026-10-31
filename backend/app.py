@@ -8,6 +8,7 @@ from routes.members import members_bp
 from routes.announcements import announcements_bp
 from routes.clubs import clubs_bp
 from routes.bookings import bookings_bp
+from routes.events import events_bp
 
 app = Flask(__name__)
 CORS(app)  # default allows the Authorization header and PATCH/DELETE
@@ -25,6 +26,7 @@ app.register_blueprint(members_bp)
 app.register_blueprint(announcements_bp)
 app.register_blueprint(clubs_bp)
 app.register_blueprint(bookings_bp)
+app.register_blueprint(events_bp)
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "success", "message": "Student Org Platform API is running!"}), 200
