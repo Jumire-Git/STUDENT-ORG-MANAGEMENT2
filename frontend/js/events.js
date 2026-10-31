@@ -207,56 +207,7 @@ window.openEventInfo = function(eventId) {
   }
 };
 
-/* ── Render Past Events Table (Connected to Database) ──────── */
-/* ── Load Past Events from Database ────────────────────────── */
-async function loadPastEvents() {
-  const tbody = document.getElementById('past-events-body');
-  if (!tbody) return;
 
-  try {
-    const res = await fetch('http://localhost:5000/api/events/past', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      renderPastEventsTable(data);
-      return;
-    }
-  } catch (err) {
-    console.warn('Failed to fetch past events from backend:', err);
-  }
-}
-
-function renderPastEventsTable(data) {
-  const tbody = document.getElementById('past-events-body');
-  if (!tbody) return;
-
-  if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--color-text-muted);">No past events recorded.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = data.map((e) => {
-    const rate = Math.round(((e.attended || 0) / (e.registered || 1)) * 100);
-    const badgeClass = rate >= 85 ? 'badge-green' : rate >= 65 ? 'badge-amber' : 'badge-red';
-    return `
-      <tr>
-        <td><div style="font-weight:500;">${e.name}</div></td>
-        <td>${e.club}</td>
-        <td>${e.date}</td>
-        <td>${e.registered}</td>
-        <td>${e.attended}</td>
-        <td><span class="badge ${badgeClass}">${rate}%</span></td>
-        <td>
-          <button type="button" class="btn btn-sm btn-secondary" onclick="exportEventCSV('${e.name}', ${e.attended}, '${e.date}')">
-            <i data-lucide="download"></i> CSV
-          </button>
-        </td>
-      </tr>
-    `;
-  }).join('');
-  if (window.lucide) lucide.createIcons();
-}
 
 function renderPastEventsTable(data) {
   const tbody = document.getElementById('past-events-body');
@@ -425,10 +376,59 @@ function setupEventsForm() {
   }
 }
 
+/* ── Load Past Events from Database ────────────────────────── */
+async function loadPastEvents() {
+  const tbody = document.getElementById('past-events-body');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('http://localhost:5000/api/events/past', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      renderPastEventsTable(data);
+      return;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch past events from backend:', err);
+  }
+}
+
+function renderPastEventsTable(data) {
+  const tbody = document.getElementById('past-events-body');
+  if (!tbody) return;
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--color-text-muted);">No past events recorded.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map((e) => {
+    const rate = Math.round(((e.attended || 0) / (e.registered || 1)) * 100);
+    const badgeClass = rate >= 85 ? 'badge-green' : rate >= 65 ? 'badge-amber' : 'badge-red';
+    return `
+      <tr>
+        <td><div style="font-weight:500;">${e.name}</div></td>
+        <td>${e.club}</td>
+        <td>${e.date}</td>
+        <td>${e.registered}</td>
+        <td>${e.attended}</td>
+        <td><span class="badge ${badgeClass}">${rate}%</span></td>
+        <td>
+          <button type="button" class="btn btn-sm btn-secondary" onclick="exportEventCSV('${e.name}', ${e.attended}, '${e.date}')">
+            <i data-lucide="download"></i> CSV
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  if (window.lucide) lucide.createIcons();
+}
+
 /* ── Init ────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   loadEvents();
-  renderPastEvents(PAST_EVENTS);
+  loadPastEvents();
   setupEventsForm();
-  renderPastEventsTable(PAST_EVENTS);
 });
