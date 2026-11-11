@@ -71,9 +71,9 @@ def seed_data():
     bookings_data = [
         (1, 1, 'Tech Summit Keynote', 'Nov 3, 2026 1:00 PM', 'Nov 3, 2026 5:00 PM', 'Pending'),
         (3, 2, 'Workshop: PCB Design', 'Nov 5, 2026 3:00 PM', 'Nov 5, 2026 6:00 PM', 'Pending'),
-        (6, 3, 'First Aid Seminar', 'Nov 8, 2026 8:00 AM', 'Nov 8, 2026 12:00 PM', 'Pending'),
-        (7, 4, 'CPA Review Webinar', 'Nov 22, 2026 1:00 PM', 'Nov 22, 2026 4:00 PM', 'Approved'),
-        (4, 5, 'Robot Sprint', 'Nov 15, 2026 9:00 AM', 'Nov 15, 2026 5:00 PM', 'Approved'),
+        (6, 3, 'First Aid Seminar', 'Feb 5, 2027 8:00 AM', 'Feb 5, 2027 12:00 PM', 'Pending'),
+        (7, 4, 'CPA Review Webinar', 'Feb 14, 2027 1:00 PM', 'Feb 14, 2027 4:00 PM', 'Approved'),
+        (4, 5, 'Robot Sprint', 'Feb 20, 2027 9:00 AM', 'Feb 20, 2027 5:00 PM', 'Approved'),
     ]
     cursor.executemany(
         'INSERT INTO bookings (venue_id, user_id, event_description, start_time, end_time, status) VALUES (?, ?, ?, ?, ?, ?)',
@@ -82,9 +82,9 @@ def seed_data():
 
     # 6. Insert Sample Events (Subsystem 3)
     events_data = [
-        (1, "Tech Summit 2026", "Annual campus technology keynote and networking event.", "Carlo Reyes", "Nov 3, 2026 1:00 PM", "Auditorium A"),
-        (2, "PCB Design & IoT Workshop", "Hands-on hardware assembly and circuit board design.", "Maria Santos", "Nov 5, 2026 3:00 PM", "MPH Room C"),
-        (3, "First Aid & Emergency Seminar", "Life-saving first aid techniques and disaster preparedness.", "Ana Cruz", "Nov 8, 2026 8:00 AM", "AVR Room")
+        (1, "Tech Summit 2027", "Annual campus technology keynote and networking event.", "Carlo Reyes", "Jan 15, 2027 1:00 PM", "Auditorium A"),
+        (2, "PCB Design & IoT Workshop", "Hands-on hardware assembly and circuit board design.", "Maria Santos", "Jan 20, 2027 3:00 PM", "MPH Room C"),
+        (3, "First Aid & Emergency Seminar", "Life-saving first aid techniques and disaster preparedness.", "Ana Cruz", "Feb 5, 2027 8:00 AM", "AVR Room")
     ]
     cursor.executemany(
         'INSERT INTO events (id, title, description, speaker, start_time, venue) VALUES (?, ?, ?, ?, ?, ?)',

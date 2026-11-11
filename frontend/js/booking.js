@@ -19,10 +19,23 @@ const STATUS_ICON = {
 let currentStatusFilter = 'All';
 let cachedBookings = [];
 let cachedVenues = [];
+let cachedHolidays = {};
 let currentUser = null;
 
-// Calendar navigation state (defaults to November 2026 as seeded)
-let currentCalendarDate = new Date(2026, 10, 1); // Month 10 = November
+// Calendar navigation state (defaults to January 2027)
+let currentCalendarDate = new Date(2027, 0, 1); 
+
+function getAuthHeaders(includeContentType = false) {
+  const token = localStorage.getItem('token');
+  const headers = {};
+  if (token && token !== 'null' && token !== 'undefined') {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  if (includeContentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+  return headers;
+}
 
 /**
  * Get active user session directly from auth.js local storage sync
@@ -36,7 +49,7 @@ function getActiveUser() {
   } catch (err) {
     console.error('Error parsing currentUser from localStorage:', err);
   }
-  return { id: 1, name: 'Admin', role: 'admin' };
+  return { id: 1, name: 'Juan Miguel Repas', role: 'admin' };
 }
 
 /**
@@ -78,10 +91,15 @@ async function loadVenues() {
 
   try {
     const res = await fetch('http://localhost:5000/api/venues', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      headers: getAuthHeaders()
     });
     if (res.ok) {
       cachedVenues = await res.json();
+      
+      // Update Total Venues Stat Card dynamically
+      const venuesStatEl = document.getElementById('stat-total-venues');
+      if (venuesStatEl) venuesStatEl.textContent = cachedVenues.length || 8;
+
       grid.innerHTML = cachedVenues.map(v => `
         <div class="venue-card">
           <div class="venue-card-img"><i data-lucide="${v.type === 'Equipment' ? 'projector' : v.type === 'Space' ? 'map' : 'presentation'}"></i></div>
@@ -101,24 +119,37 @@ async function loadVenues() {
   }
 }
 
+async function loadHolidays() {
+  try {
+    const res = await fetch('http://localhost:5000/api/holidays', {
+      headers: getAuthHeaders()
+    });
+    if (res.ok) {
+      cachedHolidays = await res.json();
+    }
+  } catch (err) {
+    console.error('Error loading holidays:', err);
+  }
+}
+
 /**
  * Fully Dynamic Calendar Grid Renderer maintaining exact design and dimensions
  */
 function renderCalendar(bookings) {
   const calGrid = document.querySelector('.cal-grid');
   const calLabel = document.getElementById('cal-label');
+  const venueFilterSelect = document.getElementById('cal-venue-filter');
   if (!calGrid) return;
 
   const year = currentCalendarDate.getFullYear();
   const month = currentCalendarDate.getMonth(); // 0-11
+  const selectedVenue = venueFilterSelect ? venueFilterSelect.value : 'all';
 
-  // Update Month/Year Header Label
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   if (calLabel) {
     calLabel.textContent = `${monthNames[month]} ${year}`;
   }
 
-  // Preserve day headers (Sun - Sat)
   const headersHTML = `
     <div class="cal-day-header">Sun</div>
     <div class="cal-day-header">Mon</div>
@@ -129,44 +160,66 @@ function renderCalendar(bookings) {
     <div class="cal-day-header">Sat</div>
   `;
 
-  const firstDayIndex = new Date(year, month, 1).getDay(); // Day of week of 1st
-  const totalDays = new Date(year, month + 1, 0).getDate(); // Total days in current month
-  const prevMonthDays = new Date(year, month, 0).getDate(); // Days in previous month
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const prevMonthDays = new Date(year, month, 0).getDate();
 
   let daysHTML = headersHTML;
 
-  // 1. Previous month spillover days
+  // Previous month spillover days
   for (let i = firstDayIndex - 1; i >= 0; i--) {
     const dayNum = prevMonthDays - i;
     daysHTML += `<div class="cal-day other-month"><div class="cal-day-num">${dayNum}</div></div>`;
   }
 
-  // Filter ONLY Approved bookings for real-time calendar display
-  const approvedBookings = bookings.filter(b => b.status === 'Approved');
+  let relevantBookings = bookings;
+  if (selectedVenue && selectedVenue !== 'all') {
+    relevantBookings = bookings.filter(b => b.venue === selectedVenue);
+  }
 
-  // 2. Current month days
+  // Current month days
   for (let day = 1; day <= totalDays; day++) {
     const currDateObj = new Date(year, month, day);
     const monthShort = currDateObj.toLocaleString('en-US', { month: 'short' });
-    
-    const matchingBookings = approvedBookings.filter(b => {
+    const mm = String(month + 1).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    const dateKey = `${year}-${mm}-${dd}`;
+
+    const holiday = cachedHolidays[dateKey];
+    const dayBookings = relevantBookings.filter(b => {
       return b.date.includes(`${monthShort} ${day},`) || b.date === `${monthShort} ${day}, ${year}`;
     });
 
-    let eventsHTML = '';
-    matchingBookings.forEach(b => {
-      eventsHTML += `<div class="cal-event-dot blue" title="${b.club} — ${b.venue}">${b.club} — ${b.venue}</div>`;
-    });
+    const approvedBooking = dayBookings.find(b => b.status === 'Approved');
+    const pendingBooking = dayBookings.find(b => b.status === 'Pending');
+
+    let statusClass = 'status-available';
+    let badgeHTML = '<span class="cal-status-badge available">Available</span>';
+    let eventPillHTML = '';
+
+    if (holiday) {
+      statusClass = 'status-holiday';
+      badgeHTML = `<span class="cal-status-badge" style="background:#dbeafe;color:#1e40af;" title="${holiday.type}">Holiday</span>`;
+      eventPillHTML = `<span class="cal-event-pill" style="background:#dbeafe;color:#1e40af;font-size:10px;" title="${holiday.name}">${holiday.name}</span>`;
+    } else if (approvedBooking) {
+      statusClass = 'status-booked';
+      badgeHTML = '<span class="cal-status-badge booked">Booked</span>';
+      eventPillHTML = `<span class="cal-event-pill booked" onclick="openBookingInfo(${approvedBooking.id})" style="cursor:pointer;" title="View details">${approvedBooking.club} · ${approvedBooking.venue}</span>`;
+    } else if (pendingBooking) {
+      statusClass = 'status-pending';
+      badgeHTML = '<span class="cal-status-badge pending">Pending</span>';
+      eventPillHTML = `<span class="cal-event-pill pending" onclick="openBookingInfo(${pendingBooking.id})" style="cursor:pointer;" title="View details">${pendingBooking.club} · ${pendingBooking.venue}</span>`;
+    }
 
     daysHTML += `
-      <div class="cal-day">
+      <div class="cal-day ${statusClass}">
         <div class="cal-day-num">${day}</div>
-        ${eventsHTML}
+        ${badgeHTML}
+        ${eventPillHTML}
       </div>
     `;
   }
 
-  // 3. Next month spillover days to complete the standard grid layout
   const totalCellsSoFar = firstDayIndex + totalDays;
   const remainingCells = totalCellsSoFar % 7 === 0 ? 0 : 7 - (totalCellsSoFar % 7);
   for (let day = 1; day <= remainingCells; day++) {
@@ -183,18 +236,26 @@ function renderCalendar(bookings) {
 function setupCalendarNavigation() {
   const prevBtn = document.getElementById('cal-prev');
   const nextBtn = document.getElementById('cal-next');
+  const todayBtn = document.getElementById('cal-today');
 
   if (prevBtn) {
     prevBtn.onclick = () => {
       currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-      renderBookings(currentStatusFilter);
+      renderCalendar(cachedBookings);
     };
   }
 
   if (nextBtn) {
     nextBtn.onclick = () => {
       currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-      renderBookings(currentStatusFilter);
+      renderCalendar(cachedBookings);
+    };
+  }
+
+  if (todayBtn) {
+    todayBtn.onclick = () => {
+      currentCalendarDate = new Date(); // Syncs to today's real-time date
+      renderCalendar(cachedBookings);
     };
   }
 }
@@ -209,7 +270,7 @@ async function renderBookings(filterStatus = currentStatusFilter) {
 
   try {
     const res = await fetch('http://localhost:5000/api/bookings', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      headers: getAuthHeaders()
     });
     if (res.ok) {
       cachedBookings = await res.json();
@@ -227,15 +288,25 @@ async function renderBookings(filterStatus = currentStatusFilter) {
   const approvedCount = cachedBookings.filter(b => b.status === 'Approved').length;
   const deniedCount = cachedBookings.filter(b => b.status === 'Denied' || b.status === 'Rejected').length;
 
+  // ── UPDATE STAT CARDS DYNAMICALLY ──
+  const venuesStatEl = document.getElementById('stat-total-venues');
+  if (venuesStatEl) venuesStatEl.textContent = cachedVenues.length || 8;
+
+  const pendingStatEl = document.getElementById('stat-pending-count');
+  if (pendingStatEl) pendingStatEl.textContent = pendingCount;
+
+  const approvedStatEl = document.getElementById('stat-approved-count');
+  if (approvedStatEl) approvedStatEl.textContent = approvedCount;
+
+  const deniedStatEl = document.getElementById('stat-denied-count');
+  if (deniedStatEl) deniedStatEl.textContent = deniedCount;
+  // ────────────────────────────────────
+
   document.querySelectorAll('.tab-count-pending').forEach(el => el.textContent = pendingCount);
   document.querySelectorAll('.tab-count-approved').forEach(el => el.textContent = approvedCount);
   document.querySelectorAll('.tab-count-denied').forEach(el => el.textContent = deniedCount);
-  document.querySelectorAll('.tab-count-all').forEach(el => el.textContent = cachedBookings.length);
   document.querySelectorAll('.tab-count-all, .tab-count').forEach(el => el.textContent = cachedBookings.length);
   
-  const pendingStatEl = document.getElementById('stat-pending-bookings');
-  if (pendingStatEl) pendingStatEl.textContent = pendingCount;
-
   if (data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--color-text-muted);padding:var(--space-8);">No bookings found for "${filterStatus}".</td></tr>`;
     return;
@@ -243,8 +314,7 @@ async function renderBookings(filterStatus = currentStatusFilter) {
 
   currentUser = getActiveUser();
   const role = currentUser && currentUser.role ? currentUser.role.toLowerCase() : 'admin';
-  const isStudent = role === 'student' || role === 'member';
-  const isAdmin = role === 'admin'; // Properly define isAdmin here
+  const isAdmin = role === 'admin';
 
   tbody.innerHTML = data.map((b) => `
     <tr>
@@ -269,14 +339,14 @@ async function renderBookings(filterStatus = currentStatusFilter) {
       </td>
       <td>
         <div style="display:flex;gap:4px;align-items:center;">
-          <button class="btn btn-sm btn-secondary" onclick="viewBookingDetails('${b.ref}')" title="View Details">
+          <button class="btn btn-sm btn-secondary" onclick="viewBookingDetails(${b.id})" title="View Details">
             <i data-lucide="eye"></i> View
           </button>
           ${isAdmin && b.status === 'Pending' ? `
             <button class="btn btn-sm" style="background:#10b981;color:white;padding:2px 8px;border-radius:4px;cursor:pointer;" onclick="updateBookingStatus(${b.id}, 'Approved')" title="Approve Request">
               Approve
             </button>
-            <button class="btn btn-sm" style="background:#ef4444;color:white;padding:2px 8px;border-radius:4px;cursor:pointer;" onclick="updateBookingStatus(${b.id}, 'Denied')" title="Reject Request">
+            <button class="btn btn-sm" style="background:#ef4444;color:white;padding:2px 8px;border-radius:4px;cursor:pointer;" onclick="updateBookingStatus(${b.id}, 'Rejected')" title="Reject Request">
               Reject
             </button>
           ` : ''}
@@ -295,10 +365,7 @@ window.updateBookingStatus = async function(id, status) {
   try {
     const res = await fetch(`http://localhost:5000/api/bookings/${id}/status`, {
       method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
+      headers: getAuthHeaders(true),
       body: JSON.stringify({ status })
     });
     if (res.ok) {
@@ -313,10 +380,16 @@ window.updateBookingStatus = async function(id, status) {
   }
 };
 
-window.viewBookingDetails = function(ref) {
-  const b = cachedBookings.find(x => x.ref === ref);
+window.viewBookingDetails = function(bookingIdOrRef) {
+  let b = null;
+  if (typeof bookingIdOrRef === 'number') {
+    b = cachedBookings.find(x => x.id === bookingIdOrRef);
+  } else {
+    b = cachedBookings.find(x => x.ref === bookingIdOrRef || `#BK-0${x.id + 40}` === bookingIdOrRef);
+  }
+  
   if (b) {
-    alert(`Booking Reference: ${b.ref}\nOrganization: ${b.club}\nVenue: ${b.venue}\nDate & Time: ${b.date} (${b.time})\nStatus: ${b.status}\nPurpose: ${b.purpose}\nEquipment: ${b.equipment || 'None'}`);
+    openBookingInfo(b.id);
   }
 };
 
@@ -382,10 +455,7 @@ function setupBookingForm() {
       try {
         const res = await fetch('http://localhost:5000/api/bookings', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
+          headers: getAuthHeaders(true),
           body: JSON.stringify(payload)
         });
 
@@ -415,11 +485,45 @@ function setupBookingForm() {
   }
 }
 
+/**
+ * Open Centered CSS Modal for Booking / Calendar Event Details
+ */
+window.openBookingInfo = function(bookingId) {
+  const b = cachedBookings.find(x => x.id === bookingId);
+  if (!b) return;
+
+  document.getElementById('info-bk-title').textContent = b.purpose || 'Reservation Details';
+  document.getElementById('info-bk-club').textContent = b.club || 'Campus Organization';
+  document.getElementById('info-bk-ref').textContent = b.ref || `#BK-0${b.id + 40}`;
+  document.getElementById('info-bk-venue').textContent = b.venue || 'Auditorium A';
+  document.getElementById('info-bk-datetime').textContent = `${b.date} (${b.time})`;
+  document.getElementById('info-bk-purpose').textContent = b.purpose || 'N/A';
+  document.getElementById('info-bk-equip').textContent = b.equipment || 'Standard Setup';
+
+  const statusEl = document.getElementById('info-bk-status');
+  if (statusEl) {
+    statusEl.textContent = b.status;
+    statusEl.className = `badge ${STATUS_BADGE[b.status] || 'badge-neutral'}`;
+  }
+
+  const modal = document.getElementById('modal-booking-info');
+  if (modal) {
+    modal.classList.add('open');
+  }
+};
+
 /* ── Init ────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   enforceRoleAccess();
+  await loadHolidays();
   loadVenues();
   setupCalendarNavigation();
+  
+  const venueFilterSelect = document.getElementById('cal-venue-filter');
+  if (venueFilterSelect) {
+    venueFilterSelect.onchange = () => renderBookings(currentStatusFilter);
+  }
+
   renderBookings();
   setupBookingForm();
 });

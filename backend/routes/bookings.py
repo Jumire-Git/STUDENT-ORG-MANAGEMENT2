@@ -189,7 +189,6 @@ def update_booking_status(booking_id):
     if not user:
         return jsonify({"error": "Unauthorized"}), 401
 
-    # 🔒 STRICT RBAC: ONLY ADMIN CAN APPROVE/DENY BOOKINGS
     if user['role'] != 'admin':
         return jsonify({"error": "Only campus administrators can approve or reject facility bookings."}), 403
 
@@ -214,17 +213,20 @@ def update_booking_status(booking_id):
         conn.commit()
 
         if booking_info:
-            booking_ref = f"#BK-0{booking_info['id'] + 40}"
-            send_booking_status_email(
-                to_email=booking_info['requester_email'] or 'student@qcu.edu.ph',
-                recipient_name=booking_info['requester_name'] or 'Requester',
-                booking_ref=booking_ref,
-                venue=booking_info['venue_name'] or 'Auditorium A',
-                date_time=booking_info['start_time'] or 'Nov 2026',
-                status=new_status,
-                purpose=booking_info['event_description'] or 'Facility Reservation',
-                booking_id=booking_id
-            )
+            try:
+                booking_ref = f"#BK-0{booking_info['id'] + 40}"
+                send_booking_status_email(
+                    to_email=booking_info['requester_email'] or 'student@qcu.edu.ph',
+                    recipient_name=booking_info['requester_name'] or 'Requester',
+                    booking_ref=booking_ref,
+                    venue=booking_info['venue_name'] or 'Auditorium A',
+                    date_time=booking_info['start_time'] or 'Nov 2026',
+                    status=new_status,
+                    purpose=booking_info['event_description'] or 'Facility Reservation',
+                    booking_id=booking_id
+                )
+            except Exception as mail_err:
+                print("Email dispatch warning:", mail_err)
 
     except Exception as e:
         conn.rollback()
@@ -234,7 +236,7 @@ def update_booking_status(booking_id):
 
     return jsonify({
         "success": True,
-        "message": f"Booking status updated to {new_status} and notification sent"
+        "message": f"Booking status updated to {new_status}"
     }), 200
 
 @bookings_bp.route('/api/bookings/email-action', methods=['GET'])
@@ -286,3 +288,33 @@ def email_action():
     </body>
     </html>
     """, 200
+
+
+@bookings_bp.route('/api/holidays', methods=['GET'])
+def get_holidays():
+    holidays = {
+        # 2026 Nov-Dec
+        "2026-11-01": {"name": "All Saints' Day", "type": "Special Non-Working Holiday"},
+        "2026-11-30": {"name": "Bonifacio Day", "type": "Regular Holiday"},
+        "2026-12-08": {"name": "Feast of the Immaculate Conception", "type": "Special Non-Working Holiday"},
+        "2026-12-25": {"name": "Christmas Day", "type": "Regular Holiday"},
+        "2026-12-30": {"name": "Rizal Day", "type": "Regular Holiday"},
+        "2026-12-31": {"name": "Last Day of the Year", "type": "Special Non-Working Holiday"},
+        
+        # 2027 Philippine Holidays
+        "2027-01-01": {"name": "New Year's Day", "type": "Regular Holiday"},
+        "2027-02-25": {"name": "EDSA People Power Revolution Anniversary", "type": "Special Non-Working Holiday"},
+        "2027-03-25": {"name": "Maundy Thursday", "type": "Regular Holiday"},
+        "2027-03-26": {"name": "Good Friday", "type": "Regular Holiday"},
+        "2027-04-09": {"name": "Araw ng Kagitingan (Day of Valor)", "type": "Regular Holiday"},
+        "2027-05-01": {"name": "Labor Day", "type": "Regular Holiday"},
+        "2027-06-12": {"name": "Independence Day", "type": "Regular Holiday"},
+        "2027-08-30": {"name": "National Heroes Day", "type": "Regular Holiday"},
+        "2027-11-01": {"name": "All Saints' Day", "type": "Special Non-Working Holiday"},
+        "2027-11-30": {"name": "Bonifacio Day", "type": "Regular Holiday"},
+        "2027-12-08": {"name": "Feast of the Immaculate Conception", "type": "Special Non-Working Holiday"},
+        "2027-12-25": {"name": "Christmas Day", "type": "Regular Holiday"},
+        "2027-12-30": {"name": "Rizal Day", "type": "Regular Holiday"},
+        "2027-12-31": {"name": "Last Day of the Year", "type": "Special Non-Working Holiday"}
+    }
+    return jsonify(holidays), 200
