@@ -61,11 +61,23 @@ function renderUpcoming(data) {
 
   container.innerHTML = data.map(e => {
     const pct = Math.min(100, Math.round(((e.registered || 0) / (e.capacity || 200)) * 100));
+    
+    // Parse day and month safely from e.date (e.g., "Jan 15, 2027" or "Nov 3, 2026")
+    let displayMonth = e.month || 'Nov';
+    let displayDay = e.day || '3';
+    if (e.date && e.date.includes(',')) {
+      const parts = e.date.replace(',', '').split(' ');
+      if (parts.length >= 2) {
+        displayMonth = parts[0];
+        displayDay = parts[1];
+      }
+    }
+
     return `
       <div class="event-row">
         <div class="event-date-block">
-          <div class="day">${e.day || '3'}</div>
-          <div class="month">${e.month || 'Nov'}</div>
+          <div class="day">${displayDay}</div>
+          <div class="month">${displayMonth}</div>
         </div>
         <div style="width:1px;background:var(--color-border);margin:0 var(--space-2);align-self:stretch;"></div>
         <div class="event-info">

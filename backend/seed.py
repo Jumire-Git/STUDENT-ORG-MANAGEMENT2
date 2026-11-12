@@ -17,12 +17,12 @@ def seed_data():
     cursor.execute('DELETE FROM clubs')
     cursor.execute('DELETE FROM users')
 
-    # 1. Insert Clubs
+  # 1. Insert Clubs
     cursor.execute('INSERT INTO clubs (id, name, description, contact_email) VALUES (?, ?, ?, ?)',
                    (1, "Computer Science Society of the Philippines", "CSSG is the premier organization for computer science students on campus.", "cssg@qcu.edu.ph"))
     cursor.execute('INSERT INTO clubs (id, name, description, contact_email) VALUES (?, ?, ?, ?)',
                    (2, "Information Technology Society", "The official organization for BSIT students focused on coding and tech workshops.", "itsociety@qcu.edu.ph"))
-
+                   
     # 2. Insert Sample Users (Carlo & Ana updated to 'officer' system role)
     users_data = [
         (1, "Carlo Reyes",   "carlo@qcu.edu.ph",  "password123", "officer", "2022-0101", "4th Year", "BS Computer Science"),

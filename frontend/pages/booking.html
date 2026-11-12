@@ -209,22 +209,22 @@
       <div class="grid-4" style="margin-bottom:var(--space-6);">
         <div class="stat-card">
           <div class="stat-header"><span class="stat-label">Total Venues</span><div class="stat-icon stat-icon-blue"><i data-lucide="building-2"></i></div></div>
-          <div class="stat-value" id="stat-total-venues">8</div>
+          <div class="stat-value" id="stat-total-venues">—</div>
           <div class="stat-delta">Rooms + outdoor spaces</div>
         </div>
         <div class="stat-card">
           <div class="stat-header"><span class="stat-label">Pending</span><div class="stat-icon stat-icon-amber"><i data-lucide="clock"></i></div></div>
-          <div class="stat-value" id="stat-pending-count">7</div>
+          <div class="stat-value" id="stat-pending-count">—</div>
           <div class="stat-delta">Awaiting approval</div>
         </div>
         <div class="stat-card">
           <div class="stat-header"><span class="stat-label">Approved</span><div class="stat-icon stat-icon-green"><i data-lucide="check-circle"></i></div></div>
-          <div class="stat-value" id="stat-approved-count">31</div>
+          <div class="stat-value" id="stat-approved-count">—</div>
           <div class="stat-delta">This semester</div>
         </div>
         <div class="stat-card">
           <div class="stat-header"><span class="stat-label">Denied</span><div class="stat-icon stat-icon-red"><i data-lucide="x-circle"></i></div></div>
-          <div class="stat-value" id="stat-denied-count">4</div>
+          <div class="stat-value" id="stat-denied-count">—</div>
           <div class="stat-delta">This semester</div>
         </div>
       </div>
@@ -233,7 +233,7 @@
       <div class="tabs">
         <button class="tab active" onclick="switchTab(this,'tab-availability')"><i data-lucide="calendar"></i> Availability Calendar</button>
         <button class="tab" onclick="switchTab(this,'tab-venues')"><i data-lucide="building-2"></i> Venues &amp; Equipment</button>
-        <button class="tab" onclick="switchTab(this,'tab-requests')"><i data-lucide="list-checks"></i> All Requests <span class="tab-count">42</span></button>
+        <button class="tab" onclick="switchTab(this,'tab-requests')"><i data-lucide="list-checks"></i> All Requests <span class="tab-count">—</span></button>
       </div>
 
       <!-- Calendar Tab -->
@@ -245,7 +245,7 @@
             <div class="cal-header-row">
               <div class="cal-nav-group">
                 <button class="cal-nav-btn" id="cal-prev"><i data-lucide="chevron-left"></i></button>
-                <span class="cal-month-label" id="cal-label">November 2026</span>
+                <span class="cal-month-label" id="cal-label">-</span>
                 <button class="cal-nav-btn" id="cal-next"><i data-lucide="chevron-right"></i></button>
                 <button class="cal-today-btn" id="cal-today">Today</button>
               </div>
@@ -269,109 +269,9 @@
             </div>
 
             <!-- Calendar Grid -->
-            <div class="cal-grid">
-              <div class="cal-day-header">Sun</div>
-              <div class="cal-day-header">Mon</div>
-              <div class="cal-day-header">Tue</div>
-              <div class="cal-day-header">Wed</div>
-              <div class="cal-day-header">Thu</div>
-              <div class="cal-day-header">Fri</div>
-              <div class="cal-day-header">Sat</div>
-
-              <!-- Oct spillover -->
-              <div class="cal-day other-month"><div class="cal-day-num">26</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">27</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">28</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">29</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">30</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">31</div></div>
-
-              <!-- Nov 1 -->
-              <div class="cal-day status-available">
-                <div class="cal-day-num">1</div>
-                <span class="cal-status-badge available">Available</span>
-              </div>
-              <!-- Nov 2 -->
-              <div class="cal-day status-available">
-                <div class="cal-day-num">2</div>
-                <span class="cal-status-badge available">Available</span>
-              </div>
-              <!-- Nov 3 Booked -->
-              <div class="cal-day status-booked">
-                <div class="cal-day-num">3</div>
-                <span class="cal-status-badge booked">Booked</span>
-                <span class="cal-event-pill booked">CSSG · Aud A</span>
-              </div>
-              <!-- Nov 4 -->
-              <div class="cal-day status-available">
-                <div class="cal-day-num">4</div>
-                <span class="cal-status-badge available">Available</span>
-              </div>
-              <!-- Nov 5 Pending -->
-              <div class="cal-day status-pending">
-                <div class="cal-day-num">5</div>
-                <span class="cal-status-badge pending">Pending</span>
-                <span class="cal-event-pill pending">IEEE · MPH C</span>
-              </div>
-              <!-- Nov 6 -->
-              <div class="cal-day status-available">
-                <div class="cal-day-num">6</div>
-                <span class="cal-status-badge available">Available</span>
-              </div>
-              <!-- Nov 7 -->
-              <div class="cal-day status-available">
-                <div class="cal-day-num">7</div>
-                <span class="cal-status-badge available">Available</span>
-              </div>
-
-              <!-- Nov 8 Pending -->
-              <div class="cal-day status-pending">
-                <div class="cal-day-num">8</div>
-                <span class="cal-status-badge pending">Pending</span>
-                <span class="cal-event-pill pending">RCY · Projector</span>
-              </div>
-              <div class="cal-day status-available"><div class="cal-day-num">9</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">10</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">11</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">12</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">13</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">14</div><span class="cal-status-badge available">Available</span></div>
-
-              <!-- Nov 15 Booked -->
-              <div class="cal-day status-booked">
-                <div class="cal-day-num">15</div>
-                <span class="cal-status-badge booked">Booked</span>
-                <span class="cal-event-pill booked">Robotics · La...</span>
-              </div>
-              <div class="cal-day status-available"><div class="cal-day-num">16</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">17</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">18</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">19</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">20</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">21</div><span class="cal-status-badge available">Available</span></div>
-
-              <!-- Nov 22 Booked -->
-              <div class="cal-day status-booked">
-                <div class="cal-day-num">22</div>
-                <span class="cal-status-badge booked">Booked</span>
-                <span class="cal-event-pill booked">JPIA · AVR</span>
-              </div>
-              <div class="cal-day status-available"><div class="cal-day-num">23</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">24</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">25</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">26</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">27</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">28</div><span class="cal-status-badge available">Available</span></div>
-
-              <div class="cal-day status-available"><div class="cal-day-num">29</div><span class="cal-status-badge available">Available</span></div>
-              <div class="cal-day status-available"><div class="cal-day-num">30</div><span class="cal-status-badge available">Available</span></div>
-
-              <!-- Dec spillover -->
-              <div class="cal-day other-month"><div class="cal-day-num">1</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">2</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">3</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">4</div></div>
-              <div class="cal-day other-month"><div class="cal-day-num">5</div></div>
+            <!-- Calendar Grid -->
+            <div class="cal-grid" id="cal-grid-container">
+              <!-- Dynamically rendered by booking.js -->
             </div>
 
           </div>

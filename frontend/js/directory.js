@@ -14,29 +14,42 @@ const CATEGORY_BADGE = {
 // Global variable to keep track of fetched clubs
 let globalClubs = [];
 
-/* ── Fetch Clubs from Flask Backend ──────────────────────────── */
+/* ── Fetch Clubs and Member Counts from Flask Backend ────────── */
 async function loadClubsFromBackend() {
   try {
-      const [response, countsRes] = await Promise.all([
+    const [response, countsRes] = await Promise.all([
       fetch('http://localhost:5000/api/clubs'),
       fetch('http://localhost:5000/api/member-counts')
     ]);
+    
     if (!response.ok) {
       throw new Error('Failed to fetch clubs from backend');
     }
     globalClubs = await response.json();
 
-    // Attach the real membership count to each club (0 if it has no members)
+    // Attach real membership counts from /api/member-counts
     const counts = countsRes.ok ? await countsRes.json() : {};
-    globalClubs.forEach(c => { c.member_count = counts[c.id] ?? 0; });
+    globalClubs.forEach(c => { 
+      c.member_count = counts[c.id] ?? c.members ?? 0; 
+      c.events = c.events ?? 0;
+    });
     
-    // ── Update Grid View badge count dynamically ────────────────
-    updateGridCountBadge(globalClubs.length);
+    const total = globalClubs.length;
+    const active = globalClubs.filter(c => (c.status || 'Active').toLowerCase() === 'active').length;
+    const inactive = total - active;
 
+    const totalEl = document.getElementById('badge-total-clubs');
+    const activeEl = document.getElementById('badge-active-clubs');
+    const inactiveEl = document.getElementById('badge-inactive-clubs');
+
+    if (totalEl) totalEl.textContent = `${total} Total`;
+    if (activeEl) activeEl.textContent = `${active} Active`;
+    if (inactiveEl) inactiveEl.textContent = `${inactive} Inactive`;
+
+    updateGridCountBadge(globalClubs.length);
     filterClubs(); // Render grid/table once data is loaded
   } catch (error) {
     console.error("Error loading clubs:", error);
-    // Fallback or empty state if backend is down
     renderGrid([]);
     renderTable([]);
     updateGridCountBadge(0);
@@ -69,26 +82,29 @@ function renderGrid(data) {
     if (window.lucide) lucide.createIcons();
     return;
   }
-  container.innerHTML = data.map(c => `
-    <a href="club-profile.html?id=${c.id}" class="club-card" style="text-decoration:none;">
-      <div class="club-card-head">
-        <div class="club-logo">${(c.name || 'CO').substring(0,2).toUpperCase()}</div>
-        <div class="club-meta">
-          <div class="club-name">${c.name}</div>
-          <div class="club-type">${c.contact_email || 'Organization'}</div>
+  container.innerHTML = data.map(c => {
+    const status = (c.status || 'Active').trim();
+    const isActive = status.toLowerCase() === 'active';
+    return `
+      <a href="club-profile.html?id=${c.id}" class="club-card" style="text-decoration:none;">
+        <div class="club-card-head">
+          <div class="club-logo">${(c.name || 'CO').substring(0,2).toUpperCase()}</div>
+          <div class="club-meta">
+            <div class="club-name">${c.name}</div>
+            <div class="club-type">${c.contact_email || 'Organization'}</div>
+          </div>
         </div>
-        <span class="badge badge-blue" style="flex-shrink:0;">Active</span>
-      </div>
-      <div class="club-desc">${c.description || 'No description provided.'}</div>
-      <div class="club-stats">
-        <div class="club-stat"><div class="club-stat-val">${c.member_count ?? 0}</div><div class="club-stat-lbl">Members</div></div>
-        <div class="club-stat"><div class="club-stat-val">0</div><div class="club-stat-lbl">Events</div></div>
-        <div class="club-stat" style="margin-left:auto;">
-          <span class="badge badge-green">Active</span>
+        <div class="club-desc">${c.description || 'No description provided.'}</div>
+        <div class="club-stats">
+          <div class="club-stat"><div class="club-stat-val">${c.member_count ?? 0}</div><div class="club-stat-lbl">Members</div></div>
+          <div class="club-stat"><div class="club-stat-val">${c.events ?? 0}</div><div class="club-stat-lbl">Events</div></div>
+          <div class="club-stat" style="margin-left:auto;">
+            <span class="badge ${isActive ? 'badge-green' : 'badge-red'}">${status}</span>
+          </div>
         </div>
-      </div>
-    </a>
-  `).join('');
+      </a>
+    `;
+  }).join('');
   if (window.lucide) lucide.createIcons();
 }
 
@@ -107,14 +123,14 @@ function renderTable(data) {
           <div class="club-logo" style="width:32px;height:32px;font-size:12px;">${(c.name || 'CO').substring(0,2).toUpperCase()}</div>
           <div>
             <div style="font-weight:500;">${c.name}</div>
-            <div style="font-size:11px;color:var(--color-text-muted);">${c.contact_email}</div>
+            <div style="font-size:11px;color:var(--color-text-muted);">${c.contact_email || ''}</div>
           </div>
         </div>
       </td>
-      <td><span class="badge badge-blue">Active</span></td>
+      <td><span class="badge badge-blue">${c.category || 'Technical'}</span></td>
       <td>Student Lead</td>
       <td>${c.member_count ?? 0}</td>
-      <td><span class="badge badge-green">Active</span></td>
+      <td><span class="badge ${((c.status || 'Active').toLowerCase() === 'active') ? 'badge-green' : 'badge-red'}">${c.status || 'Active'}</span></td>
     </tr>
   `).join('');
   if (window.lucide) lucide.createIcons();
@@ -212,8 +228,11 @@ function setupDirectoryForms() {
   setupAddClubForm();
 }
 
-/* ── Init ────────────────────────────────______________________ */
+/* ── Init ────────────────────────────────________________────── */
 document.addEventListener('DOMContentLoaded', () => {
   loadClubsFromBackend();
   setupDirectoryForms();
+  if (typeof setupAnnouncementForm === 'function') {
+    setupAnnouncementForm(1);
+  }
 });

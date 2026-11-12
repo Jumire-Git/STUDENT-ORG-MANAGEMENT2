@@ -311,31 +311,8 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td style="font-weight:500;">Tech Summit 2026</td>
-                <td>Nov 3, 2026</td>
-                <td>Auditorium A</td>
-                <td>200 / 200</td>
-                <td><span class="badge badge-blue">Upcoming</span></td>
-                <td><a href="events.html" class="btn btn-sm btn-secondary"><i data-lucide="arrow-right"></i></a></td>
-              </tr>
-              <tr>
-                <td style="font-weight:500;">Hackathon 2026</td>
-                <td>Oct 10, 2026</td>
-                <td>Computer Lab 3</td>
-                <td>80 / 80</td>
-                <td><span class="badge badge-neutral">Completed</span></td>
-                <td><a href="events.html" class="btn btn-sm btn-secondary"><i data-lucide="arrow-right"></i></a></td>
-              </tr>
-              <tr>
-                <td style="font-weight:500;">GitHub Workshop</td>
-                <td>Sep 20, 2026</td>
-                <td>MPH Room B</td>
-                <td>45 / 60</td>
-                <td><span class="badge badge-neutral">Completed</span></td>
-                <td><a href="events.html" class="btn btn-sm btn-secondary"><i data-lucide="arrow-right"></i></a></td>
-              </tr>
+            <tbody id="club-events-tbody">
+              
             </tbody>
           </table>
         </div>
@@ -1001,9 +978,74 @@ function switchTab(btn, panelId){
   if (window.lucide) lucide.createIcons();
 }
 
-// Initialize on page load
+async function loadClubProfileEvents(clubId) {
+  const tbody = document.querySelector('#tab-events tbody') || document.getElementById('club-events-list');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${clubId}/events`);
+    if (!res.ok) throw new Error('Failed to fetch club events');
+    const events = await res.json();
+
+    if (events.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--color-text-muted);">No events organized by this club yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = events.map(e => `
+      <tr>
+        <td><div style="font-weight:500;">${e.name}</div></td>
+        <td>${e.date}</td>
+        <td>${e.venue}</td>
+        <td>${e.registered}</td>
+        <td><span class="badge badge-blue">${e.status}</span></td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error("Error loading club profile events:", err);
+  }
+}
+
+
+/* ── Load Dynamic Club Events from Backend Database ──────────── */
+async function loadClubProfileEvents() {
+  const tbody = document.getElementById('club-events-tbody');
+  if (!tbody) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentClubId = urlParams.get('id') || 1;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/clubs/${currentClubId}/events`);
+    if (!res.ok) throw new Error('Failed to fetch club events');
+    const events = await res.json();
+
+    if (!events || events.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:var(--space-6);color:var(--color-text-muted);">No events organized by this club yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = events.map(e => `
+      <tr>
+        <td><div style="font-weight:500;">${escapeHtml(e.name)}</div></td>
+        <td>${escapeHtml(e.date)}</td>
+        <td>${escapeHtml(e.venue)}</td>
+        <td>${escapeHtml(e.registered)}</td>
+        <td><span class="badge badge-blue">${escapeHtml(e.status)}</span></td>
+        <td><a href="events.html" class="btn btn-sm btn-secondary"><i data-lucide="arrow-right"></i></a></td>
+      </tr>
+    `).join('');
+    
+    if (window.lucide) lucide.createIcons();
+  } catch (err) {
+    console.error("Error loading club profile events:", err);
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">Error loading events from server.</td></tr>`;
+  }
+}
+
+// Initialize on page load (Remove duplicate declarations)
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadPermissions();      // first, so the table is drawn with the right buttons
+  await loadPermissions();
   loadClubProfile();
   byId('member-submit').addEventListener('click', submitMember);
   byId('btn-submit-edit-club').addEventListener('click', submitEditClub);
@@ -1016,6 +1058,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   loadClubAnnouncements(clubId);
   setupAnnouncementForm(clubId);
+  
+  // Call our single clean event loader
+  loadClubProfileEvents();
 });
 </script>
 </body>

@@ -189,3 +189,8 @@ function setupAnnouncementForm(targetClubId) {
     }
   });
 }
+
+/* ── Auto-initialize Announcement Form on Page Load ─────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  setupAnnouncementForm(1); // Default to club ID 1 for campus/directory announcements
+});

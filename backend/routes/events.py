@@ -47,8 +47,8 @@ def get_events():
 def create_event():
     data = request.get_json() or {}
     title = data.get('name')
-    club = data.get('club', 'CSSG')
-    date_val = data.get('date', 'Nov 3, 2026')
+    club_input = data.get('club', 'CSSG')
+    raw_date = data.get('date', '2026-11-30')
     time_str = data.get('time', '1:00 PM – 5:00 PM')
     venue = data.get('venue', 'Auditorium A')
     capacity = data.get('capacity', 200)
@@ -56,15 +56,47 @@ def create_event():
     if not title:
         return jsonify({"error": "Event title is required"}), 400
 
+    # Parse date whether YYYY-MM-DD or DD/MM/YYYY
+    try:
+        from datetime import datetime
+        date_clean = raw_date.strip()
+        if '/' in date_clean:
+            dt = datetime.strptime(date_clean, '%d/%m/%Y')
+        else:
+            dt = datetime.strptime(date_clean, '%Y-%m-%d')
+        month_str = dt.strftime('%b')
+        day_str = str(dt.day)
+        year_str = str(dt.year)
+        date_val = f"{month_str} {day_str}, {year_str}"
+    except Exception:
+        date_val = raw_date
+
     start_time_str = f"{date_val} {time_str.split('–')[0].strip()}"
 
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
+        
+        # Self-healing: ensure club_id column exists
+        try:
+            cursor.execute("ALTER TABLE events ADD COLUMN club_id INTEGER")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
+
+        # Match club input to database club id and name
+        matched_club = cursor.execute('''
+            SELECT id, name FROM clubs 
+            WHERE name = ? OR acronym = ? OR name LIKE ?
+        ''', (club_input, club_input, f"%{club_input}%")).fetchone()
+        
+        club_id = matched_club['id'] if matched_club else 1
+        club_name = matched_club['name'] if matched_club else club_input
+
         cursor.execute('''
-            INSERT INTO events (title, description, speaker, start_time, venue)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (title, f"Organized by {club}", club, start_time_str, venue))
+            INSERT INTO events (title, description, speaker, start_time, venue, club_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (title, f"Organized by {club_name}", club_name, start_time_str, venue, club_id))
         conn.commit()
         new_id = cursor.lastrowid
     except Exception as e:
@@ -75,19 +107,15 @@ def create_event():
 
     return jsonify({
         "success": True,
-        "message": "Event created successfully and QR passes generated!",
+        "message": "Event created successfully and synced to club profile!",
         "event": {
             "id": new_id,
             "name": title,
-            "club": club,
+            "club": club_name,
             "date": date_val,
-            "day": date_val.split()[1].replace(',', '') if len(date_val.split()) > 1 else "3",
-            "month": date_val.split()[0] if len(date_val.split()) > 0 else "Nov",
-            "time": time_str,
             "venue": venue,
             "capacity": capacity,
-            "registered": 0,
-            "badgeClass": "badge-blue"
+            "registered": 0
         }
     }), 201
 
